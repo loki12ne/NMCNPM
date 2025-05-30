@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sign Up</title>
+</head>
+<body>
+  <h1>Sign Up Form</h1>
+  <form id="signupForm">
+    <label for="name">Name (1-15 chars, alphanumeric):</label><br />
+    <input type="text" id="name" name="name" required pattern="[a-zA-Z0-9]{1,15}" /><br />
+    <label for="password">Password (6-15 chars, alphanumeric):</label><br />
+    <input type="password" id="password" name="password" required pattern="[a-zA-Z0-9]{6,15}" /><br />
+    <label for="role">Role:</label><br />
+    <select id="role" name="role" required>
+      <option value="" disabled selected>Select role</option>
+      <option value="student">Student</option>
+      <option value="teacher">Teacher</option>
+      <option value="admin">Admin</option>
+    </select><br /><br />
+    <button type="submit">Sign Up</button>
+  </form>
+  <p id="result"></p>
+  <script>
+    const form = document.getElementById('signupForm');
+    const result = document.getElementById('result');
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const name = form.name.value.trim();
+      const password = form.password.value.trim();
+      const role = form.role.value;
+      try {
+        const res = await fetch('http://localhost:3000/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, password, role }),
+        });
+        const data = await res.json();
+        if (res.ok) {
+          result.textContent = 'Sign up successful! You can now log in.';
+          result.style.color = 'green';
+        } else {
+          result.textContent = `Error: ${data.error}`;
+          result.style.color = 'red';
+        }
+      } catch (err) {
+        result.textContent = 'Server or network error';
+        result.style.color = 'red';
+      }
+    });
+  </script>
+</body>
+</html>
