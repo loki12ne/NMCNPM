@@ -11,6 +11,7 @@ const db = mysql.createPool({
   user: "qanda",
   password: "thuongcdv123", // thay bằng mật khẩu thật
   database: "qadb",
+  charset: "utf8mb4",
 });
 
 app.post("/questions", (req, res) => {
