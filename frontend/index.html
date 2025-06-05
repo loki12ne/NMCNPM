@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Welcome</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .question { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+  <h1>Welcome to the Application</h1>
+  <p>
+    <a href="/login.html" id="loginBtn"><button>Login</button></a>
+    <a href="/signup.html" id="signupBtn"><button>Sign Up</button></a>
+    <button id="logoutBtn" class="hidden">Logout</button>
+    <a href="/post-question.html" id="postQuestionBtn" class="hidden"><button>Post Question</button></a>
+  </p>
+  <h2>Questions</h2>
+  <div id="questions"></div>
+  <script src="/js/config.js"></script>
+  <script>
+    async function checkAuth() {
+      try {
+        const res = await fetch(`${BASE_URL}/auth/check-auth`, {
+          method: 'GET',
+          credentials: 'include'
+        });
+        const data = await res.json();
+        const loginBtn = document.getElementById('loginBtn');
+        const signupBtn = document.getElementById('signupBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const postQuestionBtn = document.getElementById('postQuestionBtn');
+
+        if (data.isAuthenticated) {
+          loginBtn.classList.add('hidden');
+          signupBtn.classList.add('hidden');
+          logoutBtn.classList.remove('hidden');
+          postQuestionBtn.classList.remove('hidden');
+        } else {
+          loginBtn.classList.remove('hidden');
+          signupBtn.classList.remove('hidden');
+          logoutBtn.classList.add('hidden');
+          postQuestionBtn.classList.add('hidden');
+        }
+      } catch (err) {
+        console.error('Auth check error:', err);
+      }
+    }
+
+    async function logout() {
+      try {
+        const res = await fetch(`${BASE_URL}/auth/logout`, {
+          method: 'POST',
+          credentials: 'include'
+        });
+        const data = await res.json();
+        if (res.ok) {
+          window.location.reload();
+        } else {
+          alert(`Error: ${data.error}`);
+        }
+      } catch (err) {
+        console.error('Logout error:', err);
+        alert('Network error');
+      }
+    }
+
+    async function loadQuestions() {
+      try {
+        const res = await fetch(`${BASE_URL}/questions`, {
+          method: 'GET',
+          credentials: 'include'
+        });
+        const data = await res.json();
+        const questionsDiv = document.getElementById('questions');
+        if (res.ok) {
+          if (data.questions.length === 0) {
+            questionsDiv.textContent = 'No questions available.';
+          } else {
+            data.questions.forEach(q => {
+              const div = document.createElement('div');
+              div.className = 'question';
+              div.innerHTML = `<strong>${q.subject}</strong> by ${q.username} on ${q.date_posted}:<br>${q.text_content}`;
+              questionsDiv.appendChild(div);
+            });
+          }
+        } else {
+          questionsDiv.textContent = `Error: ${data.error}`;
+        }
+      } catch (err) {
+        questionsDiv.textContent = 'Server or network error';
+        console.error('Fetch error:', err);
+      }
+    }
+
+    window.onload = () => {
+      checkAuth();
+      loadQuestions();
+      document.getElementById('logoutBtn').addEventListener('click', logout);
+    };
+  </script>
+</body>
+</html>

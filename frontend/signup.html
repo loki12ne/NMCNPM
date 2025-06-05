@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sign Up</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    #result { color: red; }
+    #result.success { color: green; }
+  </style>
+</head>
+<body>
+  <h1>Sign Up</h1>
+  <form id="signupForm">
+    <label for="username">Username:</label><br />
+    <input type="text" id="username" name="username" required /><br />
+    <label for="password">Password:</label><br />
+    <input type="password" id="password" name="password" required /><br />
+    <label for="role">Role:</label><br />
+    <select id="role" name="role" required>
+      <option value="" disabled selected>Select role</option>
+      <option value="student">Student</option>
+      <option value="teacher">Teacher</option>
+    </select><br /><br />
+    <button type="submit">Sign Up</button>
+  </form>
+  <p id="result"></p>
+  <p><a href="/login.html">Already have an account? Login</a></p>
+  <script src="/js/config.js"></script>
+  <script>
+    const form = document.getElementById('signupForm');
+    const result = document.getElementById('result');
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const username = form.username.value.trim();
+      const password = form.password.value.trim();
+      const role = form.role.value;
+      if (!username || !password || !role) {
+        result.textContent = 'Please fill in all fields';
+        return;
+      }
+      try {
+        const res = await fetch(`${BASE_URL}/auth/signup`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password, role }),
+          credentials: 'include'
+        });
+        const data = await res.json();
+        if (res.ok) {
+          result.textContent = 'Sign up successful! Redirecting to login...';
+          result.className = 'success';
+          setTimeout(() => window.location.href = '/login.html', 1000);
+        } else {
+          result.textContent = `Error: ${data.error}`;
+        }
+      } catch (err) {
+        result.textContent = 'Network error: Unable to connect to server';
+        console.error('Fetch error:', err);
+      }
+    });
+  </script>
+</body>
+</html>
