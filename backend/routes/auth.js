@@ -40,7 +40,7 @@ router.post('/signup', async (req, res) => {
   if (!username || !password || !role) {
     return res.status(400).json({ error: 'Missing username, password, or role' });
   }
-  if (!['student', 'teacher'].includes(role)) {
+  if (!['student', 'teacher', 'admin'].includes(role)) {
     return res.status(400).json({ error: 'Invalid role' });
   }
 
