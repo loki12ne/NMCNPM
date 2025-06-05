@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Question</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="js/config.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Post a Question</h1>
+        <form id="question-form">
+            <textarea id="question-text" placeholder="Your question" required></textarea>
+            <select id="subject" required>
+                <option value="toán">Toán</option>
+                <option value="lý">Lý</option>
+                <option value="hóa">Hóa</option>
+            </select>
+            <button type="submit">Post Question</button>
+        </form>
+        <p class="error" id="error"></p>
+        <p><a href="index.html">Back to Questions</a></p>
+    </div>
+
+    <script>
+        async function checkAuth() {
+            try {
+                const response = await fetch(`${BASE_URL}/auth/check-auth`, { credentials: 'include' });
+                const data = await response.json();
+                if (!data.isAuthenticated) {
+                    window.location.href = 'login.html';
+                }
+            } catch (error) {
+                console.error('Error checking auth:', error);
+            }
+        }
+
+        document.getElementById('question-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const questionText = document.getElementById('question-text').value;
+            const subject = document.getElementById('subject').value;
+            const error = document.getElementById('error');
+
+            try {
+                const response = await fetch(`${BASE_URL}/questions`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text_content: questionText, subject }),
+                    credentials: 'include'
+                });
+                const data = await response.json();
+
+                if (response.ok) {
+                    window.location.href = 'index.html';
+                } else {
+                    error.textContent = data.detail || 'Failed to post question';
+                }
+            } catch (err) {
+                error.textContent = 'Server error';
+                console.error('Error posting question:', err);
+            }
+        });
+
+        checkAuth();
+    </script>
+</body>
+</html>

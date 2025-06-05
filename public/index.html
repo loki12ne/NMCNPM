@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QnA Platform</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="js/config.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>QnA Platform</h1>
+        <div id="auth-status"></div>
+        <button id="logout" style="display: none;">Logout</button>
+        <a href="post-question.html">Post a Question</a>
+        <h2>Questions</h2>
+        <div id="questions"></div>
+    </div>
+
+    <script>
+        async function checkAuth() {
+            try {
+                const response = await fetch(`${BASE_URL}/auth/check-auth`, { credentials: 'include' });
+                const data = await response.json();
+                const authStatus = document.getElementById('auth-status');
+                const logoutBtn = document.getElementById('logout');
+
+                if (data.isAuthenticated) {
+                    authStatus.innerHTML = `Logged in as ${data.user.username} (${data.user.role})`;
+                    logoutBtn.style.display = 'block';
+                } else {
+                    authStatus.innerHTML = `<a href="login.html">Login</a> | <a href="signup.html">Signup</a>`;
+                    logoutBtn.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error checking auth:', error);
+            }
+        }
+
+        async function fetchQuestions() {
+            try {
+                const response = await fetch(`${BASE_URL}/questions`);
+                const data = await response.json();
+                const questionsDiv = document.getElementById('questions');
+                questionsDiv.innerHTML = '';
+
+                data.questions.forEach(q => {
+                    const div = document.createElement('div');
+                    div.className = 'question';
+                    div.innerHTML = `<strong>${q.subject}</strong> by ${q.username} on ${q.date_posted}:<br>${q.text_content}`;
+                    questionsDiv.appendChild(div);
+                });
+            } catch (error) {
+                console.error('Error fetching questions:', error);
+            }
+        }
+
+        document.getElementById('logout').addEventListener('click', async () => {
+            try {
+                await fetch(`${BASE_URL}/auth/logout`, { method: 'POST', credentials: 'include' });
+                window.location.reload();
+            } catch (error) {
+                console.error('Error logging out:', error);
+            }
+        });
+
+        checkAuth();
+        fetchQuestions();
+    </script>
+</body>
+</html>
