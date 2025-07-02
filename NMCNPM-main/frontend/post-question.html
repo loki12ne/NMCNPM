@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Post Question</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    #result { color: red; }
+    #result.success { color: green; }
+  </style>
+</head>
+<body>
+  <h1>Post a Question</h1>
+  <button id="logoutBtn">Logout</button>
+  <form id="questionForm">
+    <label for="text">Question Text:</label><br />
+    <textarea id="text" name="text" required></textarea><br />
+    <label for="subject">Subject:</label><br />
+    <select id="subject" name="subject" required>
+      <option value="" disabled selected>Select subject</option>
+      <option value="toán">Toán</option>
+      <option value="lý">Lý</option>
+      <option value="hóa">Hóa</option>
+    </select><br /><br />
+    <button type="submit">Post Question</button>
+  </form>
+  <p id="result"></p>
+  <script src="/js/config.js"></script>
+  <script>
+    async function logout() {
+      try {
+        const res = await fetch(`${BASE_URL}/auth/logout`, {
+          method: 'POST',
+          credentials: 'include'
+        });
+        const data = await res.json();
+        if (res.ok) {
+          window.location.href = '/login.html';
+        } else {
+          alert(`Error: ${data.error}`);
+        }
+      } catch (err) {
+        console.error('Logout error:', err);
+        alert('Network error');
+      }
+    }
+
+    const form = document.getElementById('questionForm');
+    const result = document.getElementById('result');
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const text_content = form.text.value.trim();
+      const subject = form.subject.value;
+      if (!text_content) {
+        result.textContent = 'Please enter a question';
+        return;
+      }
+      try {
+        const res = await fetch(`${BASE_URL}/questions`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text_content, subject }),
+          credentials: 'include'
+        });
+        const data = await res.json();
+        if (res.ok) {
+          result.textContent = `Question posted! ID: ${data.question_id}`;
+          result.className = 'success';
+          form.reset();
+        } else {
+          result.textContent = `Error: ${data.error}`;
+        }
+      } catch (err) {
+        result.textContent = 'Network error: Unable to connect to server';
+        console.error('Fetch error:', err);
+      }
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', logout);
+  </script>
+</body>
+</html>

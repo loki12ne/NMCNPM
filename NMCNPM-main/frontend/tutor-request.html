@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Đăng ký làm gia sư</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    #result { color: red; }
+    #result.success { color: green; }
+  </style>
+</head>
+<body>
+  <h1>Đăng ký làm gia sư</h1>
+  <form id="tutorRequestForm" enctype="multipart/form-data">
+    <label>Họ và tên:<br>
+      <input type="text" name="full_name" required>
+    </label><br><br>
+    <label>Trường đại học:<br>
+      <input type="text" name="university" required>
+    </label><br><br>
+    <label>Khoa/ngành:<br>
+      <input type="text" name="faculty" required>
+    </label><br><br>
+    <label>Năm vào trường:<br>
+      <input type="number" name="year" required>
+    </label><br><br>
+    <label>Ảnh thẻ sinh viên:<br>
+      <input type="file" name="student_card_image" accept="image/*" required>
+    </label><br><br>
+    <button type="submit">Đăng ký làm gia sư</button>
+  </form>
+  <p id="result"></p>
+  <script src="/js/config.js"></script>
+  <script>
+  document.getElementById('tutorRequestForm').onsubmit = async function(e) {
+    e.preventDefault();
+    const form = e.target;
+    const formData = new FormData(form);
+    // Lấy username từ session hoặc localStorage nếu có
+    let username = localStorage.getItem('username') || 'student1';
+    formData.append('username', username);
+
+    const res = await fetch(`${BASE_URL}/api/tutor-request`, {
+      method: 'POST',
+      body: formData
+    });
+    const data = await res.json();
+    const result = document.getElementById('result');
+    if (res.ok) {
+      result.textContent = data.message;
+      result.className = 'success';
+      form.reset();
+    } else {
+      result.textContent = data.error || 'Đã xảy ra lỗi';
+      result.className = '';
+    }
+  };
+  </script>
+</body>
+</html> 
