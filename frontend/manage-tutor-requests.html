@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quản lý yêu cầu gia sư</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #f0f4ff;
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      overflow-x: hidden;
+      min-height: 100vh;
+      padding: 0 1rem;
+      box-sizing: border-box;
+    }
+
+    .container {
+      width: 100vw;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 0 1rem;
+      box-sizing: border-box;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header {
+      width: 100%;
+      background: #fff;
+      padding: 2vw 2vw 1vw 2vw;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2vw;
+      text-align: center;
+      position: relative;
+    }
+    .header h1 {
+      font-family: 'Inter', sans-serif;
+      font-style: normal;
+      font-weight: 700;
+      font-size: 2.5vw;
+      line-height: 1.2;
+      color: #2a3f80;
+      margin: 0 0 0.5vw 0;
+      text-align: center;
+    }
+    .header p {
+      color: #6b7280;
+      font-size: 1.2vw;
+      margin-bottom: 0;
+    }
+    .back-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: #557cf2;
+      color: white;
+      border: none;
+      padding: 12px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+    .back-btn:hover {
+      background: #7997f2;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 127, 255, 0.4);
+    }
+    .refresh-btn {
+      background: none;
+      border: 2px solid #557cf2;
+      padding: 8px 16px;
+      border-radius: 90px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 8px;
+    }
+    .refresh-btn:hover {
+      background: #e6f2ff;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .controls {
+      background: #fff;
+      padding: 2vw;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      margin-bottom: 2vw;
+      width: 100%;
+      max-width: 900px;
+    }
+
+    .filter-row {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 0;
+    }
+
+    .filter-group label {
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 1.2vw;
+      color: #2a3f80;
+      margin-bottom: 0;
+      min-width: 90px;
+      text-align: right;
+    }
+
+    select, input[type="search"] {
+      height: 3vw;
+      min-height: 40px;
+      border-radius: 90px;
+      border: 2px solid #a1caf1;
+      padding: 0 2vw;
+      font-family: 'Inter', sans-serif;
+      font-size: 1.2vw;
+      color: #2a3f80;
+      outline: none;
+      box-sizing: border-box;
+      background: #ffffff !important;
+      background-color: #ffffff !important;
+      transition: box-shadow 0.2s;
+    }
+    select#statusFilter {
+      width: 160px;
+      min-width: 120px;
+      max-width: 200px;
+    }
+    input#searchInput {
+      width: 320px;
+      min-width: 200px;
+      max-width: 400px;
+    }
+    select:focus, input[type="search"]:focus {
+      box-shadow: 0 0 0 2px #557cf2;
+      border-color: #557cf2;
+    }
+
+    .btn {
+      flex: 1 1 0;
+      min-width: 120px;
+      height: 3vw;
+      min-height: 40px;
+      background: #557cf2;
+      border-radius: 90px;
+      border: none;
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      font-size: 1.2vw;
+      color: #f0f4ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      gap: 8px;
+    }
+    .btn-primary {
+      background: #557cf2;
+      color: #f0f4ff;
+    }
+    .btn-primary:hover {
+      background: #7997f2;
+    }
+    .btn-secondary {
+      background: transparent;
+      border: 2px solid #557cf2;
+      color: #557cf2;
+    }
+    .btn-secondary:hover {
+      background: #7997f2;
+      border-color: #7997f2;
+      color: #f0f4ff;
+    }
+    .btn-danger {
+      background: transparent;
+      border: 2px solid #a1caf1;
+      color: #2a3f80;
+    }
+    .btn-danger:hover {
+      background: #a1caf1;
+      color: #003399;
+    }
+    .btn-success {
+      background: #059669;
+      color: #f0f4ff;
+    }
+    .btn-success:hover {
+      background: #047857;
+    }
+
+    .requests-grid {
+      display: grid;
+      gap: 2vw;
+      grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    .request-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 2vw;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      transition: all 0.3s ease;
+      border: 2px solid transparent;
+    }
+    .request-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+      border-color: #557cf2;
+    }
+
+    .request-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .request-title {
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      font-size: 1.5vw;
+      color: #2a3f80;
+      margin-bottom: 0.5vw;
+    }
+
+    .request-meta {
+      font-size: 1vw;
+      color: #6b7280;
+    }
+
+    .status-badge {
+      padding: 0.5vw 1vw;
+      border-radius: 20px;
+      font-size: 0.9vw;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .status-pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    .status-approved {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    .status-rejected {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .request-content {
+      margin-bottom: 20px;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .detail-row:last-child {
+      border-bottom: none;
+    }
+
+    .detail-label {
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      font-size: 1.2vw;
+      color: #2a3f80;
+    }
+
+    .detail-value {
+      color: #2a3f80;
+      font-size: 1.2vw;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .request-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #f3f4f6;
+    }
+
+    .image-preview {
+      width: 60px;
+      height: 60px;
+      border-radius: 8px;
+      object-fit: cover;
+      cursor: pointer;
+      border: 2px solid #e5e7eb;
+      transition: all 0.3s ease;
+    }
+
+    .image-preview:hover {
+      border-color: #F16262;
+      transform: scale(1.05);
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      position: relative;
+      max-width: 90%;
+      max-height: 90%;
+    }
+
+    .modal-image {
+      max-width: 100%;
+      max-height: 100%;
+      border-radius: 12px;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: -40px;
+      right: 0;
+      background: white;
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 18px;
+      color: #374151;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4vw 2vw;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      width: 100%;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+    .empty-state h3 {
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+      font-size: 2vw;
+      color: #2a3f80;
+      margin-bottom: 0.5vw;
+    }
+    .empty-state p {
+      color: #6b7280;
+      margin-bottom: 2vw;
+      font-size: 1.2vw;
+    }
+
+    .message {
+      margin-top: 2vw;
+      font-size: 1vw;
+      text-align: center;
+      width: 100%;
+      max-width: 700px;
+      z-index: 10;
+      padding: 1vw 2vw;
+      border-radius: 12px;
+      margin-bottom: 2vw;
+      font-weight: 600;
+      display: none;
+      background: #fff;
+      border: 1.5px solid #a1caf1;
+      box-shadow: 0 2px 8px rgba(0,127,255,0.07);
+      position: relative;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: #003399;
+      letter-spacing: 0.01em;
+      transition: all 0.2s;
+    }
+    .message.success {
+      color: #059669;
+      background: #d1fae5;
+      border: 1.5px solid #a7f3d0;
+    }
+    .message.error {
+      color: #d90429;
+      background: #fee2e2;
+      border: 1.5px solid #fca5a5;
+    }
+    .message .msg-icon {
+      display: inline-flex;
+      align-items: center;
+      margin-right: 8px;
+      font-size: 1.3em;
+      vertical-align: middle;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 40px;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f4f6;
+      border-top: 4px solid #F16262;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 900px) {
+      .header h1 { font-size: 4vw; }
+      .header p { font-size: 2vw; }
+      .filter-group label { font-size: 2vw; }
+      select, input[type="search"] { font-size: 2vw; height: 6vw; }
+      .btn { font-size: 2vw; height: 6vw; }
+      .button-group { gap: 4vw; }
+      .request-title { font-size: 2vw; }
+      .detail-label, .detail-value { font-size: 2vw; }
+      .status-badge { font-size: 1.5vw; }
+      .empty-state h3 { font-size: 3vw; }
+      .empty-state p { font-size: 2vw; }
+      .message { font-size: 2vw; }
+    }
+    @media (max-width: 600px) {
+      .container { padding: 0 0.5rem; }
+      .header h1 { font-size: 5vw; }
+      .header p { font-size: 3vw; }
+      .form-group, .button-group { max-width: 100%; }
+      .filter-group label { font-size: 3vw; }
+      select, input[type="search"] { font-size: 3vw; height: 10vw; }
+      .btn { font-size: 3vw; height: 10vw; min-width: 0; }
+      .button-group { gap: 6vw; }
+      .request-title { font-size: 3vw; }
+      .detail-label, .detail-value { font-size: 3vw; }
+      .status-badge { font-size: 2vw; }
+      .empty-state h3 { font-size: 4vw; }
+      .empty-state p { font-size: 3vw; }
+      .message { font-size: 3vw; }
+      .back-btn {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 100;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="/index.html" class="back-btn">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20 12.75C20.4142 12.75 20.75 12.4142 20.75 12C20.75 11.5858 20.4142 11.25 20 11.25V12.75ZM4 11.25C3.58579 11.25 3.25 11.5858 3.25 12C3.25 12.4142 3.58579 12.75 4 12.75V11.25ZM7.47204 17.5327C7.76624 17.8243 8.24111 17.8222 8.53269 17.528C8.82427 17.2338 8.82216 16.7589 8.52796 16.4673L7.47204 17.5327ZM6.23703 15.2527L6.76499 14.72H6.76499L6.23703 15.2527ZM6.23703 8.74731L5.70907 8.21462H5.70907L6.23703 8.74731ZM8.52796 7.53269C8.82216 7.24111 8.82428 6.76624 8.53269 6.47204C8.24111 6.17784 7.76624 6.17573 7.47204 6.46731L8.52796 7.53269ZM4.01989 12.3133L3.27591 12.4082L3.27591 12.4082L4.01989 12.3133ZM4.01989 11.6867L3.27591 11.5918L3.27591 11.5918L4.01989 11.6867ZM20 11.25H4V12.75H20V11.25ZM8.52796 16.4673L6.76499 14.72L5.70907 15.7854L7.47204 17.5327L8.52796 16.4673ZM6.76499 9.28L8.52796 7.53269L7.47204 6.46731L5.70907 8.21462L6.76499 9.28ZM6.76499 14.72C6.0495 14.0109 5.55869 13.5228 5.22659 13.1093C4.904 12.7076 4.79332 12.4496 4.76387 12.2185L3.27591 12.4082C3.35469 13.0263 3.64963 13.5412 4.05706 14.0485C4.45498 14.544 5.01863 15.1011 5.70907 15.7854L6.76499 14.72ZM5.70907 8.21462C5.01863 8.89892 4.45498 9.45597 4.05706 9.95146C3.64963 10.4588 3.3547 10.9737 3.27591 11.5918L4.76387 11.7815C4.79332 11.5504 4.904 11.2924 5.22659 10.8907C5.55869 10.4772 6.0495 9.98914 6.76499 9.28L5.70907 8.21462ZM4.76387 12.2185C4.74538 12.0734 4.74538 11.9266 4.76387 11.7815L3.27591 11.5918C3.24136 11.8629 3.24136 12.1371 3.27591 12.4082L4.76387 12.2185Z" fill="#ffffff" stroke="#ffffff" stroke-width="0.5"/>
+      </svg>
+    </a>
+
+    <div class="header">
+      <h1>Quản lý yêu cầu gia sư</h1>
+      <p>Xem và quản lý tất cả các yêu cầu gia sư từ học sinh</p>
+    </div>
+
+    <div id="message" class="message"></div>
+
+    <div class="controls">
+      <div class="filter-row">
+        <div class="filter-group">
+          <label for="statusFilter">Trạng thái:</label>
+          <select id="statusFilter">
+            <option value="">Tất cả</option>
+            <option value="pending">Chờ xử lý</option>
+            <option value="approved">Đã duyệt</option>
+            <option value="rejected">Đã từ chối</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="searchInput">Tìm kiếm:</label>
+          <input type="search" id="searchInput" placeholder="Tìm theo tên, môn học...">
+        </div>
+        <button class="refresh-btn" onclick="refreshRequests()" title="Làm mới">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2.75 12C2.75 11.5858 2.41421 11.25 2 11.25C1.58579 11.25 1.25 11.5858 1.25 12H2.75ZM21.25 12C21.25 12.4142 21.5858 12.75 22 12.75C22.4142 12.75 22.75 12.4142 22.75 12H21.25ZM4.40041 5.5L4.94041 6.02048L4.95576 6.00456L4.97015 5.98776L4.40041 5.5ZM19.5996 18.5L20.1693 18.9878L20.1786 18.9769L20.1874 18.9658L19.5996 18.5ZM4.01269 1.00335C4.01454 0.589137 3.68025 0.251855 3.26604 0.250007C2.85183 0.248159 2.51455 0.582444 2.5127 0.996654L4.01269 1.00335ZM3.25384 2.98571L2.50384 2.98237L3.25384 2.98571ZM6.93384 6.66571L6.93718 7.41571H6.93718L6.93384 6.66571ZM8.9229 7.40685C9.33711 7.405 9.67139 7.06772 9.66954 6.65351C9.66769 6.2393 9.33041 5.90501 8.9162 5.90686L8.9229 7.40685ZM3.66238 5.90267L3.06926 6.36169L3.06926 6.36169L3.66238 5.90267ZM4.01688 6.25717L3.55786 6.85029L3.55786 6.85029L4.01688 6.25717ZM19.9069 22.9162C19.905 23.3305 20.2393 23.6677 20.6535 23.6696C21.0677 23.6714 21.405 23.3371 21.4069 22.9229L19.9069 22.9162ZM20.6657 20.9339L21.4157 20.9372L20.6657 20.9339ZM16.9857 17.2539L16.9824 16.5039L16.9857 17.2539ZM14.9967 16.5127C14.5824 16.5146 14.2482 16.8519 14.25 17.2661C14.2519 17.6803 14.5891 18.0146 15.0034 18.0127L14.9967 16.5127ZM20.2572 18.0169L20.8503 17.5579V17.5579L20.2572 18.0169ZM19.9027 17.6624L20.3617 17.0693H20.3617L19.9027 17.6624ZM3.82952 6.0923L3.29962 6.62306L3.82952 6.0923ZM12 21.25C6.89137 21.25 2.75 17.1086 2.75 12H1.25C1.25 17.9371 6.06294 22.75 12 22.75V21.25ZM12 2.75C17.1086 2.75 21.25 6.89137 21.25 12H22.75C22.75 6.06294 17.9371 1.25 12 1.25V2.75ZM4.97015 5.98776C6.66782 4.00476 9.18698 2.75 12 2.75V1.25C8.73042 1.25 5.80117 2.71058 3.83068 5.01224L4.97015 5.98776ZM19.0299 18.0122C17.3322 19.9952 14.813 21.25 12 21.25V22.75C15.2696 22.75 18.1988 21.2894 20.1693 18.9878L19.0299 18.0122ZM2.5127 0.996654L2.50384 2.98237L4.00383 2.98906L4.01269 1.00335L2.5127 0.996654ZM6.93718 7.41571L8.9229 7.40685L8.9162 5.90686L6.93049 5.91572L6.93718 7.41571ZM2.50384 2.98237C2.50039 3.75651 2.49638 4.4005 2.55271 4.91635C2.61069 5.44728 2.74029 5.93661 3.06926 6.36169L4.25551 5.44365C4.16534 5.32713 4.08712 5.14976 4.04385 4.75351C3.99893 4.34217 4.00022 3.79848 4.00383 2.98906L2.50384 2.98237ZM6.93049 5.91572C6.12107 5.91933 5.57739 5.92062 5.16604 5.8757C4.76979 5.83243 4.59242 5.75421 4.4759 5.66404L3.55786 6.85029C3.98294 7.17926 4.47227 7.30886 5.0032 7.36684C5.51905 7.42317 6.16304 7.41916 6.93718 7.41571L6.93049 5.91572ZM21.4069 22.9229L21.4157 20.9372L19.9157 20.9305L19.9069 22.9162L21.4069 22.9229ZM16.9824 16.5039L14.9967 16.5127L15.0034 18.0127L16.9891 18.0039L16.9824 16.5039ZM21.4157 20.9372C21.4192 20.1631 21.4232 19.5191 21.3668 19.0032C21.3089 18.4723 21.1793 17.983 20.8503 17.5579L19.664 18.4759C19.7542 18.5925 19.8324 18.7698 19.8757 19.1661C19.9206 19.5774 19.9193 20.1211 19.9157 20.9305L21.4157 20.9372ZM16.9891 18.0039C17.7985 18.0003 18.3422 17.999 18.7535 18.0439C19.1498 18.0872 19.3271 18.1654 19.4437 18.2555L20.3617 17.0693C19.9366 16.7403 19.4473 16.6107 18.9164 16.5528C18.4005 16.4964 17.7565 16.5004 16.9824 16.5039L16.9891 18.0039ZM3.06926 6.36169C3.14048 6.45372 3.21743 6.54101 3.29962 6.62306L4.35942 5.56154C4.32235 5.52454 4.28764 5.48517 4.25551 5.44365L3.06926 6.36169ZM3.29962 6.62306C3.38076 6.70408 3.467 6.77998 3.55786 6.85029L4.4759 5.66404C4.43491 5.63231 4.39601 5.59808 4.35942 5.56154L3.29962 6.62306ZM3.86042 4.97952L3.28952 5.57182L4.36952 6.61279L4.94041 6.02048L3.86042 4.97952ZM20.8503 17.5579C20.7885 17.4781 20.7225 17.4019 20.6524 17.3295L19.5748 18.3729C19.6064 18.4056 19.6362 18.4399 19.664 18.4759L20.8503 17.5579ZM20.6524 17.3295C20.5619 17.2361 20.4648 17.1491 20.3617 17.0693L19.4437 18.2555C19.4902 18.2915 19.534 18.3308 19.5748 18.3729L20.6524 17.3295ZM20.1874 18.9658L20.7015 18.317L19.5258 17.3855L19.0117 18.0342L20.1874 18.9658Z" fill="#557cf2" stroke="#557cf2" stroke-width=".5"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div id="loading" class="loading">
+      <div class="spinner"></div>
+      <p>Đang tải dữ liệu...</p>
+    </div>
+
+    <div id="requestsContainer" class="requests-grid">
+      <!-- Requests will be loaded here -->
+    </div>
+
+    <div id="emptyState" class="empty-state" style="display: none;">
+      <h3>Chưa có yêu cầu nào</h3>
+      <p>Hiện tại chưa có yêu cầu gia sư nào được gửi đến hệ thống.</p>
+      <button class="refresh-btn" onclick="refreshRequests()" title="Làm mới">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M2.75 12C2.75 11.5858 2.41421 11.25 2 11.25C1.58579 11.25 1.25 11.5858 1.25 12H2.75ZM21.25 12C21.25 12.4142 21.5858 12.75 22 12.75C22.4142 12.75 22.75 12.4142 22.75 12H21.25ZM4.40041 5.5L4.94041 6.02048L4.95576 6.00456L4.97015 5.98776L4.40041 5.5ZM19.5996 18.5L20.1693 18.9878L20.1786 18.9769L20.1874 18.9658L19.5996 18.5ZM4.01269 1.00335C4.01454 0.589137 3.68025 0.251855 3.26604 0.250007C2.85183 0.248159 2.51455 0.582444 2.5127 0.996654L4.01269 1.00335ZM3.25384 2.98571L2.50384 2.98237L3.25384 2.98571ZM6.93384 6.66571L6.93718 7.41571H6.93718L6.93384 6.66571ZM8.9229 7.40685C9.33711 7.405 9.67139 7.06772 9.66954 6.65351C9.66769 6.2393 9.33041 5.90501 8.9162 5.90686L8.9229 7.40685ZM3.66238 5.90267L3.06926 6.36169L3.06926 6.36169L3.66238 5.90267ZM4.01688 6.25717L3.55786 6.85029L3.55786 6.85029L4.01688 6.25717ZM19.9069 22.9162C19.905 23.3305 20.2393 23.6677 20.6535 23.6696C21.0677 23.6714 21.405 23.3371 21.4069 22.9229L19.9069 22.9162ZM20.6657 20.9339L21.4157 20.9372L20.6657 20.9339ZM16.9857 17.2539L16.9824 16.5039L16.9857 17.2539ZM14.9967 16.5127C14.5824 16.5146 14.2482 16.8519 14.25 17.2661C14.2519 17.6803 14.5891 18.0146 15.0034 18.0127L14.9967 16.5127ZM20.2572 18.0169L20.8503 17.5579V17.5579L20.2572 18.0169ZM19.9027 17.6624L20.3617 17.0693H20.3617L19.9027 17.6624ZM3.82952 6.0923L3.29962 6.62306L3.82952 6.0923ZM12 21.25C6.89137 21.25 2.75 17.1086 2.75 12H1.25C1.25 17.9371 6.06294 22.75 12 22.75V21.25ZM12 2.75C17.1086 2.75 21.25 6.89137 21.25 12H22.75C22.75 6.06294 17.9371 1.25 12 1.25V2.75ZM4.97015 5.98776C6.66782 4.00476 9.18698 2.75 12 2.75V1.25C8.73042 1.25 5.80117 2.71058 3.83068 5.01224L4.97015 5.98776ZM19.0299 18.0122C17.3322 19.9952 14.813 21.25 12 21.25V22.75C15.2696 22.75 18.1988 21.2894 20.1693 18.9878L19.0299 18.0122ZM2.5127 0.996654L2.50384 2.98237L4.00383 2.98906L4.01269 1.00335L2.5127 0.996654ZM6.93718 7.41571L8.9229 7.40685L8.9162 5.90686L6.93049 5.91572L6.93718 7.41571ZM2.50384 2.98237C2.50039 3.75651 2.49638 4.4005 2.55271 4.91635C2.61069 5.44728 2.74029 5.93661 3.06926 6.36169L4.25551 5.44365C4.16534 5.32713 4.08712 5.14976 4.04385 4.75351C3.99893 4.34217 4.00022 3.79848 4.00383 2.98906L2.50384 2.98237ZM6.93049 5.91572C6.12107 5.91933 5.57739 5.92062 5.16604 5.8757C4.76979 5.83243 4.59242 5.75421 4.4759 5.66404L3.55786 6.85029C3.98294 7.17926 4.47227 7.30886 5.0032 7.36684C5.51905 7.42317 6.16304 7.41916 6.93718 7.41571L6.93049 5.91572ZM21.4069 22.9229L21.4157 20.9372L19.9157 20.9305L19.9069 22.9162L21.4069 22.9229ZM16.9824 16.5039L14.9967 16.5127L15.0034 18.0127L16.9891 18.0039L16.9824 16.5039ZM21.4157 20.9372C21.4192 20.1631 21.4232 19.5191 21.3668 19.0032C21.3089 18.4723 21.1793 17.983 20.8503 17.5579L19.664 18.4759C19.7542 18.5925 19.8324 18.7698 19.8757 19.1661C19.9206 19.5774 19.9193 20.1211 19.9157 20.9305L21.4157 20.9372ZM16.9891 18.0039C17.7985 18.0003 18.3422 17.999 18.7535 18.0439C19.1498 18.0872 19.3271 18.1654 19.4437 18.2555L20.3617 17.0693C19.9366 16.7403 19.4473 16.6107 18.9164 16.5528C18.4005 16.4964 17.7565 16.5004 16.9824 16.5039L16.9891 18.0039ZM3.06926 6.36169C3.14048 6.45372 3.21743 6.54101 3.29962 6.62306L4.35942 5.56154C4.32235 5.52454 4.28764 5.48517 4.25551 5.44365L3.06926 6.36169ZM3.29962 6.62306C3.38076 6.70408 3.467 6.77998 3.55786 6.85029L4.4759 5.66404C4.43491 5.63231 4.39601 5.59808 4.35942 5.56154L3.29962 6.62306ZM3.86042 4.97952L3.28952 5.57182L4.36952 6.61279L4.94041 6.02048L3.86042 4.97952ZM20.8503 17.5579C20.7885 17.4781 20.7225 17.4019 20.6524 17.3295L19.5748 18.3729C19.6064 18.4056 19.6362 18.4399 19.664 18.4759L20.8503 17.5579ZM20.6524 17.3295C20.5619 17.2361 20.4648 17.1491 20.3617 17.0693L19.4437 18.2555C19.4902 18.2915 19.534 18.3308 19.5748 18.3729L20.6524 17.3295ZM20.1874 18.9658L20.7015 18.317L19.5258 17.3855L19.0117 18.0342L20.1874 18.9658Z" fill="#557cf2" stroke="#557cf2" stroke-width=".5"/>
+          </svg>
+        </button>
+    </div>
+  </div>
+
+  <!-- Image Modal -->
+  <div id="imageModal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeImageModal()">&times;</button>
+      <img id="modalImage" class="modal-image" src="" alt="Preview">
+    </div>
+  </div>
+
+  <script>
+    const API_BASE_URL = 'http://localhost:3000/api';
+    let allRequests = [];
+    let currentFilter = '';
+    let currentSearch = '';
+
+    // Load requests when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+      loadRequests();
+      
+      // Set up event listeners
+      document.getElementById('statusFilter').addEventListener('change', function() {
+        currentFilter = this.value;
+        filterAndDisplayRequests();
+      });
+
+      document.getElementById('searchInput').addEventListener('input', function() {
+        currentSearch = this.value.toLowerCase();
+        filterAndDisplayRequests();
+      });
+    });
+
+    async function loadRequests() {
+      try {
+        showLoading(true);
+        const response = await fetch(`${API_BASE_URL}/tutor-requests`, {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Không thể tải danh sách yêu cầu');
+        }
+
+        allRequests = await response.json();
+        filterAndDisplayRequests();
+      } catch (error) {
+        console.error('Error loading requests:', error);
+        showMessage('Lỗi khi tải danh sách yêu cầu: ' + error.message, 'error');
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    function filterAndDisplayRequests() {
+      let filteredRequests = allRequests;
+
+      // Apply status filter
+      if (currentFilter) {
+        filteredRequests = filteredRequests.filter(req => req.status === currentFilter);
+      }
+
+      // Apply search filter
+      if (currentSearch) {
+        filteredRequests = filteredRequests.filter(req => 
+          req.studentName?.toLowerCase().includes(currentSearch) ||
+          req.subject?.toLowerCase().includes(currentSearch) ||
+          req.location?.toLowerCase().includes(currentSearch)
+        );
+      }
+
+      displayRequests(filteredRequests);
+    }
+
+    function displayRequests(requests) {
+      const container = document.getElementById('requestsContainer');
+      const emptyState = document.getElementById('emptyState');
+
+      if (!requests || requests.length === 0) {
+        container.innerHTML = '';
+        emptyState.style.display = 'block';
+        return;
+      }
+
+      emptyState.style.display = 'none';
+      container.innerHTML = requests.map(request => createRequestCard(request)).join('');
+    }
+
+    function createRequestCard(request) {
+      const statusClass = getStatusClass(request.status);
+      const statusText = getStatusText(request.status);
+      const imagePreview = request.image ? 
+        `<img src="${API_BASE_URL.replace('/api', '')}/uploads/${request.image}" 
+              class="image-preview" 
+              onclick="openImageModal('${API_BASE_URL.replace('/api', '')}/uploads/${request.image}')"
+              alt="Ảnh minh chứng">` : 
+        '<span style="color: #6b7280; font-style: italic;">Không có ảnh</span>';
+
+      return `
+        <div class="request-card">
+          <div class="request-header">
+            <div>
+              <div class="request-title">${request.studentName || 'Không có tên'}</div>
+              <div class="request-meta">
+                Gửi lúc: ${new Date(request.createdAt).toLocaleString('vi-VN')}
+              </div>
+            </div>
+            <span class="status-badge ${statusClass}">${statusText}</span>
+          </div>
+
+          <div class="request-content">
+            <div class="detail-row">
+              <span class="detail-label">Môn học:</span>
+              <span class="detail-value">${request.subject || 'Không xác định'}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Địa điểm:</span>
+              <span class="detail-value">${request.location || 'Không xác định'}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Lương mong muốn:</span>
+              <span class="detail-value">${request.expectedSalary ? number_format(request.expectedSalary) + ' VNĐ' : 'Không xác định'}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Số điện thoại:</span>
+              <span class="detail-value">${request.phoneNumber || 'Không có'}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Ảnh minh chứng:</span>
+              <span class="detail-value">${imagePreview}</span>
+            </div>
+            ${request.description ? `
+            <div class="detail-row">
+              <span class="detail-label">Mô tả:</span>
+              <span class="detail-value">${request.description}</span>
+            </div>
+            ` : ''}
+          </div>
+
+          <div class="request-actions">
+            ${request.status === 'pending' ? `
+              <button class="btn btn-success" onclick="updateRequestStatus('${request._id}', 'approved')">
+                ✓ Duyệt
+              </button>
+              <button class="btn btn-danger" onclick="updateRequestStatus('${request._id}', 'rejected')">
+                ✗ Từ chối
+              </button>
+            ` : ''}
+            <button class="btn btn-secondary" onclick="viewRequestDetails('${request._id}')">
+              👁️ Chi tiết
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function getStatusClass(status) {
+      switch(status) {
+        case 'pending': return 'status-pending';
+        case 'approved': return 'status-approved';
+        case 'rejected': return 'status-rejected';
+        default: return 'status-pending';
+      }
+    }
+
+    function getStatusText(status) {
+      switch(status) {
+        case 'pending': return 'Chờ xử lý';
+        case 'approved': return 'Đã duyệt';
+        case 'rejected': return 'Đã từ chối';
+        default: return 'Không xác định';
+      }
+    }
+
+    async function updateRequestStatus(requestId, newStatus) {
+      try {
+        const response = await fetch(`${API_BASE_URL}/tutor-requests/${requestId}/status`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          },
+          body: JSON.stringify({ status: newStatus })
+        });
+
+        if (!response.ok) {
+          throw new Error('Không thể cập nhật trạng thái');
+        }
+
+        const statusText = getStatusText(newStatus);
+        showMessage(`Đã cập nhật trạng thái thành "${statusText}"`, 'success');
+        loadRequests(); // Reload to get updated data
+      } catch (error) {
+        console.error('Error updating status:', error);
+        showMessage('Lỗi khi cập nhật trạng thái: ' + error.message, 'error');
+      }
+    }
+
+    function viewRequestDetails(requestId) {
+      const request = allRequests.find(r => r._id === requestId);
+      if (request) {
+        alert(`Chi tiết yêu cầu:\n\nTên: ${request.studentName}\nMôn: ${request.subject}\nĐịa điểm: ${request.location}\nLương: ${request.expectedSalary ? number_format(request.expectedSalary) + ' VNĐ' : 'Không xác định'}\nSĐT: ${request.phoneNumber}\nMô tả: ${request.description || 'Không có'}\nTrạng thái: ${getStatusText(request.status)}`);
+      }
+    }
+
+    function openImageModal(imageSrc) {
+      const modal = document.getElementById('imageModal');
+      const modalImage = document.getElementById('modalImage');
+      modalImage.src = imageSrc;
+      modal.classList.add('show');
+    }
+
+    function closeImageModal() {
+      const modal = document.getElementById('imageModal');
+      modal.classList.remove('show');
+    }
+
+    function refreshRequests() {
+      loadRequests();
+    }
+
+    function showLoading(show) {
+      const loading = document.getElementById('loading');
+      const container = document.getElementById('requestsContainer');
+      
+      if (show) {
+        loading.style.display = 'block';
+        container.style.display = 'none';
+      } else {
+        loading.style.display = 'none';
+        container.style.display = 'grid';
+      }
+    }
+
+    function showMessage(text, type) {
+      const messageEl = document.getElementById('message');
+      let icon = '';
+      if (type === 'success') {
+        icon = '<span class="msg-icon">✔️</span>';
+      } else if (type === 'error') {
+        icon = '<span class="msg-icon">❌</span>';
+      } else {
+        icon = '<span class="msg-icon">ℹ️</span>';
+      }
+      messageEl.innerHTML = icon + text;
+      messageEl.className = `message ${type}`;
+      messageEl.style.display = 'flex';
+      setTimeout(() => {
+        messageEl.style.display = 'none';
+      }, 5000);
+    }
+
+    function number_format(number) {
+      return new Intl.NumberFormat('vi-VN').format(number);
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('imageModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeImageModal();
+      }
+    });
+  </script>
+</body>
+</html>

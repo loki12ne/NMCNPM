@@ -2,25 +2,445 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Welcome</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Home</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    .question { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
-    .hidden { display: none; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f0f4ff;
+      min-height: 100vh;
+      margin-left: 200px;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 60vh;
+    }
+
+    h1 { 
+      text-align: center; 
+      font-size: 48px;
+      font-weight: 600;
+      color: #2a3f80;
+      margin-bottom: 48px;
+    }
+
+    .search-upload-container {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+      max-width: 600px;
+      margin-bottom: 32px;
+    }
+
+    .search-wrapper {
+      position: relative;
+      flex: 1;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 20px;
+      color: #89CFF0;
+      font-size: 20px;
+      z-index: 1;
+    }
+
+    #searchInput { 
+      width: 100%;
+      padding: 20px 20px 20px 60px;
+      border: 2px solid #a2b8fa;
+      border-radius: 12px;
+      background-color: #ffffff;
+      outline: none;
+      font-size: 16px;
+      color: #2a3f80;
+      transition: all 0.3s ease;
+    }
+
+    #searchInput:focus {
+      border-color: #557cf2;
+      background-color: #ffffff;
+      box-shadow: 0 0 0 3px rgba(0, 127, 255, 0.1);
+    }
+
+    #searchInput::placeholder {
+      color: #d9e2ff;
+    }
+
+    .upload-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 60px;
+      height: 60px;
+      background: #557cf2;
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+    }
+
+    .upload-btn:hover {
+      background: #7997f2;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 127, 255, 0.4);
+    }
+
+    .auth-buttons { 
+      position: absolute; 
+      top: 20px; 
+      right: 20px; 
+      display: flex; 
+      gap: 12px; 
+    }
+
+    .auth-btn {
+      padding: 12px 20px;
+      border: 2px solid #557cf2;
+      border-radius: 12px;
+      font-size: 15px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    /* Login button - white background, blue text */
+    #loginBtn {
+      background: #557cf2;
+      color: white;
+      border-color: #557cf2;
+    }
+
+    #loginBtn:hover {
+      background: #7997f2;
+      color: #f0f4ff;
+      border-color: #7997f2;
+    }
+    
+    /* Signup button - blue background, white text */  
+    #signupBtn {
+      /* background-color: white; */
+      color: #557cf2;
+      border-color: #557cf2;
+    }
+
+    #signupBtn:hover {
+      background: #7997f2;
+      color: #f0f4ff;
+      border-color: #7997f2;
+    }
+
+    .logout-btn {
+      background: white;
+      color: #557cf2;
+      border-color: #557cf2;
+      font-size: 15px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    .logout-btn:hover {
+      background: #7997f2;
+      color: #f0f4ff;
+    }
+
+    .tutor-upgrade-btn {
+      background: #557cf2;
+      color: white;
+      border-color: #557cf2;
+      font-size: 15px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    .tutor-upgrade-btn:hover {
+      background: #7997f2;
+      color: #f0f4ff;
+      border-color: #7997f2;
+    }
+
+    .hidden { 
+      display: none; 
+    }
+
+    /* Welcome message for authenticated users */
+    .welcome-section {
+      text-align: center;
+      margin-bottom: 32px;
+      background: linear-gradient(135deg, #557cf2 0%, #89CFF0 100%);  /*#ffffff*/;
+      padding: 20px;
+      border-radius: 12px;
+      color: #2a3f80;
+    }
+
+    .welcome-text {
+      font-size: 18px;
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: 8px;
+    }
+
+    .user-name {
+      font-size: 24px;
+      font-weight: 600;
+      color: white;
+    }
+
+    .questions { 
+      display: grid; 
+      gap: 16px;
+      width: 100%;
+    }
+
+    .question-card { 
+      background-color: white; 
+      padding: 20px; 
+      border-radius: 12px; 
+      box-shadow: 0 2px 8px rgba(0, 127, 255, 0.1);
+      border: 1px solid #f0f4ff;
+      transition: all 0.3s ease;
+    }
+
+    .question-card:hover {
+      box-shadow: 0 8px 25px rgba(0, 127, 255, 0.15);
+      border-color: #a1caf1;
+      transform: translateY(-2px);
+    }
+
+    .question-card .meta { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      margin-bottom: 12px; 
+    }
+
+    .question-card .meta .likes { 
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: #007fff; 
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .heart-icon {
+      width: 20px;
+      height: 20px;
+      background-color: #a1caf1;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: #003399;
+    }
+
+    .question-card .meta .comments { 
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: #89CFF0;
+      font-size: 14px;
+    }
+
+    .comment-icon {
+      width: 20px;
+      height: 20px;
+      background-color: #f0f4ff;
+      border: 1px solid #a1caf1;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: #003399; 
+    }
+
+    .question-card .details { 
+      margin-bottom: 12px; 
+    }
+
+    .question-card .details .subject { 
+      background-color: #f0f4ff; 
+      border: 1px solid #a1caf1;
+      padding: 6px 12px; 
+      border-radius: 12px; 
+      font-size: 12px;
+      font-weight: 500;
+      color: #003399;
+      display: inline-block;
+      margin-right: 12px;
+      margin-bottom: 8px;
+    }
+
+    .question-card .details .title { 
+      font-weight: 600;
+      color: #003399;
+      font-size: 16px;
+      line-height: 1.5;
+      word-wrap: break-word;
+      max-width: 100%;
+    }
+
+    .question-card .info { 
+      color: #89CFF0; 
+      font-size: 14px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .user-icon {
+      color: #a1caf1;
+      font-size: 16px;
+    }
+
+    .like-btn {
+      background-color: #f0f4ff;
+      color: #003399;
+      border: 1px solid #a1caf1;
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .like-btn:hover {
+      background-color: #007fff;
+      color: white;
+      border-color: #007fff;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        margin-left: 70px;
+        padding: 16px;
+      }
+
+      h1 {
+        font-size: 36px;
+        margin-bottom: 32px;
+      }
+
+      .search-upload-container {
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .upload-btn {
+        width: 100%;
+        max-width: 600px;
+        height: 50px;
+        border-radius: 8px;
+      }
+
+      .auth-buttons {
+        position: relative;
+        top: auto;
+        right: auto;
+        justify-content: center;
+        margin-bottom: 20px;
+      }
+
+      .container {
+        padding: 20px;
+        min-height: 50vh;
+      }
+    }
   </style>
 </head>
 <body>
-  <h1>Welcome to the Application</h1>
-  <p>
-    <a href="/login.html" id="loginBtn"><button>Login</button></a>
-    <a href="/signup.html" id="signupBtn"><button>Sign Up</button></a>
-    <button id="logoutBtn" class="hidden">Logout</button>
-    <a href="/post-question.html" id="postQuestionBtn" class="hidden"><button>Post Question</button></a>
-  </p>
-  <h2>Questions</h2>
-  <div id="questions"></div>
+  <!-- Include Sidebar -->
+  <div id="sidebar-container"></div>
+
+  <div class="auth-buttons">
+    <a href="/login.html" id="loginBtn" class="auth-btn">Login</a>
+    <a href="/signup.html" id="signupBtn" class="auth-btn">Sign Up</a>
+    <button class="auth-btn tutor-upgrade-btn" id="tutorUpgradeBtn">Tutor upgrade</button>
+    <button id="logoutBtn" class="auth-btn logout-btn hidden">Log out</button>
+  </div>
+
+  <div class="container">
+    <div class="welcome-section hidden" id="welcomeSection">
+      <div class="welcome-text">Welcome back,</div>
+      <div class="user-name" id="userName">Student</div>
+    </div>
+
+    <h1>Home</h1>
+    
+    <div class="search-upload-container">
+      <div class="search-wrapper">
+        <span class="search-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <g clip-path="url(#clip0_5016_4389)">
+              <path d="M22.2929 23.7071C22.6834 24.0976 23.3166 24.0976 23.7071 23.7071C24.0976 23.3166 24.0976 22.6834 23.7071 22.2929L22.2929 23.7071ZM18.1176 10.0588C18.1176 14.5096 14.5096 18.1176 10.0588 18.1176V20.1176C15.6142 20.1176 20.1176 15.6142 20.1176 10.0588H18.1176ZM10.0588 18.1176C5.60806 18.1176 2 14.5096 2 10.0588H0C0 15.6142 4.50349 20.1176 10.0588 20.1176V18.1176ZM2 10.0588C2 5.60806 5.60806 2 10.0588 2V0C4.50349 0 0 4.50349 0 10.0588H2ZM10.0588 2C14.5096 2 18.1176 5.60806 18.1176 10.0588H20.1176C20.1176 4.50349 15.6142 0 10.0588 0V2ZM15.8223 17.2365L22.2929 23.7071L23.7071 22.2929L17.2365 15.8223L15.8223 17.2365Z" fill="#557cf2"/>
+            </g>
+            <defs>
+              <clipPath id="clip0_5016_4389">
+                <rect width="24" height="24" fill="white"/>
+              </clipPath>
+            </defs>
+          </svg>
+        </span>
+        <input type="text" id="searchInput" placeholder="Search for questions, topics, or subjects..." />
+      </div>
+      <a href="/post-question.html" class="upload-btn" id="uploadBtn" title="Post a new question">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M11 16.0001C11 16.5524 11.4477 17.0001 12 17.0001C12.5523 17.0001 13 16.5524 13 16.0001H11ZM13 5.00009C13 4.44781 12.5523 4.00009 12 4.00009C11.4477 4.00009 11 4.44781 11 5.00009L13 5.00009ZM15.2929 7.7072C15.6834 8.09772 16.3166 8.09772 16.7071 7.7072C17.0976 7.31668 17.0976 6.68351 16.7071 6.29299L15.2929 7.7072ZM12.7071 3.7072L12 4.41431L12.7071 3.7072ZM11.2929 3.7072L12 4.41431L12 4.41431L11.2929 3.7072ZM7.29289 6.29299C6.90237 6.68351 6.90237 7.31668 7.29289 7.7072C7.68342 8.09772 8.31658 8.09772 8.70711 7.7072L7.29289 6.29299ZM4 16.0001C4 15.4478 3.55228 15.0001 3 15.0001C2.44772 15.0001 2 15.4478 2 16.0001H4ZM22 16.0001C22 15.4478 21.5523 15.0001 21 15.0001C20.4477 15.0001 20 15.4478 20 16.0001H22ZM19.362 20.6731L18.908 19.7821H18.908L19.362 20.6731ZM20.673 19.3621L21.564 19.8161V19.8161L20.673 19.3621ZM3.32698 19.3621L2.43597 19.8161L3.32698 19.3621ZM4.63803 20.6731L4.18404 21.5641H4.18404L4.63803 20.6731ZM13 16.0001L13 5.00009L11 5.00009L11 16.0001H13ZM16.7071 6.29299L13.4142 3.00009L12 4.41431L15.2929 7.7072L16.7071 6.29299ZM10.5858 3.00009L7.29289 6.29299L8.70711 7.7072L12 4.41431L10.5858 3.00009ZM13.4142 3.00009C12.6332 2.21904 11.3668 2.21905 10.5858 3.00009L12 4.41431L12 4.41431L13.4142 3.00009ZM2 16.0001V16.2001H4V16.0001H2ZM7.8 22.0001H16.2V20.0001H7.8V22.0001ZM22 16.2001V16.0001H20V16.2001H22ZM16.2 22.0001C17.0236 22.0001 17.7014 22.0009 18.2518 21.9559C18.8139 21.91 19.3306 21.8114 19.816 21.5641L18.908 19.7821C18.7516 19.8618 18.5274 19.9267 18.089 19.9625C17.6389 19.9993 17.0566 20.0001 16.2 20.0001V22.0001ZM20 16.2001C20 17.0567 19.9992 17.639 19.9624 18.0891C19.9266 18.5275 19.8617 18.7517 19.782 18.9081L21.564 19.8161C21.8113 19.3307 21.9099 18.814 21.9558 18.2519C22.0008 17.7015 22 17.0237 22 16.2001H20ZM19.816 21.5641C20.5686 21.1806 21.1805 20.5687 21.564 19.8161L19.782 18.9081C19.5903 19.2844 19.2843 19.5904 18.908 19.7821L19.816 21.5641ZM2 16.2001C2 17.0237 1.99922 17.7015 2.04419 18.2519C2.09012 18.814 2.18868 19.3307 2.43597 19.8161L4.21799 18.9081C4.1383 18.7517 4.07337 18.5275 4.03755 18.0891C4.00078 17.639 4 17.0567 4 16.2001H2ZM7.8 20.0001C6.94342 20.0001 6.36113 19.9993 5.91104 19.9625C5.47262 19.9267 5.24842 19.8618 5.09202 19.7821L4.18404 21.5641C4.66937 21.8114 5.18608 21.91 5.74817 21.9559C6.2986 22.0009 6.97642 22.0001 7.8 22.0001V20.0001ZM2.43597 19.8161C2.81947 20.5687 3.43139 21.1806 4.18404 21.5641L5.09202 19.7821C4.71569 19.5904 4.40973 19.2844 4.21799 18.9081L2.43597 19.8161Z" fill="#ffffff"/>
+        </svg>
+      </a>
+    </div>
+
+    <div class="questions" id="questions">
+      <!-- Question cards will be dynamically loaded here -->
+    </div>
+  </div>
+
   <script src="/js/config.js"></script>
   <script>
+    // Load sidebar
+    fetch('/sidebar.html')
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById('sidebar-container').innerHTML = data;
+        // Execute sidebar scripts
+        const sidebarScripts = document.getElementById('sidebar-container').querySelectorAll('script');
+        sidebarScripts.forEach(script => {
+          const newScript = document.createElement('script');
+          newScript.textContent = script.textContent;
+          document.head.appendChild(newScript);
+        });
+      })
+      .catch(error => console.error('Error loading sidebar:', error));
+
     async function checkAuth() {
       try {
         const res = await fetch(`${BASE_URL}/auth/check-auth`, {
@@ -31,18 +451,40 @@
         const loginBtn = document.getElementById('loginBtn');
         const signupBtn = document.getElementById('signupBtn');
         const logoutBtn = document.getElementById('logoutBtn');
-        const postQuestionBtn = document.getElementById('postQuestionBtn');
+        const tutorUpgradeBtn = document.getElementById('tutorUpgradeBtn');
+        const welcomeSection = document.getElementById('welcomeSection');
+        const userName = document.getElementById('userName');
 
         if (data.isAuthenticated) {
           loginBtn.classList.add('hidden');
           signupBtn.classList.add('hidden');
           logoutBtn.classList.remove('hidden');
-          postQuestionBtn.classList.remove('hidden');
+          tutorUpgradeBtn.classList.remove('hidden');
+          welcomeSection.classList.remove('hidden');
+
+          // Set user name if available
+          if (data.user && data.user.username) {
+            userName.textContent = data.user.username;
+          }
+
+          // Change Tutor Upgrade button for admin
+          if (data.user && data.user.role === 'admin') {
+            tutorUpgradeBtn.textContent = 'Tutor request';
+            tutorUpgradeBtn.onclick = function() {
+              window.location.href = '/manage-tutor-requests.html';
+            };
+          } else {
+            tutorUpgradeBtn.textContent = 'Tutor upgrade';
+            tutorUpgradeBtn.onclick = function() {
+              window.location.href = '/tutor-request.html';
+            };
+          }
         } else {
           loginBtn.classList.remove('hidden');
           signupBtn.classList.remove('hidden');
           logoutBtn.classList.add('hidden');
-          postQuestionBtn.classList.add('hidden');
+          tutorUpgradeBtn.classList.add('hidden');
+          welcomeSection.classList.add('hidden');
         }
       } catch (err) {
         console.error('Auth check error:', err);
@@ -67,6 +509,26 @@
       }
     }
 
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        const searchTerm = this.value.trim();
+        if (searchTerm) {
+          // Redirect to a search results page or implement search logic
+          console.log('Searching for:', searchTerm);
+          // You can implement search functionality here
+          // For example: window.location.href = `/search?q=${encodeURIComponent(searchTerm)}`;
+        }
+      }
+    });
+
+    window.onload = () => {
+      checkAuth();
+      document.getElementById('logoutBtn').addEventListener('click', logout);
+      // tutorUpgradeBtn onclick is set in checkAuth based on role
+      loadQuestions();
+    };
+
     async function loadQuestions() {
       try {
         const res = await fetch(`${BASE_URL}/questions`, {
@@ -74,32 +536,46 @@
           credentials: 'include'
         });
         const data = await res.json();
-        const questionsDiv = document.getElementById('questions');
-        if (res.ok) {
-          if (data.questions.length === 0) {
-            questionsDiv.textContent = 'No questions available.';
-          } else {
-            data.questions.forEach(q => {
-              const div = document.createElement('div');
-              div.className = 'question';
-              div.innerHTML = `<strong>${q.subject}</strong> by ${q.username} on ${q.date_posted}:<br>${q.text_content}`;
-              questionsDiv.appendChild(div);
-            });
-          }
+        const questionsContainer = document.getElementById('questionsContainer');
+
+        if (data && data.questions && data.questions.length > 0) {
+          data.questions.forEach(question => {
+            const questionCard = document.createElement('div');
+            questionCard.className = 'question-card';
+            questionCard.innerHTML = `
+              <div class="meta">
+                <div class="likes">
+                  <span class="heart-icon">❤️</span>
+                  ${question.likes}
+                </div>
+                <div class="comments">
+                  <span class="comment-icon">💬</span>
+                  ${question.comments}
+                </div>
+              </div>
+              <div class="details">
+                <span class="subject">${question.subject}</span>
+                <h2 class="title">${question.title}</h2>
+              </div>
+              <div class="info">
+                <div class="user-info">
+                  <span class="user-icon">👤</span>
+                  ${question.username}
+                </div>
+                <div class="date">
+                  ${new Date(question.createdAt).toLocaleDateString()}
+                </div>
+              </div>
+            `;
+            questionsContainer.appendChild(questionCard);
+          });
         } else {
-          questionsDiv.textContent = `Error: ${data.error}`;
+          questionsContainer.innerHTML = '<p>No questions found.</p>';
         }
       } catch (err) {
-        questionsDiv.textContent = 'Server or network error';
-        console.error('Fetch error:', err);
+        console.error('Error loading questions:', err);
       }
     }
-
-    window.onload = () => {
-      checkAuth();
-      loadQuestions();
-      document.getElementById('logoutBtn').addEventListener('click', logout);
-    };
   </script>
 </body>
 </html>
