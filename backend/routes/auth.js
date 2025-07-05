@@ -36,12 +36,9 @@ router.post('/login', async (req, res) => {
 });
 
 router.post('/signup', async (req, res) => {
-  const { username, password, role } = req.body;
-  if (!username || !password || !role) {
-    return res.status(400).json({ error: 'Missing username, password, or role' });
-  }
-  if (!['student', 'teacher', 'admin'].includes(role)) {
-    return res.status(400).json({ error: 'Invalid role' });
+  const { username, password } = req.body;
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Missing username or password' });
   }
 
   try {
@@ -51,8 +48,9 @@ router.post('/signup', async (req, res) => {
       return res.status(409).json({ error: 'User already exists' });
     }
 
+    // Mặc định role là 'student' khi đăng ký
     const insertQuery = 'INSERT INTO Accounts (username, password, role) VALUES ($1, $2, $3)';
-    await client.query(insertQuery, [username, password, role]);
+    await client.query(insertQuery, [username, password, 'student']);
     res.json({ message: 'User created successfully' });
   } catch (err) {
     console.error('Signup error:', err);
