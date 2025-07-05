@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Learner Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .question, .answer { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
+    .feedback { margin-left: 20px; padding: 5px; }
+    .error { color: red; }
+    .success { color: green; }
+  </style>
+</head>
+<body>
+  <h1>Learner Dashboard</h1>
+  <button onclick="window.location.href='/index.html'">Back to Home</button>
+  <button onclick="logout()">Logout</button>
+  <h2>All Questions</h2>
+  <div id="all-questions"></div>
+  <div id="question-details-section" style="display:none;">
+    <h2>Question Details</h2>
+    <div id="question-details"></div>
+    <h2>Answer</h2>
+    <div id="answer-details"></div>
+    <h2>Feedbacks</h2>
+    <div id="feedback-list"></div>
+    <h2>Submit Feedback</h2>
+    <form id="feedbackForm">
+      <input type="number" id="rating" min="1" max="5" placeholder="Rating (1-5)" required><br>
+      <textarea id="comment" placeholder="Your comment (optional)"></textarea><br>
+      <button type="submit">Submit Feedback</button>
+    </form>
+    <p id="result"></p>
+    <button id="closeDetailsBtn">Đóng</button>
+  </div>
+  <script src="/js/config.js"></script>
+  <script>
+    /**
+     * Lấy danh sách câu hỏi từ server
+     */
+    async function getQuestions() {
+      try {
+        const res = await fetch(`${BASE_URL}/questions`, {
+          method: 'GET',
+          credentials: 'include'
+        });
+        return await res.json();
+      } catch (err) {
+        console.error('Get questions error:', err);
+        return { error: 'Network error' };
+      }
+    }
+
+    /**
+     * Gửi phản hồi cho câu hỏi
+     */
+    async function submitFeedback(questionId, rating, comment) {
+      try {
+        const res = await fetch(`${BASE_URL}/questions/feedback`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            question_id: questionId,
+            rating: parseInt(rating),
+            comment: comment
+          })
+        });
+        return await res.json();
+      } catch (err) {
+        console.error('Submit feedback error:', err);
+        return { error: 'Network error' };
+      }
+    }
+
+    /**
+     * Đăng xuất người dùng
+     */
+    async function logout() {
+      try {
+        const res = await fetch(`${BASE_URL}/auth/logout`, {
+          method: 'POST',
+          credentials: 'include'
+        });
+        return await res.json();
+      } catch (err) {
+        console.error('Logout error:', err);
+        return { error: 'Network error' };
+      }
+    }
+
+    /**
+     * Lấy danh sách câu hỏi và hiển thị
+     */
+    async function loadAllQuestions() {
+      const questionsDiv = document.getElementById('all-questions');
+      questionsDiv.innerHTML = 'Đang tải...';
+      try {
+        const res = await fetch(`${BASE_URL}/questions`, {
+          method: 'GET',
+          credentials: 'include'
+        });
+        const data = await res.json();
+        if (res.ok && data.questions) {
+          if (data.questions.length === 0) {
+            questionsDiv.textContent = 'Không có câu hỏi nào.';
+          } else {
+            questionsDiv.innerHTML = '';
+            for (const q of data.questions) {
+              const div = document.createElement('div');
+              div.className = 'question';
+              div.innerHTML = `<b>${q.subject}</b> bởi ${q.username} lúc ${q.date_posted}<br>${q.text_content}`;
+              // Nếu có câu trả lời, hiển thị luôn
+              const answerRes = await fetch(`${BASE_URL}/questions/answer/${q.question_id}`, { credentials: 'include' });
+              if (answerRes.ok) {
+                const answerData = await answerRes.json();
+                div.innerHTML += `<div class='answer'><b>Đáp án:</b> ${answerData.text_content} (bởi ${answerData.user_answer})</div>`;
+              }
+              // Nút xem chi tiết/feedback
+              const btn = document.createElement('button');
+              btn.textContent = 'Xem chi tiết & Feedback';
+              btn.onclick = () => showQuestionDetails(q.question_id);
+              div.appendChild(btn);
+              questionsDiv.appendChild(div);
+            }
+          }
+        } else {
+          questionsDiv.textContent = 'Lỗi tải câu hỏi.';
+        }
+      } catch (err) {
+        questionsDiv.textContent = 'Lỗi mạng khi tải câu hỏi.';
+      }
+    }
+
+    /**
+     * Hiển thị chi tiết câu hỏi, feedback và form feedback
+     */
+    async function showQuestionDetails(questionId) {
+      document.getElementById('question-details-section').style.display = '';
+      // Ẩn danh sách câu hỏi
+      document.getElementById('all-questions').style.display = 'none';
+      // Load lại chi tiết câu hỏi, đáp án, feedback như cũ
+      await loadQuestionAndFeedback(questionId);
+    }
+
+    document.getElementById('closeDetailsBtn').onclick = function() {
+      document.getElementById('question-details-section').style.display = 'none';
+      document.getElementById('all-questions').style.display = '';
+    };
+
+    // Sửa lại loadQuestionAndFeedback để nhận questionId
+    async function loadQuestionAndFeedback(questionId) {
+      if (!questionId) return;
+      try {
+        // Load question
+        const questionResult = await getQuestions();
+        if (questionResult.questions) {
+          const question = questionResult.questions.find(q => q.question_id == questionId);
+          if (question) {
+            document.getElementById('question-details').innerHTML = `
+              <div class="question">
+                <p><strong>${question.subject}</strong>: ${question.text_content} (by ${question.username})</p>
+                <p>Likes: ${question.so_luot_like}</p>
+              </div>
+            `;
+            // Gán data-id sau khi render
+            document.getElementById('question-details').querySelector('.question').setAttribute('data-id', question.question_id);
+          } else {
+            document.getElementById('question-details').innerHTML = '<p class="error">Question not found</p>';
+          }
+        } else {
+          document.getElementById('question-details').innerHTML = '<p class="error">Error loading question: ' + questionResult.error + '</p>';
+        }
+
+        // Load answer
+        const answerRes = await fetch(`${BASE_URL}/questions/answer/${questionId}`, {
+          credentials: 'include'
+        });
+        if (answerRes.ok) {
+          const answerData = await answerRes.json();
+          document.getElementById('answer-details').innerHTML = `
+            <div class="answer"><strong>Answer</strong> by ${answerData.user_answer}: ${answerData.text_content}</div>
+          `;
+        } else {
+          document.getElementById('answer-details').innerHTML = '<p class="error">No answer available</p>';
+          document.getElementById('feedbackForm').style.display = 'none';
+        }
+
+        // Load feedbacks
+        const feedbackRes = await fetch(`${BASE_URL}/questions/feedback/${questionId}`, {
+          credentials: 'include'
+        });
+        if (feedbackRes.ok) {
+          const feedbackData = await feedbackRes.json();
+          document.getElementById('feedback-list').innerHTML = feedbackData.feedbacks.map(f =>
+            `<div class="feedback">Rating: ${f.rating}/5 by ${f.username}${f.comment ? `: ${f.comment}` : ''}</div>`
+          ).join('');
+        } else {
+          document.getElementById('feedback-list').innerHTML = '<p>No feedback available</p>';
+        }
+        document.getElementById('feedbackForm').style.display = '';
+      } catch (err) {
+        document.getElementById('question-details').innerHTML = '<p class="error">Network error loading question</p>';
+      }
+    }
+
+    // Sửa lại form feedback để lấy questionId động
+    document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const questionId = document.getElementById('question-details').querySelector('.question')?.getAttribute('data-id');
+      const rating = document.getElementById('rating').value;
+      const comment = document.getElementById('comment').value.trim();
+      const resultDiv = document.getElementById('result');
+
+      if (!questionId) {
+        resultDiv.textContent = 'No question ID provided';
+        resultDiv.className = 'error';
+        return;
+      }
+      if (!rating || rating < 1 || rating > 5) {
+        resultDiv.textContent = 'Please enter a valid rating (1-5)';
+        resultDiv.className = 'error';
+        return;
+      }
+
+      try {
+        const result = await submitFeedback(questionId, rating, comment);
+        if (result.message) {
+          resultDiv.textContent = result.message;
+          resultDiv.className = 'success';
+          setTimeout(() => showQuestionDetails(questionId), 1000);
+        } else {
+          resultDiv.textContent = result.error || 'Unknown error';
+          resultDiv.className = 'error';
+        }
+      } catch (err) {
+        resultDiv.textContent = 'Network error: Unable to submit feedback';
+        resultDiv.className = 'error';
+      }
+    });
+
+    // Chỉ cần xác thực là learner, sau đó load tất cả câu hỏi
+    async function checkAuthAndRedirect() {
+      try {
+        const res = await fetch(`${BASE_URL}/auth/check-auth`, {
+          method: 'GET',
+          credentials: 'include'
+        });
+        const data = await res.json();
+        if (!data.isAuthenticated) {
+          window.location.href = '/index.html';
+          return;
+        }
+        if (data.user && data.user.role !== 'student') {
+          window.location.href = '/index.html';
+          return;
+        }
+        loadAllQuestions();
+      } catch (err) {
+        window.location.href = '/index.html';
+      }
+    }
+    window.onload = checkAuthAndRedirect;
+  </script>
+</body>
+</html>

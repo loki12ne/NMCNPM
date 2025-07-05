@@ -15,11 +15,13 @@ async function createTables() {
     await client.connect();
     console.log("Connected to PostgreSQL");
 
-    // Drop tables
+    // Drop tables in correct order to avoid FK errors
     await client.query(`DROP TABLE IF EXISTS FeedBacks CASCADE;`);
+    await client.query(`DROP TABLE IF EXISTS QuestionLikes CASCADE;`);
     await client.query(`DROP TABLE IF EXISTS Answers CASCADE;`);
     await client.query(`DROP TABLE IF EXISTS Questions CASCADE;`);
     await client.query(`DROP TABLE IF EXISTS sessions CASCADE;`);
+    await client.query(`DROP TABLE IF EXISTS TutorRequests CASCADE;`);
     await client.query(`DROP TABLE IF EXISTS Accounts CASCADE;`);
 
     // Create Accounts
@@ -44,31 +46,36 @@ async function createTables() {
       );
     `);
 
-    // Create Answers
+    // Create Answers (1-1 with Questions)
     await client.query(`
       CREATE TABLE Answers (
-        answer_id INTEGER NOT NULL,
-        question_id INTEGER NOT NULL REFERENCES Questions(question_id),
+        question_id INTEGER PRIMARY KEY REFERENCES Questions(question_id) ON DELETE CASCADE,
         user_ask VARCHAR(50) REFERENCES Accounts(username),
         user_answer VARCHAR(50) REFERENCES Accounts(username),
         text_content TEXT,
-        date_posted TIMESTAMP,
-        PRIMARY KEY (answer_id, question_id)
+        date_posted TIMESTAMP
       );
     `);
 
-    // Create FeedBacks
+    // Create FeedBacks (no answer_id)
     await client.query(`
       CREATE TABLE FeedBacks (
-        feedback_id INTEGER NOT NULL,
-        answer_id INTEGER NOT NULL,
-        question_id INTEGER NOT NULL,
+        feedback_id SERIAL PRIMARY KEY,
+        question_id INTEGER REFERENCES Questions(question_id) ON DELETE CASCADE,
         username VARCHAR(50) REFERENCES Accounts(username),
         rating SMALLINT,
         comment TEXT,
-        date_posted TIMESTAMP,
-        PRIMARY KEY (feedback_id, answer_id, question_id),
-        FOREIGN KEY (answer_id, question_id) REFERENCES Answers(answer_id, question_id)
+        date_posted TIMESTAMP
+      );
+    `);
+
+    // Create QuestionLikes
+    await client.query(`
+      CREATE TABLE QuestionLikes (
+        like_id SERIAL PRIMARY KEY,
+        question_id INTEGER NOT NULL REFERENCES Questions(question_id) ON DELETE CASCADE,
+        username VARCHAR(50) NOT NULL REFERENCES Accounts(username) ON DELETE CASCADE,
+        UNIQUE (question_id, username)
       );
     `);
 
@@ -81,7 +88,22 @@ async function createTables() {
       );
     `);
 
-    // Insert sample data
+    // Create TutorRequests
+    await client.query(`
+      CREATE TABLE TutorRequests (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(50) NOT NULL REFERENCES Accounts(username),
+        full_name VARCHAR(100) NOT NULL,
+        university VARCHAR(100) NOT NULL,
+        faculty VARCHAR(100) NOT NULL,
+        year INT NOT NULL,
+        student_card_image TEXT,
+        status VARCHAR(20) NOT NULL DEFAULT 'pending',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // Sample data
     await client.query(`
       INSERT INTO Accounts (username, password, role) VALUES
         ('nguyenanh', 'pass1234', 'student'),
@@ -101,9 +123,9 @@ async function createTables() {
       ON CONFLICT (question_id) DO NOTHING;
     `);
 
-    console.log("Tables 'Accounts', 'Questions', 'Answers', 'FeedBacks', 'sessions' created successfully.");
+    console.log("✅ Tables created and initialized successfully.");
   } catch (err) {
-    console.error("Error creating tables:", err);
+    console.error("❌ Error creating tables:", err);
   } finally {
     await client.end();
   }

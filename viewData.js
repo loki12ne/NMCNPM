@@ -40,6 +40,11 @@ async function viewData() {
     console.log("sessions table:");
     console.table(sessionsRes.rows);
 
+    // Xem bảng TutorRequests
+    const tutorRequestsRes = await client.query('SELECT * FROM TutorRequests');
+    console.log("TutorRequests table:");
+    console.table(tutorRequestsRes.rows);
+
     await client.end();
   } catch (err) {
     console.error("Error viewing data:", err);

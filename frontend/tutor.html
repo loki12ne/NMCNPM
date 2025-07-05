@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Tutor Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .question { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+    .answer, .feedback { margin-left: 20px; padding: 5px; }
+    .hidden { display: none; }
+    .error { color: red; }
+    .success { color: green; }
+  </style>
+</head>
+<body>
+  <h1>Tutor Dashboard</h1>
+  <button onclick="window.location.href='/index.html'">Back to Questions</button>
+  <button onclick="logout()">Logout</button>
+  <h2>Questions to Answer</h2>
+  <div id="questions"></div>
+  <p id="result"></p>
+  <script src="/js/config.js"></script>
+  <script>
+    /**
+     * Kiểm tra xác thực người dùng
+     */
+    async function checkAuth() {
+      try {
+        const res = await fetch(`${BASE_URL}/auth/check-auth`, {
+          method: 'GET',
+          credentials: 'include'
+        });
+        return await res.json();
+      } catch (err) {
+        console.error('Auth check error:', err);
+        return { isAuthenticated: false };
+      }
+    }
+
+    /**
+     * Đăng xuất người dùng
+     */
+    async function logout() {
+      try {
+        const res = await fetch(`${BASE_URL}/auth/logout`, {
+          method: 'POST',
+          credentials: 'include'
+        });
+        if (res.ok) window.location.href = '/login.html';
+      } catch (err) {
+        console.error('Logout error:', err);
+      }
+    }
+
+    async function loadQuestions() {
+      try {
+        const authData = await checkAuth();
+        if (!authData.isAuthenticated || authData.user.role !== 'teacher') {
+          window.location.href = '/index.html';
+          return;
+        }
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const questionId = urlParams.get('question_id');
+        const res = await fetch(`${BASE_URL}/questions`, {
+          method: 'GET',
+          credentials: 'include'
+        });
+        const data = await res.json();
+        const questionsDiv = document.getElementById('questions');
+        questionsDiv.innerHTML = '';
+
+        if (res.ok) {
+          data.questions.forEach(q => {
+            const div = document.createElement('div');
+            div.className = 'question';
+            let answerHtml = '';
+            const answerRes = fetch(`${BASE_URL}/questions/answer/${q.question_id}`, { credentials: 'include' })
+              .then(res => res.ok ? res.json() : null)
+              .then(answerData => {
+                if (answerData) answerHtml = `<div class="answer"><strong>Answer</strong> by ${answerData.user_answer}: ${answerData.text_content}</div>`;
+                div.innerHTML = `
+                  <strong>${q.subject}</strong> bởi ${q.username} lúc ${q.date_posted}:<br>
+                  ${q.text_content}<br>
+                  ${answerHtml}
+                  <a href="/answer.html?question_id=${q.question_id}"><button>Answer</button></a>
+                `;
+                questionsDiv.appendChild(div);
+              });
+          });
+        } else {
+          questionsDiv.textContent = `Server error: ${data.error || 'Unknown error'}`;
+          questionsDiv.className = 'error';
+        }
+      } catch (err) {
+        document.getElementById('questions').textContent = 'Network error or server unavailable';
+        document.getElementById('questions').className = 'error';
+        console.error('Fetch error:', err);
+      }
+    }
+
+    /**
+     * Kiểm tra xác thực và phân quyền
+     */
+    async function checkAuthAndRedirect() {
+      try {
+        const authData = await checkAuth();
+        
+        if (!authData.isAuthenticated) {
+          // Nếu chưa đăng nhập, redirect về trang chủ
+          window.location.href = '/index.html';
+          return;
+        }
+        
+        if (authData.user && authData.user.role !== 'teacher') {
+          // Nếu không phải tutor, redirect về trang chủ
+          window.location.href = '/index.html';
+          return;
+        }
+        
+        // Nếu là tutor, load dữ liệu
+        loadQuestions();
+      } catch (err) {
+        console.error('Auth check error:', err);
+        window.location.href = '/index.html';
+      }
+    }
+
+    window.onload = () => {
+      checkAuthAndRedirect();
+      document.querySelector('button[onclick="logout()"]').addEventListener('click', logout);
+    };
+  </script>
+</body>
+</html>

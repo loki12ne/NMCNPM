@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <title>Quản lý yêu cầu gia sư</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background: #f0f0f0; }
+    .img-preview { max-width: 100px; max-height: 100px; }
+    .action-btn { margin-right: 8px; }
+    #result { color: red; }
+    #result.success { color: green; }
+  </style>
+</head>
+<body>
+  <h1>Quản lý yêu cầu lên tài khoản gia sư</h1>
+  <table id="requestsTable">
+    <thead>
+      <tr>
+        <th>Username</th>
+        <th>Họ và tên</th>
+        <th>Trường</th>
+        <th>Khoa/ngành</th>
+        <th>Năm vào trường</th>
+        <th>Ảnh thẻ SV</th>
+        <th>Trạng thái</th>
+        <th>Hành động</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <p id="result"></p>
+  <script src="/js/config.js"></script>
+  <script>
+  async function loadRequests() {
+    const res = await fetch(`${BASE_URL}/api/tutor-request-list`, { credentials: 'include' });
+    const data = await res.json();
+    const tbody = document.querySelector('#requestsTable tbody');
+    tbody.innerHTML = '';
+    if (res.ok && Array.isArray(data.requests)) {
+      data.requests.forEach(req => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${req.username}</td>
+          <td>${req.full_name}</td>
+          <td>${req.university}</td>
+          <td>${req.faculty}</td>
+          <td>${req.year}</td>
+          <td>
+            ${req.student_card_image ?
+              (req.student_card_image.startsWith('http') ?
+                `<img src="${req.student_card_image}" class="img-preview">` :
+                `<img src="/uploads/${req.student_card_image}" class="img-preview">`)
+              : ''}
+          </td>
+          <td>${req.status}</td>
+          <td>
+            <button class="action-btn" onclick="handleAction(${req.id}, 'approved')" ${req.status !== 'pending' ? 'disabled' : ''}>Duyệt</button>
+            <button class="action-btn" onclick="handleAction(${req.id}, 'rejected')" ${req.status !== 'pending' ? 'disabled' : ''}>Từ chối</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    } else {
+      tbody.innerHTML = '<tr><td colspan="8">Không có yêu cầu nào.</td></tr>';
+    }
+  }
+
+  async function handleAction(id, action) {
+    const res = await fetch(`${BASE_URL}/api/tutor-request-action`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, action }),
+      credentials: 'include'
+    });
+    const data = await res.json();
+    const result = document.getElementById('result');
+    if (res.ok) {
+      result.textContent = data.message;
+      result.className = 'success';
+      loadRequests();
+    } else {
+      result.textContent = data.error || 'Đã xảy ra lỗi';
+      result.className = '';
+    }
+  }
+
+  window.onload = loadRequests;
+  </script>
+</body>
+</html> 

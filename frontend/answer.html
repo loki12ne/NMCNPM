@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Answer Question</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    .question { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
+    .error { color: red; }
+    .success { color: green; }
+  </style>
+</head>
+<body>
+  <h1>Answer Question</h1>
+  <button onclick="window.location.href='/tutor.html'">Back to Questions</button>
+  <button onclick="logout()">Logout</button>
+  <h2>Question Details</h2>
+  <div id="question-details"></div>
+  <form id="answerForm">
+    <textarea id="answer-content" placeholder="Your answer" required></textarea><br>
+    <button type="submit">Submit Answer</button>
+  </form>
+  <p id="result"></p>
+  <script src="/js/config.js"></script>
+  <script>
+    /**
+     * Lấy danh sách câu hỏi từ server
+     */
+    async function getQuestions() {
+      try {
+        const res = await fetch(`${BASE_URL}/questions`, {
+          method: 'GET',
+          credentials: 'include'
+        });
+        return await res.json();
+      } catch (err) {
+        console.error('Get questions error:', err);
+        return { error: 'Network error' };
+      }
+    }
+
+    /**
+     * Gửi câu trả lời cho câu hỏi
+     */
+    async function submitAnswer(questionId, textContent) {
+      try {
+        const res = await fetch(`${BASE_URL}/questions/answer`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            question_id: questionId,
+            text_content: textContent
+          })
+        });
+        return await res.json();
+      } catch (err) {
+        console.error('Submit answer error:', err);
+        return { error: 'Network error' };
+      }
+    }
+
+    /**
+     * Đăng xuất người dùng
+     */
+    async function logout() {
+      try {
+        const res = await fetch(`${BASE_URL}/auth/logout`, {
+          method: 'POST',
+          credentials: 'include'
+        });
+        return await res.json();
+      } catch (err) {
+        console.error('Logout error:', err);
+        return { error: 'Network error' };
+      }
+    }
+
+    /**
+     * Kiểm tra xác thực và phân quyền
+     */
+    async function checkAuthAndRedirect() {
+      try {
+        const res = await fetch(`${BASE_URL}/auth/check-auth`, {
+          method: 'GET',
+          credentials: 'include'
+        });
+        const data = await res.json();
+        
+        if (!data.isAuthenticated) {
+          // Nếu chưa đăng nhập, redirect về trang chủ
+          window.location.href = '/index.html';
+          return;
+        }
+        
+        if (data.user && data.user.role !== 'teacher') {
+          // Nếu không phải tutor, redirect về trang chủ
+          window.location.href = '/index.html';
+          return;
+        }
+        
+        // Nếu là tutor, load dữ liệu
+        loadQuestion();
+      } catch (err) {
+        console.error('Auth check error:', err);
+        window.location.href = '/index.html';
+      }
+    }
+
+    async function loadQuestion() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const questionId = urlParams.get('question_id');
+      if (!questionId) {
+        document.getElementById('question-details').innerHTML = '<p class="error">No question ID provided</p>';
+        return;
+      }
+
+      try {
+        const result = await getQuestions();
+        if (result.questions) {
+          const question = result.questions.find(q => q.question_id == questionId);
+          if (question) {
+            document.getElementById('question-details').innerHTML = `
+              <div class="question">
+                <p><strong>${question.subject}</strong>: ${question.text_content} (by ${question.username})</p>
+                <p>Likes: ${question.so_luot_like}</p>
+              </div>
+            `;
+          } else {
+            document.getElementById('question-details').innerHTML = '<p class="error">Question not found</p>';
+          }
+        } else {
+          document.getElementById('question-details').innerHTML = '<p class="error">Error loading question: ${result.error}</p>';
+        }
+      } catch (err) {
+        console.error('Load question error:', err);
+        document.getElementById('question-details').innerHTML = '<p class="error">Network error loading question</p>';
+      }
+    }
+
+    document.getElementById('answerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const urlParams = new URLSearchParams(window.location.search);
+      const questionId = urlParams.get('question_id');
+      const textContent = document.getElementById('answer-content').value.trim();
+      const resultDiv = document.getElementById('result');
+
+      if (!questionId) {
+        resultDiv.textContent = 'No question ID provided';
+        resultDiv.className = 'error';
+        return;
+      }
+      if (!textContent) {
+        resultDiv.textContent = 'Please enter an answer';
+        resultDiv.className = 'error';
+        return;
+      }
+
+      try {
+        console.log('Submitting answer for question:', questionId, textContent); // Debug
+        const result = await submitAnswer(questionId, textContent);
+        console.log('Submit answer result:', result); // Debug
+        if (result.message) {
+          resultDiv.textContent = result.message;
+          resultDiv.className = 'success';
+          setTimeout(() => window.location.href = '/tutor.html', 1000);
+        } else {
+          resultDiv.textContent = result.error || 'Unknown error';
+          resultDiv.className = 'error';
+        }
+      } catch (err) {
+        console.error('Submit answer error:', err);
+        resultDiv.textContent = 'Network error: Unable to submit answer';
+        resultDiv.className = 'error';
+      }
+    });
+
+    async function logout() {
+      try {
+        const result = await logout();
+        if (result.message) {
+          window.location.href = '/login.html';
+        } else {
+          document.getElementById('result').textContent = result.error || 'Logout failed';
+          document.getElementById('result').className = 'error';
+        }
+      } catch (err) {
+        console.error('Logout error:', err);
+        document.getElementById('result').textContent = 'Network error during logout';
+        document.getElementById('result').className = 'error';
+      }
+    }
+
+    window.onload = checkAuthAndRedirect;
+  </script>
+</body>
+</html>

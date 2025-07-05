@@ -16,11 +16,16 @@
     <a href="/signup.html" id="signupBtn"><button>Sign Up</button></a>
     <button id="logoutBtn" class="hidden">Logout</button>
     <a href="/post-question.html" id="postQuestionBtn" class="hidden"><button>Post Question</button></a>
+    <a href="/tutor-request.html" id="tutorRequestBtn" class="hidden"><button>Đăng ký làm gia sư</button></a>
+    <a href="/manage-tutor-requests.html" id="manageTutorRequestsBtn" class="hidden"><button>Quản lý yêu cầu gia sư</button></a>
   </p>
   <h2>Questions</h2>
   <div id="questions"></div>
   <script src="/js/config.js"></script>
   <script>
+    /**
+     * Kiểm tra xác thực người dùng và phân quyền redirect
+     */
     async function checkAuth() {
       try {
         const res = await fetch(`${BASE_URL}/auth/check-auth`, {
@@ -34,18 +39,42 @@
         const postQuestionBtn = document.getElementById('postQuestionBtn');
 
         if (data.isAuthenticated) {
-          loginBtn.classList.add('hidden');
-          signupBtn.classList.add('hidden');
-          logoutBtn.classList.remove('hidden');
-          postQuestionBtn.classList.remove('hidden');
+          // Nếu đã đăng nhập, kiểm tra role để redirect
+          if (data.user && data.user.role === 'student') {
+            // Nếu là learner, redirect đến learner.html
+            window.location.href = '/learner.html';
+            return;
+          } else if (data.user && data.user.role === 'teacher') {
+            // Nếu là tutor, redirect đến tutor.html
+            window.location.href = '/tutor.html';
+            return;
+          } else if (data.user && data.user.role === 'admin') {
+            // Nếu là admin, hiển thị trang quản lý
+            loginBtn.classList.add('hidden');
+            signupBtn.classList.add('hidden');
+            logoutBtn.classList.remove('hidden');
+            postQuestionBtn.classList.add('hidden');
+            document.getElementById('tutorRequestBtn').classList.add('hidden');
+            document.getElementById('manageTutorRequestsBtn').classList.remove('hidden');
+          }
         } else {
+          // Nếu chưa đăng nhập, hiển thị nút login/signup
           loginBtn.classList.remove('hidden');
           signupBtn.classList.remove('hidden');
           logoutBtn.classList.add('hidden');
           postQuestionBtn.classList.add('hidden');
+          document.getElementById('tutorRequestBtn').classList.add('hidden');
+          document.getElementById('manageTutorRequestsBtn').classList.add('hidden');
         }
       } catch (err) {
         console.error('Auth check error:', err);
+        // Nếu có lỗi, hiển thị nút login/signup
+        document.getElementById('loginBtn').classList.remove('hidden');
+        document.getElementById('signupBtn').classList.remove('hidden');
+        document.getElementById('logoutBtn').classList.add('hidden');
+        document.getElementById('postQuestionBtn').classList.add('hidden');
+        document.getElementById('tutorRequestBtn').classList.add('hidden');
+        document.getElementById('manageTutorRequestsBtn').classList.add('hidden');
       }
     }
 
@@ -75,6 +104,7 @@
         });
         const data = await res.json();
         const questionsDiv = document.getElementById('questions');
+        questionsDiv.innerHTML = '';
         if (res.ok) {
           if (data.questions.length === 0) {
             questionsDiv.textContent = 'No questions available.';
@@ -82,14 +112,63 @@
             data.questions.forEach(q => {
               const div = document.createElement('div');
               div.className = 'question';
-              div.innerHTML = `<strong>${q.subject}</strong> by ${q.username} on ${q.date_posted}:<br>${q.text_content}`;
+              // Hiển thị số like và nút like/unlike
+              let likeText = `<span id="like-count-${q.question_id}">${q.so_luot_like}</span> lượt thích`;
+              let likeBtn = '';
+              if (q.da_like == 1) {
+                likeBtn = `<button class="like-btn" data-id="${q.question_id}" data-liked="1">Bỏ thích</button>`;
+              } else {
+                likeBtn = `<button class="like-btn" data-id="${q.question_id}" data-liked="0">Thích</button>`;
+              }
+              div.innerHTML = `<strong>${q.subject}</strong> bởi ${q.username} lúc ${q.date_posted}:<br>${q.text_content}<br>${likeText} ${likeBtn}`;
               questionsDiv.appendChild(div);
+            });
+            // Gán sự kiện cho các nút like/unlike
+            document.querySelectorAll('.like-btn').forEach(btn => {
+              btn.addEventListener('click', async function() {
+                const questionId = this.getAttribute('data-id');
+                const liked = this.getAttribute('data-liked') === '1';
+                if (!liked) {
+                  // Gửi yêu cầu like
+                  const res = await fetch(`${BASE_URL}/questions/${questionId}/like`, {
+                    method: 'POST',
+                    credentials: 'include'
+                  });
+                  if (res.ok) {
+                    // Cập nhật giao diện
+                    this.textContent = 'Bỏ thích';
+                    this.setAttribute('data-liked', '1');
+                    const countSpan = document.getElementById(`like-count-${questionId}`);
+                    countSpan.textContent = parseInt(countSpan.textContent) + 1;
+                  } else {
+                    const data = await res.json();
+                    alert(data.error || 'Lỗi khi like');
+                  }
+                } else {
+                  // Gửi yêu cầu unlike
+                  const res = await fetch(`${BASE_URL}/questions/${questionId}/like`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                  });
+                  if (res.ok) {
+                    // Cập nhật giao diện
+                    this.textContent = 'Thích';
+                    this.setAttribute('data-liked', '0');
+                    const countSpan = document.getElementById(`like-count-${questionId}`);
+                    countSpan.textContent = Math.max(0, parseInt(countSpan.textContent) - 1);
+                  } else {
+                    const data = await res.json();
+                    alert(data.error || 'Lỗi khi bỏ like');
+                  }
+                }
+              });
             });
           }
         } else {
           questionsDiv.textContent = `Error: ${data.error}`;
         }
       } catch (err) {
+        const questionsDiv = document.getElementById('questions');
         questionsDiv.textContent = 'Server or network error';
         console.error('Fetch error:', err);
       }

@@ -7,6 +7,7 @@ const authRoutes = require('./routes/auth');
 const questionRoutes = require('./routes/questions');
 const rootRoutes = require('./routes/root');
 const client = require('./config/db');
+const tutorRequestRoutes = require('./routes/tutorRequest');
 require('dotenv').config();
 
 const app = express();
@@ -16,6 +17,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors({ credentials: true, origin: 'http://localhost:3000' }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../frontend')));
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Session configuration
 app.use(session({
@@ -37,6 +39,7 @@ app.use(session({
 app.use('/auth', authRoutes);
 app.use('/questions', questionRoutes);
 app.use('/', rootRoutes);
+app.use('/api', tutorRequestRoutes);
 
 // Start server
 app.listen(PORT, () => {
