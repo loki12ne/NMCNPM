@@ -37,7 +37,7 @@ router.get('/', async (req, res) => {
     const username = req.session.user?.username || null;
     const query = `
       SELECT q.question_id, q.username, q.text_content, q.subject, q.date_posted,
-        COUNT(ql.like_id) AS so_luot_like,
+        COUNT(ql.question_id) AS so_luot_like,
         MAX(CASE WHEN ql.username = $1 THEN 1 ELSE 0 END) AS da_like
       FROM Questions q
       LEFT JOIN QuestionLikes ql ON q.question_id = ql.question_id

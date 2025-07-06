@@ -40,6 +40,8 @@ async function createTables() {
         question_id SERIAL PRIMARY KEY,
         username VARCHAR(50) REFERENCES Accounts(username),
         text_content TEXT,
+        img_url TEXT,
+        pdf_url TEXT,
         subject VARCHAR(50),
         date_posted TIMESTAMP
       );
@@ -48,38 +50,35 @@ async function createTables() {
     // Create QuestionLikes
     await client.query(`
       CREATE TABLE QuestionLikes (
-        like_id SERIAL PRIMARY KEY,
         question_id INTEGER NOT NULL REFERENCES Questions(question_id) ON DELETE CASCADE,
         username VARCHAR(50) NOT NULL REFERENCES Accounts(username) ON DELETE CASCADE,
-        UNIQUE (question_id, username)
+        PRIMARY KEY (question_id, username)
       );
     `);
      
     // Create Answers
     await client.query(`
       CREATE TABLE Answers (
-        answer_id INTEGER NOT NULL,
-        question_id INTEGER NOT NULL REFERENCES Questions(question_id),
+        answer_id SERIAL PRIMARY KEY,
+        question_id INTEGER NOT NULL REFERENCES Questions(question_id) ON DELETE CASCADE,
         user_ask VARCHAR(50) REFERENCES Accounts(username),
         user_answer VARCHAR(50) REFERENCES Accounts(username),
         text_content TEXT,
-        date_posted TIMESTAMP,
-        PRIMARY KEY (answer_id, question_id)
+        date_posted TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        img_url TEXT,
+        pdf_url TEXT
       );
     `);
 
     // Create FeedBacks
     await client.query(`
       CREATE TABLE FeedBacks (
-        feedback_id INTEGER NOT NULL,
-        answer_id INTEGER NOT NULL,
-        question_id INTEGER NOT NULL,
+        feedback_id SERIAL PRIMARY KEY,
+        answer_id INTEGER NOT NULL REFERENCES Answers(answer_id) ON DELETE CASCADE,
         username VARCHAR(50) REFERENCES Accounts(username),
         rating SMALLINT,
         comment TEXT,
-        date_posted TIMESTAMP,
-        PRIMARY KEY (feedback_id, answer_id, question_id),
-        FOREIGN KEY (answer_id, question_id) REFERENCES Answers(answer_id, question_id)
+        date_posted TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
 
@@ -106,7 +105,47 @@ async function createTables() {
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
     `);
+    //Create StudyPlans
+    await client.query(`
+        CREATE TABLE StudyPlans (
+          plan_id SERIAL PRIMARY KEY,
+          username VARCHAR(50) NOT NULL REFERENCES Accounts(username) ON DELETE CASCADE,
+          title VARCHAR(200) NOT NULL,
+          subject VARCHAR(100),
+          description TEXT,
+          priority VARCHAR(20) DEFAULT 'medium' CHECK (priority IN ('low', 'medium', 'high')),
+          status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'in_progress', 'completed', 'cancelled')),
+          due_date DATE,
+          progress_percentage INTEGER DEFAULT 0 CHECK (progress_percentage >= 0 AND progress_percentage <= 100),
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+      `);
+    //Create Notifications
+    await client.query(`
+      CREATE TABLE Notifications (
+        notification_id SERIAL PRIMARY KEY,
+        username VARCHAR(50) NOT NULL REFERENCES Accounts(username) ON DELETE CASCADE,
+        type VARCHAR(50) NOT NULL,
+        title VARCHAR(200) NOT NULL,
+        message TEXT NOT NULL,
+        related_id INTEGER,
+        related_type VARCHAR(50),
+        is_read BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
 
+    //Create TutorPerformance
+    await client.query(`
+      CREATE TABLE TutorPerformance (
+        username VARCHAR(50) PRIMARY KEY REFERENCES Accounts(username) ON DELETE CASCADE,
+        average_rating DECIMAL(3,2) DEFAULT 0.00,
+        questions_answered INTEGER DEFAULT 0,
+        total_feedback INTEGER DEFAULT 0,
+        last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    
     // Insert sample data
     await client.query(`
       INSERT INTO Accounts (username, password, role) VALUES
@@ -116,7 +155,7 @@ async function createTables() {
         ('teacher1', 'teach123', 'teacher')
       ON CONFLICT (username) DO NOTHING;
     `);
-
+    
     await client.query(`
       INSERT INTO Questions (username, text_content, subject, date_posted) VALUES
         ('nguyenanh', 'Tính diện tích hình tròn có bán kính 5cm?', 'toán', '2025-06-01 10:00:00'),
@@ -127,7 +166,7 @@ async function createTables() {
       ON CONFLICT (question_id) DO NOTHING;
     `);
 
-    console.log("Tables 'Accounts', 'Questions', 'Answers', 'FeedBacks', 'sessions', 'TutorRequests', 'QuestionLikes' created successfully.");
+    console.log("Tables 'Accounts', 'Questions', 'Answers', 'FeedBacks', 'sessions', 'TutorRequests', 'QuestionLikes', 'StudyPlans', 'Notifications', 'TutorPerformance' created successfully.");
   } catch (err) {
     console.error("Error creating tables:", err);
   } finally {
