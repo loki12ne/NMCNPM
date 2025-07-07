@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Answer Question</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f0f4ff;
+      min-height: 100vh;
+      margin-left: 200px;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    h1 { 
+      text-align: center; 
+      font-size: 48px;
+      font-weight: 600;
+      color: #2a3f80;
+      margin-bottom: 16px;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 18px;
+      color: #89CFF0;
+      margin-bottom: 48px;
+      font-weight: 400;
+    }
+
+    .auth-buttons { 
+      position: absolute; 
+      top: 20px; 
+      right: 20px; 
+      display: flex; 
+      gap: 12px; 
+    }
+
+    .auth-btn {
+      padding: 12px 20px;
+      border: 2px solid #557cf2;
+      border-radius: 12px;
+      font-size: 15px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .back-btn {
+      background: white;
+      color: #557cf2;
+      border-color: #557cf2;
+    }
+
+    .back-btn:hover {
+      background: #557cf2;
+      color: white;
+    }
+
+    .logout-btn {
+      background: #557cf2;
+      color: white;
+      border-color: #557cf2;
+    }
+
+    .logout-btn:hover {
+      background: #7997f2;
+      border-color: #7997f2;
+    }
+
+    .question-section {
+      background: white;
+      padding: 32px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0, 127, 255, 0.08);
+      border: 1px solid #f0f4ff;
+      margin-bottom: 32px;
+    }
+
+    .section-title {
+      font-size: 24px;
+      font-weight: 600;
+      color: #2a3f80;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .question-card { 
+      background-color: #f8faff; 
+      padding: 24px; 
+      border-radius: 12px; 
+      border: 1px solid #e6f2ff;
+      margin-bottom: 16px;
+    }
+
+    .question-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .meta-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .meta-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .subject-tag { 
+      background-color: #f0f4ff; 
+      border: 1px solid #a1caf1;
+      padding: 6px 14px; 
+      border-radius: 20px; 
+      font-size: 13px;
+      font-weight: 600;
+      color: #003399;
+      display: inline-block;
+    }
+
+    .likes {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #007fff;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .heart-icon {
+      width: 24px;
+      height: 24px;
+      background-color: #a1caf1;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #003399;
+    }
+
+    .comments {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #89CFF0;
+      font-size: 14px;
+    }
+
+    .comment-icon {
+      width: 24px;
+      height: 24px;
+      background-color: #f0f4ff;
+      border: 1px solid #a1caf1;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #003399;
+    }
+
+    .question-content {
+      margin-bottom: 16px;
+    }
+
+    .question-title { 
+      font-weight: 600;
+      color: #2a3f80;
+      font-size: 18px;
+      line-height: 1.6;
+      margin-bottom: 8px;
+    }
+
+    .question-text {
+      color: #555;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .question-info { 
+      color: #89CFF0; 
+      font-size: 14px;
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      padding-top: 16px;
+      border-top: 1px solid #e6f2ff;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .user-icon {
+      color: #a1caf1;
+      font-size: 16px;
+    }
+
+    .answer-form-section {
+      background: white;
+      padding: 32px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0, 127, 255, 0.08);
+      border: 1px solid #f0f4ff;
+      margin-bottom: 32px;
+    }
+
+    .form-group {
+      margin-bottom: 24px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 16px;
+      font-weight: 600;
+      color: #2a3f80;
+      margin-bottom: 8px;
+    }
+
+    #answer-content {
+      width: 100%;
+      min-height: 200px;
+      padding: 16px;
+      border: 2px solid #e6f2ff;
+      border-radius: 12px;
+      background-color: #ffffff;
+      outline: none;
+      font-size: 15px;
+      color: #2a3f80;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      resize: vertical;
+      transition: all 0.3s ease;
+    }
+
+    #answer-content:focus {
+      border-color: #557cf2;
+      box-shadow: 0 0 0 3px rgba(85, 124, 242, 0.1);
+    }
+
+    #answer-content::placeholder {
+      color: #a1caf1;
+    }
+
+    .submit-btn {
+      background: #557cf2;
+      color: white;
+      border: none;
+      padding: 16px 32px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 160px;
+      justify-content: center;
+    }
+
+    .submit-btn:hover {
+      background: #7997f2;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(85, 124, 242, 0.4);
+    }
+
+    .submit-btn:disabled {
+      background: #a1caf1;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .error {
+      background: #fff5f5;
+      color: #e53e3e;
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid #fed7d7;
+      text-align: center;
+      font-weight: 500;
+      margin-top: 16px;
+    }
+
+    .success {
+      background: #f0fff4;
+      color: #38a169;
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid #c6f6d5;
+      text-align: center;
+      font-weight: 500;
+      margin-top: 16px;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 20px;
+      color: #89CFF0;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #557cf2;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-right: 8px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        margin-left: 70px;
+        padding: 16px;
+      }
+
+      h1 {
+        font-size: 36px;
+        margin-bottom: 12px;
+      }
+
+      .subtitle {
+        font-size: 16px;
+        margin-bottom: 32px;
+      }
+
+      .container {
+        padding: 20px 16px;
+      }
+
+      .auth-buttons {
+        position: relative;
+        top: auto;
+        right: auto;
+        justify-content: center;
+        margin-bottom: 20px;
+      }
+
+      .question-section,
+      .answer-form-section {
+        padding: 24px 20px;
+      }
+
+      .question-meta {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+      }
+
+      .meta-right {
+        align-self: flex-end;
+      }
+
+      .question-info {
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Include Sidebar -->
+  <div id="sidebar-container"></div>
+
+  <div class="auth-buttons">
+    <button onclick="window.location.href='/tutor.html'" class="auth-btn back-btn">Back to Questions</button>
+    <button onclick="logout()" class="auth-btn logout-btn">Logout</button>
+  </div>
+
+  <div class="container">
+    <h1>Answer Question</h1>
+    <p class="subtitle">Provide a helpful answer to the student's question</p>
+    
+    <div class="question-section">
+      <h2 class="section-title">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M8.228 9C8.43 8.42 8.84 7.93 9.38 7.61C9.92 7.29 10.55 7.17 11.18 7.27C11.81 7.37 12.39 7.68 12.82 8.15C13.25 8.62 13.5 9.22 13.5 9.84C13.5 11.5 11.5 12.33 11.5 12.33M12 17H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="#2a3f80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Question Details
+      </h2>
+      <div id="question-details">
+        <div class="loading">
+          <div class="spinner"></div>
+          Loading question...
+        </div>
+      </div>
+    </div>
+
+    <div class="answer-form-section">
+      <h2 class="section-title">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z" stroke="#2a3f80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Your Answer
+      </h2>
+      <form id="answerForm">
+        <div class="form-group">
+          <label for="answer-content" class="form-label">Write your answer</label>
+          <textarea 
+            id="answer-content" 
+            placeholder="Provide a detailed and helpful answer to help the student understand the concept..."
+            required
+          ></textarea>
+        </div>
+        <button type="submit" class="submit-btn" id="submitBtn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Submit Answer
+        </button>
+      </form>
+      <div id="result"></div>
+    </div>
+  </div>
+
+  <script src="/js/config.js"></script>
+  <script>
+    // Load sidebar
+    fetch('/sidebar.html')
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById('sidebar-container').innerHTML = data;
+        // Execute sidebar scripts
+        const sidebarScripts = document.getElementById('sidebar-container').querySelectorAll('script');
+        sidebarScripts.forEach(script => {
+          const newScript = document.createElement('script');
+          newScript.textContent = script.textContent;
+          document.head.appendChild(newScript);
+        });
+      })
+      .catch(error => console.error('Error loading sidebar:', error));
+
+    /**
+     * Lấy danh sách câu hỏi từ server
+     */
+    async function getQuestions() {
+      try {
+        const res = await fetch(`${BASE_URL}/questions`, {
+          method: 'GET',
+          credentials: 'include'
+        });
+        return await res.json();
+      } catch (err) {
+        console.error('Get questions error:', err);
+        return { error: 'Network error' };
+      }
+    }
+
+    /**
+     * Gửi câu trả lời cho câu hỏi
+     */
+    async function submitAnswer(questionId, textContent) {
+      try {
+        const res = await fetch(`${BASE_URL}/questions/answer`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            question_id: questionId,
+            text_content: textContent
+          })
+        });
+        return await res.json();
+      } catch (err) {
+        console.error('Submit answer error:', err);
+        return { error: 'Network error' };
+      }
+    }
+
+    /**
+     * Đăng xuất người dùng
+     */
+    async function logout() {
+      try {
+        const res = await fetch(`${BASE_URL}/auth/logout`, {
+          method: 'POST',
+          credentials: 'include'
+        });
+        if (res.ok) {
+          window.location.href = '/login.html';
+        }
+      } catch (err) {
+        console.error('Logout error:', err);
+      }
+    }
+
+    /**
+     * Kiểm tra xác thực và phân quyền
+     */
+    async function checkAuthAndRedirect() {
+      try {
+        const res = await fetch(`${BASE_URL}/auth/check-auth`, {
+          method: 'GET',
+          credentials: 'include'
+        });
+        const data = await res.json();
+        
+        if (!data.isAuthenticated) {
+          // Nếu chưa đăng nhập, redirect về trang chủ
+          window.location.href = '/index.html';
+          return;
+        }
+        
+        // FIXED: Chấp nhận cả teacher, tutor, và admin
+        const allowedRoles = ['teacher', 'tutor', 'admin'];
+        if (!data.user || !allowedRoles.includes(data.user.role)) {
+          // Nếu không phải tutor, redirect về trang chủ
+          window.location.href = '/index.html';
+          return;
+        }
+        
+        // Nếu là tutor, load dữ liệu
+        loadQuestion();
+      } catch (err) {
+        console.error('Auth check error:', err);
+        window.location.href = '/index.html';
+      }
+    }
+
+    async function loadQuestion() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const questionId = urlParams.get('question_id');
+      const questionDetailsDiv = document.getElementById('question-details');
+      
+      if (!questionId) {
+        questionDetailsDiv.innerHTML = '<div class="error">No question ID provided</div>';
+        return;
+      }
+
+      // Show loading
+      questionDetailsDiv.querySelector('.loading').style.display = 'block';
+
+      try {
+        const result = await getQuestions();
+        if (result.questions) {
+          const question = result.questions.find(q => q.question_id == questionId);
+          if (question) {
+            questionDetailsDiv.innerHTML = `
+              <div class="question-card">
+                <div class="question-meta">
+                  <div class="meta-left">
+                    <span class="subject-tag">${question.subject}</span>
+                  </div>
+                  <div class="meta-right">
+                    <div class="likes">
+                      <span class="heart-icon">❤️</span>
+                      ${question.likes || question.so_luot_like || 0}
+                    </div>
+                    <div class="comments">
+                      <span class="comment-icon">💬</span>
+                      ${question.comments || question.so_luot_comment || 0}
+                    </div>
+                  </div>
+                </div>
+                <div class="question-content">
+                  <h3 class="question-title">${question.title || 'Question'}</h3>
+                  <p class="question-text">${question.text_content}</p>
+                  ${renderFilePreview(question.img_url, question.pdf_url)}
+                </div>
+                <div class="question-info">
+                  <div class="user-info">
+                    <span class="user-icon">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M20.5899 22C20.5899 18.13 16.7399 15 11.9999 15C7.25991 15 3.40991 18.13 3.40991 22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </span>
+                    ${question.username}
+                  </div>
+                  <div class="date">
+                    ${new Date(question.date_posted).toLocaleDateString()}
+                  </div>
+                </div>
+              </div>
+            `;
+          } else {
+            questionDetailsDiv.innerHTML = '<div class="error">Question not found</div>';
+          }
+        } else {
+          questionDetailsDiv.innerHTML = `<div class="error">Error loading question: ${result.error}</div>`;
+        }
+      } catch (err) {
+        console.error('Load question error:', err);
+        questionDetailsDiv.innerHTML = '<div class="error">Network error loading question</div>';
+      }
+    }
+
+    // Hàm render file preview cho 1 ảnh hoặc 1 PDF
+    function renderFilePreview(img_url, pdf_url) {
+      if (img_url) {
+        return `<div style=\"margin-top:8px;\"><img src=\"${img_url}\" alt=\"file\" style=\"max-width:120px;max-height:120px;border-radius:8px;border:1px solid #eee;object-fit:cover;\" /></div>`;
+      } else if (pdf_url) {
+        const fileName = pdf_url.split('/').pop();
+        return `<div style=\"margin-top:8px;display:flex;align-items:center;gap:8px;\"><span style=\"font-size:32px;\">📄</span><a href=\"${pdf_url}\" target=\"_blank\" style=\"font-size:14px;\">${fileName}</a></div>`;
+      }
+      return '';
+    }
+
+    document.getElementById('answerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const urlParams = new URLSearchParams(window.location.search);
+      const questionId = urlParams.get('question_id');
+      const textContent = document.getElementById('answer-content').value.trim();
+      const resultDiv = document.getElementById('result');
+      const submitBtn = document.getElementById('submitBtn');
+
+      if (!questionId) {
+        resultDiv.innerHTML = '<div class="error">No question ID provided</div>';
+        return;
+      }
+      if (!textContent) {
+        resultDiv.innerHTML = '<div class="error">Please enter an answer</div>';
+        return;
+      }
+
+      // Show loading state
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `
+        <div class="spinner"></div>
+        Submitting...
+      `;
+
+      try {
+        console.log('Submitting answer for question:', questionId, textContent); // Debug
+        const result = await submitAnswer(questionId, textContent);
+        console.log('Submit answer result:', result); // Debug
+        
+        if (result.message) {
+          resultDiv.innerHTML = `<div class="success">${result.message}</div>`;
+          setTimeout(() => window.location.href = '/tutor.html', 2000);
+        } else {
+          resultDiv.innerHTML = `<div class="error">${result.error || 'Unknown error'}</div>`;
+          // Reset button
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Submit Answer
+          `;
+        }
+      } catch (err) {
+        console.error('Submit answer error:', err);
+        resultDiv.innerHTML = '<div class="error">Network error: Unable to submit answer</div>';
+        // Reset button
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = `
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Submit Answer
+        `;
+      }
+    });
+
+    window.onload = checkAuthAndRedirect;
+  </script>
+</body>
+</html>

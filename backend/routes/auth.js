@@ -36,12 +36,10 @@ router.post('/login', async (req, res) => {
 });
 
 router.post('/signup', async (req, res) => {
-  const { username, password, role } = req.body;
-  if (!username || !password || !role) {
-    return res.status(400).json({ error: 'Missing username, password, or role' });
-  }
-  if (!['student', 'teacher', 'admin'].includes(role)) {
-    return res.status(400).json({ error: 'Invalid role' });
+  const { username, password } = req.body;
+  const role = 'learner';
+  if (!username || !password ) {
+    return res.status(400).json({ error: 'Missing username, password' });
   }
 
   try {

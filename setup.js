@@ -15,21 +15,30 @@ async function createTables() {
     await client.connect();
     console.log("Connected to PostgreSQL");
 
-    // Drop tables
+    // Drop tables in correct order to avoid FK errors
+    await client.query(`DROP TABLE IF EXISTS Notifications CASCADE;`);
+    await client.query(`DROP TABLE IF EXISTS StudyPlans CASCADE;`);
+    await client.query(`DROP TABLE IF EXISTS TutorPerformance CASCADE;`);
     await client.query(`DROP TABLE IF EXISTS FeedBacks CASCADE;`);
+    await client.query(`DROP TABLE IF EXISTS QuestionLikes CASCADE;`);
     await client.query(`DROP TABLE IF EXISTS Answers CASCADE;`);
     await client.query(`DROP TABLE IF EXISTS Questions CASCADE;`);
+    await client.query(`DROP TABLE IF EXISTS TutorRequests CASCADE;`);
     await client.query(`DROP TABLE IF EXISTS sessions CASCADE;`);
     await client.query(`DROP TABLE IF EXISTS Accounts CASCADE;`);
+    await client.query(`DROP TABLE IF EXISTS QuestionTopics CASCADE;`);
+    await client.query(`DROP TABLE IF EXISTS SystemStatistics CASCADE;`);
+    await client.query(`DROP TABLE IF EXISTS LearnerStatistics CASCADE;`);
+    await client.query(`DROP TABLE IF EXISTS TutorAnswered CASCADE;`);
 
     // Create Accounts
     await client.query(`
       CREATE TABLE Accounts (
         username VARCHAR(50) NOT NULL PRIMARY KEY,
         password VARCHAR(50) NOT NULL,
-        role VARCHAR(50),
-        CONSTRAINT CK_Accounts CHECK (username ~ '^[a-zA-Z0-9]{1,15}$'),
-        CONSTRAINT CK_Accounts_Password CHECK (password ~ '^[a-zA-Z0-9]{6,15}$')
+        role VARCHAR(20) NOT NULL DEFAULT 'learner' CHECK (role IN ('learner', 'tutor', 'admin')),
+        CONSTRAINT CK_Username CHECK (username ~ '^[a-zA-Z0-9]{1,15}$'),
+        CONSTRAINT CK_Password CHECK (password ~ '^[a-zA-Z0-9]{6,15}$')
       );
     `);
 
@@ -37,38 +46,51 @@ async function createTables() {
     await client.query(`
       CREATE TABLE Questions (
         question_id SERIAL PRIMARY KEY,
-        username VARCHAR(50) REFERENCES Accounts(username),
-        text_content TEXT,
-        subject VARCHAR(50),
-        date_posted TIMESTAMP
+        username VARCHAR(50) NOT NULL REFERENCES Accounts(username),
+        text_content TEXT NOT NULL,
+        img_url TEXT,
+        pdf_url TEXT,
+        subject VARCHAR(50) NOT NULL,
+        date_posted TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        is_answered BOOLEAN DEFAULT FALSE
+      );
+      CREATE INDEX idx_questions_subject ON Questions(subject);
+    `);
+
+    // Create QuestionLikes
+    await client.query(`
+      CREATE TABLE QuestionLikes (
+        question_id INTEGER NOT NULL,
+        username VARCHAR(50) NOT NULL,
+        PRIMARY KEY (question_id, username),
+        FOREIGN KEY (question_id) REFERENCES Questions(question_id) ON DELETE CASCADE,
+        FOREIGN KEY (username) REFERENCES Accounts(username) ON DELETE CASCADE
       );
     `);
 
     // Create Answers
     await client.query(`
       CREATE TABLE Answers (
-        answer_id INTEGER NOT NULL,
-        question_id INTEGER NOT NULL REFERENCES Questions(question_id),
-        user_ask VARCHAR(50) REFERENCES Accounts(username),
-        user_answer VARCHAR(50) REFERENCES Accounts(username),
-        text_content TEXT,
-        date_posted TIMESTAMP,
-        PRIMARY KEY (answer_id, question_id)
+        answer_id SERIAL PRIMARY KEY,
+        question_id INTEGER NOT NULL REFERENCES Questions(question_id) ON DELETE CASCADE,
+        user_ask VARCHAR(50) NOT NULL REFERENCES Accounts(username),
+        user_answer VARCHAR(50) NOT NULL REFERENCES Accounts(username),
+        text_content TEXT NOT NULL,
+        date_posted TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        img_url TEXT,
+        pdf_url TEXT
       );
     `);
 
     // Create FeedBacks
     await client.query(`
       CREATE TABLE FeedBacks (
-        feedback_id INTEGER NOT NULL,
-        answer_id INTEGER NOT NULL,
-        question_id INTEGER NOT NULL,
-        username VARCHAR(50) REFERENCES Accounts(username),
-        rating SMALLINT,
+        feedback_id SERIAL PRIMARY KEY,
+        question_id INTEGER NOT NULL REFERENCES Questions(question_id) ON DELETE CASCADE,
+        username VARCHAR(50) NOT NULL REFERENCES Accounts(username),
+        rating SMALLINT NOT NULL CHECK (rating BETWEEN 1 AND 5),
         comment TEXT,
-        date_posted TIMESTAMP,
-        PRIMARY KEY (feedback_id, answer_id, question_id),
-        FOREIGN KEY (answer_id, question_id) REFERENCES Answers(answer_id, question_id)
+        date_posted TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
       );
     `);
 
@@ -76,34 +98,207 @@ async function createTables() {
     await client.query(`
       CREATE TABLE sessions (
         sid VARCHAR(200) NOT NULL PRIMARY KEY,
-        sess JSON NOT NULL,
+        sess JSONB NOT NULL,
         expire TIMESTAMP NOT NULL
+      );
+    `);
+
+    // Create TutorRequests
+    await client.query(`
+      CREATE TABLE TutorRequests (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(50) NOT NULL REFERENCES Accounts(username),
+        full_name VARCHAR(100) NOT NULL,
+        university VARCHAR(100) NOT NULL,
+        faculty VARCHAR(100) NOT NULL,
+        year INTEGER NOT NULL,
+        student_card_image TEXT,
+        status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
+        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // Create StudyPlans
+    await client.query(`
+      CREATE TABLE StudyPlans (
+        plan_id SERIAL PRIMARY KEY,
+        username VARCHAR(50) NOT NULL REFERENCES Accounts(username) ON DELETE CASCADE,
+        title VARCHAR(200) NOT NULL,
+        subject VARCHAR(100),
+        description TEXT,
+        priority VARCHAR(20) DEFAULT 'medium' CHECK (priority IN ('low', 'medium', 'high')),
+        status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'in_progress', 'completed')),
+        due_date DATE,
+        progress_percentage INTEGER DEFAULT 0 CHECK (progress_percentage BETWEEN 0 AND 100),
+        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // Create Notifications
+    await client.query(`
+      CREATE TABLE Notifications (
+        notification_id SERIAL PRIMARY KEY,
+        username VARCHAR(50) NOT NULL REFERENCES Accounts(username) ON DELETE CASCADE,
+        type VARCHAR(50) NOT NULL CHECK (type IN ('answer', 'feedback', 'tutor_approved', 'tutor_rejected', 'tutor_removed')),
+        title VARCHAR(200) NOT NULL,
+        message TEXT NOT NULL,
+        related_id INTEGER,
+        related_type VARCHAR(50),
+        is_read BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // Create TutorPerformance
+    await client.query(`
+      CREATE TABLE TutorPerformance (
+        username VARCHAR(50) PRIMARY KEY REFERENCES Accounts(username) ON DELETE CASCADE,
+        average_rating DECIMAL(3,2) DEFAULT 0.00,
+        questions_answered INTEGER DEFAULT 0,
+        total_feedback INTEGER DEFAULT 0,
+        last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // Create QuestionTopics
+    await client.query(`
+      CREATE TABLE QuestionTopics (
+        topic_id SERIAL PRIMARY KEY,
+        question_id INTEGER NOT NULL REFERENCES Questions(question_id) ON DELETE CASCADE,
+        topic_name VARCHAR(50) NOT NULL
+      );
+    `);
+
+    // Create SystemStatistics
+    await client.query(`
+      CREATE TABLE SystemStatistics (
+        stat_id SERIAL PRIMARY KEY,
+        total_users INTEGER NOT NULL,
+        total_questions INTEGER NOT NULL,
+        total_answers INTEGER NOT NULL,
+        last_updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // Create LearnerStatistics 
+    await client.query(`
+      CREATE TABLE LearnerStatistics (
+        stat_id SERIAL PRIMARY KEY,
+        username VARCHAR(50) NOT NULL REFERENCES Accounts(username) ON DELETE CASCADE,
+        questions_posted INTEGER NOT NULL,
+        interests VARCHAR(100),
+        last_activity TIMESTAMP
+      );
+    `);
+
+    // Create TutorAnswered
+    await client.query(`
+      CREATE TABLE TutorAnswered (
+        id SERIAL PRIMARY KEY,
+        question_id INTEGER NOT NULL REFERENCES Questions(question_id) ON DELETE CASCADE,
+        username VARCHAR(50) NOT NULL REFERENCES Accounts(username) ON DELETE CASCADE,
+        answered_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
       );
     `);
 
     // Insert sample data
     await client.query(`
       INSERT INTO Accounts (username, password, role) VALUES
-        ('nguyenanh', 'pass1234', 'student'),
-        ('tranhoa', 'abc12345', 'teacher'),
-        ('student1', 'pass1234', 'student'),
-        ('teacher1', 'teach123', 'teacher')
+        ('learner', '1234567', 'learner'),
+        ('giasu', '1234567', 'tutor'),
+        ('admin', '1234567', 'admin'),
+        ('teacher1', 'teach123', 'tutor')
       ON CONFLICT (username) DO NOTHING;
     `);
 
     await client.query(`
       INSERT INTO Questions (username, text_content, subject, date_posted) VALUES
-        ('nguyenanh', 'Tính diện tích hình tròn có bán kính 5cm?', 'toán', '2025-06-01 10:00:00'),
-        ('tranhoa', 'Lực hấp dẫn giữa hai vật được tính như thế nào?', 'lý', '2025-06-01 12:00:00'),
-        ('student1', 'Phương trình hóa học của phản ứng giữa Na và Cl2 là gì?', 'hóa', '2025-06-02 09:00:00'),
+        ('learner', 'Lực hấp dẫn giữa hai vật được tính như thế nào?', 'lý', '2025-06-01 12:00:00'),
+        ('learner', 'Phương trình hóa học của phản ứng giữa Na và Cl2 là gì?', 'hóa', '2025-06-02 09:00:00'),
         ('teacher1', 'Giải phương trình bậc hai: x^2 - 4x + 3 = 0', 'toán', '2025-06-02 14:00:00'),
-        ('nguyenanh', 'Tốc độ ánh sáng trong chân không là bao nhiêu?', 'lý', '2025-06-02 15:30:00')
+        ('learner', 'Tốc độ ánh sáng trong chân không là bao nhiêu?', 'lý', '2025-06-02 15:30:00')
       ON CONFLICT (question_id) DO NOTHING;
     `);
 
-    console.log("Tables 'Accounts', 'Questions', 'Answers', 'FeedBacks', 'sessions' created successfully.");
+    await client.query(`
+      INSERT INTO Answers (question_id, user_ask, user_answer, text_content, date_posted) VALUES
+        (1, 'learner', 'giasu', 'Lực hấp dẫn F = G * (m1 * m2) / r^2', '2025-06-03 10:00:00'),
+        (2, 'learner', 'teacher1', '2Na + Cl2 → 2NaCl', '2025-06-03 11:00:00')
+      ON CONFLICT (answer_id) DO NOTHING;
+    `);
+
+    await client.query(`
+      INSERT INTO FeedBacks (question_id, username, rating, comment, date_posted) VALUES
+        (1, 'learner', 4, 'Giải thích rõ ràng!', '2025-06-04 09:00:00'),
+        (2, 'learner', 5, 'Rất tốt!', '2025-06-04 10:00:00')
+      ON CONFLICT (feedback_id) DO NOTHING;
+    `);
+
+    await client.query(`
+      INSERT INTO QuestionLikes (question_id, username) VALUES
+        (1, 'learner'),
+        (2, 'learner')
+      ON CONFLICT ON CONSTRAINT questionlikes_pkey DO NOTHING;
+    `);
+
+    await client.query(`
+      INSERT INTO TutorRequests (username, full_name, university, faculty, year, student_card_image, status) VALUES
+        ('giasu', 'Nguyen Van A', 'HCMUS', 'CNTT', 3, 'http://example.com/card.jpg', 'pending')
+      ON CONFLICT (id) DO NOTHING;
+    `);
+
+    await client.query(`
+      INSERT INTO StudyPlans (username, title, subject, description, due_date, progress_percentage) VALUES
+        ('learner', 'Học Toán Lớp 10', 'toán', 'Ôn tập hình học', '2025-07-15', 30),
+        ('learner', 'Học Lý Cơ Bản', 'lý', 'Nghiên cứu lực', '2025-07-20', 10)
+      ON CONFLICT (plan_id) DO NOTHING;
+    `);
+
+    await client.query(`
+      INSERT INTO Notifications (username, type, title, message, related_id, related_type) VALUES
+        ('learner', 'answer', 'Câu hỏi đã được trả lời', 'Câu hỏi của bạn đã được giasu trả lời', 1, 'question'),
+        ('learner', 'feedback', 'Phản hồi đã được gửi', 'Bạn đã gửi phản hồi cho câu hỏi', 1, 'question')
+      ON CONFLICT (notification_id) DO NOTHING;
+    `);
+
+    await client.query(`
+      INSERT INTO TutorPerformance (username, average_rating, questions_answered, total_feedback) VALUES
+        ('giasu', 4.5, 2, 1),
+        ('teacher1', 4.8, 1, 1)
+      ON CONFLICT (username) DO NOTHING;
+    `);
+
+    await client.query(`
+      INSERT INTO QuestionTopics (question_id, topic_name) VALUES
+        (1, 'lực học'),
+        (2, 'hóa học cơ bản'),
+        (3, 'phương trình'),
+        (4, 'ánh sáng')
+      ON CONFLICT (topic_id) DO NOTHING;
+    `);
+
+    await client.query(`
+      INSERT INTO SystemStatistics (total_users, total_questions, total_answers) VALUES
+        (4, 4, 2)
+      ON CONFLICT (stat_id) DO NOTHING;
+    `);
+
+    await client.query(`
+      INSERT INTO LearnerStatistics (username, questions_posted, interests, last_activity) VALUES
+        ('learner', 3, 'toán, lý', '2025-07-07 14:00:00')
+      ON CONFLICT (stat_id) DO NOTHING;
+    `);
+
+    await client.query(`
+      INSERT INTO TutorAnswered (question_id, username) VALUES
+        (1, 'giasu'),
+        (2, 'teacher1')
+      ON CONFLICT (id) DO NOTHING;
+    `);
+
+    console.log("✅ Tables created and initialized successfully.");
   } catch (err) {
-    console.error("Error creating tables:", err);
+    console.error("❌ Error creating tables:", err);
   } finally {
     await client.end();
   }
