@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notifications</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f0f4ff;
+      min-height: 100vh;
+      margin-left: 200px;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+    }
+
+    .welcome-card {
+      background: linear-gradient(135deg, #6fa8f5 0%, #4a90e2 100%);
+      color: white;
+      padding: 20px 32px;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(79, 144, 226, 0.3);
+    }
+
+    .welcome-text {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 4px;
+      opacity: 0.9;
+    }
+
+    .user-id {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .auth-buttons { 
+      display: flex; 
+      gap: 12px; 
+    }
+
+    .auth-btn {
+      padding: 12px 20px;
+      border: 2px solid #557cf2;
+      border-radius: 12px;
+      font-size: 15px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .tutor-upgrade-btn {
+      background: #557cf2;
+      color: white;
+      border-color: #557cf2;
+    }
+
+    .tutor-upgrade-btn:hover {
+      background: #7997f2;
+      border-color: #7997f2;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(85, 124, 242, 0.4);
+    }
+
+    .logout-btn {
+      background: white;
+      color: #557cf2;
+      border-color: #557cf2;
+    }
+
+    .logout-btn:hover {
+      background: #557cf2;
+      color: white;
+    }
+
+    h1 { 
+      text-align: center; 
+      font-size: 48px;
+      font-weight: 600;
+      color: #2a3f80;
+      margin-bottom: 48px;
+    }
+
+    .notification-filters {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 32px;
+      justify-content: center;
+    }
+
+    .filter-btn {
+      padding: 8px 16px;
+      border: 2px solid #a1caf1;
+      border-radius: 8px;
+      background: white;
+      color: #2a3f80;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .filter-btn.active {
+      background: #a1caf1;
+      color: #003399;
+    }
+
+    .filter-btn:hover {
+      background: #e6f2ff;
+    }
+
+    .notifications-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 100%;
+    }
+
+    .notification-item {
+      background-color: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 127, 255, 0.1);
+      border: 1px solid #f0f4ff;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    .notification-item:hover {
+      box-shadow: 0 8px 25px rgba(0, 127, 255, 0.15);
+      border-color: #a1caf1;
+      transform: translateY(-2px);
+    }
+
+    .notification-item.unread {
+      border-left: 4px solid #557cf2;
+      background-color: #fafbff;
+    }
+
+    .notification-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: #a1caf1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: #003399;
+      flex-shrink: 0;
+    }
+
+    .notification-content {
+      flex: 1;
+    }
+
+    .notification-text {
+      color: #2a3f80;
+      font-size: 16px;
+      margin-bottom: 4px;
+    }
+
+    .notification-date {
+      color: #89CFF0;
+      font-size: 14px;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: #89CFF0;
+      font-size: 16px;
+      margin-top: 40px;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        margin-left: 70px;
+        padding: 16px;
+      }
+
+      .container {
+        padding: 20px 16px;
+      }
+
+      .header {
+        flex-direction: column;
+        gap: 20px;
+        align-items: stretch;
+      }
+
+      h1 {
+        font-size: 36px;
+        margin-bottom: 32px;
+      }
+
+      .notification-filters {
+        flex-wrap: wrap;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Include Sidebar -->
+  <div id="sidebar-container"></div>
+
+  <div class="container">
+    <div class="header">
+      <div class="welcome-card">
+        <div class="welcome-text">Welcome back</div>
+        <div class="user-id" id="userId">Loading...</div>
+      </div>
+
+      <div class="auth-buttons">
+        <button class="auth-btn tutor-upgrade-btn" id="tutorUpgradeBtn">Tutor upgrade</button>
+        <button onclick="logout()" class="auth-btn logout-btn">Logout</button>
+      </div>
+    </div>
+
+    <h1>Notifications</h1>
+    
+    <div class="notification-filters">
+      <button class="filter-btn active" data-filter="all">Read</button>
+      <button class="filter-btn" data-filter="unread">Unread</button>
+    </div>
+
+    <div class="notifications-list" id="notificationsList">
+      <!-- Sample notifications -->
+      <div class="notification-item unread">
+        <div class="notification-icon">👤</div>
+        <div class="notification-content">
+          <div class="notification-date">1 day ago</div>
+        </div>
+      </div>
+    
+      <div class="notification-item unread">
+        <div class="notification-icon">👤</div>
+        <div class="notification-content">
+          <div class="notification-date">1 day ago</div>
+        </div>
+      </div>
+      
+      <div class="notification-item unread">
+        <div class="notification-icon">👤</div>
+        <div class="notification-content">
+          <div class="notification-date">1 day ago</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const BASE_URL = 'http://localhost:3000';
+
+    // Load sidebar
+    fetch('/sidebar.html')
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById('sidebar-container').innerHTML = data;
+        // Execute sidebar scripts
+        const sidebarScripts = document.getElementById('sidebar-container').querySelectorAll('script');
+        sidebarScripts.forEach(script => {
+          const newScript = document.createElement('script');
+          newScript.textContent = script.textContent;
+          document.head.appendChild(newScript);
+        });
+      })
+      .catch(error => console.error('Error loading sidebar:', error));
+
+    /**
+     * Check authentication and redirect if needed
+     */
+    async function checkAuth() {
+      try {
+        const res = await fetch(`${BASE_URL}/auth/check-auth`, {
+          method: 'GET',
+          credentials: 'include'
+        });
+        const data = await res.json();
+        
+        if (!data.isAuthenticated) {
+          window.location.href = '/index.html';
+          return;
+        }
+
+        // Update user ID in welcome card
+        document.getElementById('userId').textContent = data.user.username || data.user.user_id || 'leaner';
+
+        // Setup tutor upgrade button based on role
+        const tutorUpgradeBtn = document.getElementById('tutorUpgradeBtn');
+        if (data.user && data.user.role === 'admin') {
+          tutorUpgradeBtn.textContent = 'Tutor request';
+          tutorUpgradeBtn.onclick = function() {
+            window.location.href = '/manage-tutor-requests.html';
+          };
+        } else {
+          tutorUpgradeBtn.textContent = 'Tutor upgrade';
+          tutorUpgradeBtn.onclick = function() {
+            window.location.href = '/tutor-request.html';
+          };
+        }
+
+        return data;
+      } catch (err) {
+        console.error('Auth check error:', err);
+        window.location.href = '/index.html';
+      }
+    }
+
+    /**
+     * Logout function
+     */
+    async function logout() {
+      try {
+        const res = await fetch(`${BASE_URL}/auth/logout`, {
+          method: 'POST',
+          credentials: 'include'
+        });
+        if (res.ok) window.location.href = '/index.html';
+      } catch (err) {
+        console.error('Logout error:', err);
+      }
+    }
+
+    // Filter functionality
+    function setupFilters() {
+      const filterBtns = document.querySelectorAll('.filter-btn');
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          filterBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const filter = btn.getAttribute('data-filter');
+          const notifications = document.querySelectorAll('.notification-item');
+          notifications.forEach(notification => {
+            if (filter === 'all') {
+              notification.style.display = 'flex';
+            } else if (filter === 'unread') {
+              if (notification.classList.contains('unread')) {
+                notification.style.display = 'flex';
+              } else {
+                notification.style.display = 'none';
+              }
+            }
+          });
+        });
+      });
+    }
+
+    function formatTime(dateString) {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffMs = now - date;
+      const diffSec = Math.floor(diffMs / 1000);
+      const diffMin = Math.floor(diffSec / 60);
+      const diffHour = Math.floor(diffMin / 60);
+      const diffDay = Math.floor(diffHour / 24);
+      if (diffSec < 60) return `${diffSec} giây trước`;
+      if (diffMin < 60) return `${diffMin} phút trước`;
+      if (diffHour < 24) return `${diffHour} giờ trước`;
+      return date.toLocaleString();
+    }
+
+    async function loadNotifications() {
+      const listDiv = document.getElementById('notificationsList');
+      listDiv.innerHTML = 'Loading...';
+      try {
+        const res = await fetch(`${BASE_URL}/notifications`, { credentials: 'include' });
+        const data = await res.json();
+        if (res.ok && data.notifications) {
+          if (data.notifications.length === 0) {
+            listDiv.innerHTML = '<div class="empty-state">No notifications yet.</div>';
+            return;
+          }
+          listDiv.innerHTML = '';
+          data.notifications.forEach(n => {
+            const div = document.createElement('div');
+            div.className = 'notification-item' + (n.is_read ? '' : ' unread');
+            div.innerHTML = `
+              <div class="notification-icon">🔔</div>
+              <div class="notification-content">
+                <div class="notification-text">${n.title ? n.title : ''} ${n.message ? n.message : ''}</div>
+                <div class="notification-date">${formatTime(n.created_at)}</div>
+              </div>
+            `;
+            div.addEventListener('click', async () => {
+              if (!n.is_read) {
+                await fetch(`${BASE_URL}/notifications/${n.notification_id}/read`, { method: 'PATCH', credentials: 'include' });
+                n.is_read = true;
+                div.classList.remove('unread');
+                // Nếu đang ở filter Unread thì ẩn luôn
+                const activeFilter = document.querySelector('.filter-btn.active').getAttribute('data-filter');
+                if (activeFilter === 'unread') {
+                  div.style.display = 'none';
+                }
+              }
+              // Điều hướng đến trang chi tiết
+              if (n.related_type === 'question' && n.related_id) {
+                window.location.href = `/learner.html?question_id=${n.related_id}`;
+              } else if (n.related_type === 'tutor_request') {
+                // window.location.href = '/manage-tutor-requests.html';
+              } else if (n.related_type === 'answer' && n.related_id) {
+                window.location.href = `/learner.html?question_id=${n.related_id}`;
+              }
+            });
+            listDiv.appendChild(div);
+          });
+        } else {
+          listDiv.innerHTML = '<div class="empty-state">Error loading notifications.</div>';
+        }
+      } catch (err) {
+        listDiv.innerHTML = '<div class="empty-state">Network error.</div>';
+      }
+    }
+
+    window.onload = async () => {
+      await checkAuth();
+      await loadNotifications();
+      setupFilters();
+    };
+  </script>
+</body>
+</html>

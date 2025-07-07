@@ -10,10 +10,8 @@ const client = new Client({
   ssl: { rejectUnauthorized: false }
 });
 
-client.connect().then(() => {
-  console.log('Connected to PostgreSQL database');
-}).catch(err => {
-  console.error('Database connection error:', err);
-});
+client.connect()
+  .then(() => console.log('Connected to PostgreSQL database'))
+  .catch(err => console.error('Database connection error:', err));
 
 module.exports = client;

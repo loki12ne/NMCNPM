@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Question Feed Overlay</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      overflow-x: hidden;
+      max-width: 100vw;
+    }
+
+    /* Feed Container - Normal page positioning instead of overlay */
+    .feed-overlay {
+      position: relative;
+      width: 100%;
+      height: 100vh; /* Fixed height to viewport */
+      background: #f0f4ff; /* Solid background instead of semi-transparent */
+      overflow: hidden; /* Prevent main container from scrolling */
+      font-family: 'Inter', Arial, sans-serif;
+    }
+
+    /* Question Feed Container - Adjusted for sidebar */
+    .feed-container {
+      position: relative;
+      width: 100%;
+      height: calc(100vh - 160px); /* Fixed height minus search bar area */
+      margin-left: 200px; /* Space for sidebar */
+      margin-top: 160px; /* Space for search bar */
+      transition: margin-left 0.3s ease;
+      overflow-y: auto; /* Enable scrolling for questions */
+      overflow-x: hidden; /* Prevent horizontal overflow */
+      max-width: calc(100vw - 200px); /* Ensure it doesn't exceed viewport width */
+    }
+
+    /* Question Cards - Following the exact position specifications from Figma */
+    .question-card {
+      position: relative; /* Changed from absolute to relative for normal flow */
+      width: min(853px, calc(100vw - 260px)); /* Responsive width that fits viewport */
+      height: 168px;
+      background: #ffffff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      padding: 20px;
+      transition: all 0.3s ease;
+      font-family: 'Inter', Arial, sans-serif;
+      max-width: 853px;
+      margin: 0 auto 20px auto; /* Center cards with spacing */
+    }
+
+    /* Remove absolute positioning styles as cards are now relative */
+    .question-card:first-child {
+      margin-top: 10px; /* Small margin for first card */
+    }
+
+    .question-card:hover {
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+      transform: translateY(-2px);
+    }
+
+    .question-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .question-subject {
+      background: #f0f4ff;
+      color: #557cf2;
+      padding: 4px 12px;
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .question-meta {
+      display: flex;
+      gap: 16px;
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    .question-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+
+    .question-content {
+      font-size: 14px;
+      color: #4b5563;
+      line-height: 1.5;
+      margin-bottom: 12px;
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
+
+    .question-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .question-stats {
+      display: flex;
+      gap: 16px;
+      font-size: 14px;
+      color: #6b7280;
+    }
+
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .action-btn {
+      padding: 8px 16px;
+      border: 1px solid #557cf2;
+      border-radius: 8px;
+      background: transparent;
+      color: #557cf2;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 500;
+    }
+
+    .action-btn:hover {
+      background: #557cf2;
+      color: white;
+    }
+
+    /* Close button - repositioned for normal page */
+    .overlay-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: #ef4444;
+      color: white;
+      border: none;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 600;
+    }
+
+    .overlay-close:hover {
+      background: #dc2626;
+      transform: scale(1.05);
+    }
+
+    /* Search Bar Styles - Fixed positioning */
+    .search-container {
+      position: fixed; /* Fixed position to stay in place */
+      top: 60px; /* Fixed distance from top */
+      left: 56%; /* Center horizontally */
+      transform: translateX(-50%); /* Perfect centering */
+      width: min(853px, calc(100vw - 260px)); /* Responsive width that matches question cards */
+      padding: 0 20px;
+      max-width: 853px;
+      z-index: 100; /* Ensure it stays above other content */
+      background: #f0f4ff; /* Match page background */
+      padding-bottom: 10px; /* Space below search bar */
+    }
+
+    .search-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 20px;
+      color: #557cf2;
+      font-size: 18px;
+      z-index: 1;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 16px 20px 16px 55px;
+      border: 2px solid #e5e7eb;
+      border-radius: 90px; /* Rounded corners */
+      background-color: #ffffff;
+      outline: none;
+      font-size: 16px;
+      color: #1f2937;
+      transition: all 0.3s ease;
+      font-family: 'Inter', Arial, sans-serif;
+    }
+
+    .search-input:focus {
+      border-color: #557cf2;
+      box-shadow: 0 0 0 3px rgba(85, 124, 242, 0.1);
+    }
+
+    .search-input::placeholder {
+      color: #9ca3af;
+    }
+
+    .search-clear {
+      position: absolute;
+      right: 15px;
+      background: none;
+      border: none;
+      color: #6b7280;
+      font-size: 18px;
+      cursor: pointer;
+      display: none;
+      width: 24px;
+      height: 24px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.2s ease;
+    }
+
+    .search-clear:hover {
+      background: #f3f4f6;
+      color: #374151;
+    }
+
+    .search-clear.show {
+      display: flex;
+    }
+
+    /* Loading and Error States - Adjusted for fixed layout */
+    .loading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      padding: 40px;
+      font-size: 16px;
+      color: #6b7280;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .error {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: #ef4444;
+      text-align: center;
+      padding: 40px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .empty-state {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      padding: 80px 20px;
+      color: #6b7280;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    /* Responsive Design for Mobile */
+    @media (max-width: 1280px) {
+      .feed-container {
+        margin-left: 70px; /* Smaller margin for collapsed sidebar */
+        margin-top: 160px; /* Keep space for search bar */
+        height: calc(100vh - 160px); /* Maintain fixed height */
+        max-width: calc(100vw - 70px); /* Adjust for collapsed sidebar */
+        padding: 10px;
+      }
+
+      .search-container {
+        left: 50%; /* Center horizontally */
+        transform: translateX(-50%); /* Perfect centering */
+        width: calc(100vw - 140px); /* Adjust for collapsed sidebar */
+        max-width: calc(100vw - 140px);
+      }
+
+      .question-card {
+        position: relative !important;
+        left: auto !important;
+        top: auto !important;
+        width: calc(100% - 20px);
+        max-width: calc(100vw - 100px);
+        margin: 10px auto 20px auto;
+        display: block;
+      }
+
+      .question-card:nth-child(1),
+      .question-card:nth-child(2),
+      .question-card:nth-child(3),
+      .question-card:nth-child(4),
+      .question-card:nth-child(n+5) {
+        position: relative;
+        left: auto;
+        top: auto;
+      }
+    }
+
+    /* Medium screens - adjust for smaller widths */
+    @media (max-width: 1024px) {
+      .search-container {
+        left: 50%; /* Center horizontally */
+        transform: translateX(-50%); /* Perfect centering */
+        width: calc(100vw - 140px); /* More responsive width */
+        max-width: calc(100vw - 140px);
+      }
+
+      .question-card {
+        width: calc(100% - 20px);
+        max-width: calc(100vw - 110px);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .feed-container {
+        margin-left: 0; /* No sidebar on mobile */
+        margin-top: 140px; /* Adjust for mobile search bar */
+        height: calc(100vh - 140px); /* Adjust height for mobile */
+        max-width: 100vw;
+        padding: 10px;
+      }
+
+      .search-container {
+        position: fixed;
+        top: 60px;
+        left: 50%; /* Center horizontally */
+        transform: translateX(-50%); /* Perfect centering */
+        width: calc(100vw - 30px); /* Full width minus padding */
+        padding: 0 15px;
+        max-width: calc(100vw - 30px);
+      }
+
+      .search-input {
+        padding: 14px 18px 14px 50px;
+        font-size: 14px;
+        border-radius: 12px; /* Keep rounded corners on mobile */
+      }
+
+      .search-icon {
+        left: 18px;
+        font-size: 16px;
+      }
+
+      .question-card {
+        width: calc(100% - 20px);
+        height: auto;
+        min-height: 168px;
+        padding: 16px;
+        margin: 10px auto 20px auto;
+        max-width: calc(100vw - 40px);
+      }
+
+      .question-header {
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-start;
+      }
+
+      .overlay-close {
+        top: 10px;
+        right: 10px;
+        padding: 8px 12px;
+        font-size: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Include Sidebar -->
+  <div id="sidebar-container"></div>
+
+  <!-- Feed Overlay Container -->
+  <div class="feed-overlay" id="feedOverlay">
+    <!-- Close Button -->
+    <button class="overlay-close" onclick="closeFeedOverlay()">✕ Close</button>
+    
+    <!-- Search Container -->
+    <div class="search-container">
+      <div class="search-wrapper">
+        <span class="search-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M21 21L16.514 16.506L21 21ZM19 10.5C19 15.194 15.194 19 10.5 19C5.806 19 2 15.194 2 10.5C2 5.806 5.806 2 10.5 2C15.194 2 19 5.806 19 10.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <input 
+          type="text" 
+          id="searchInput" 
+          class="search-input"
+          placeholder="Search questions by subject, content, or author..."
+        />
+        <button class="search-clear" id="searchClear" onclick="clearSearch()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    
+    <!-- Question Feed Container -->
+    <div class="feed-container">
+      <div id="questions-feed">
+        <!-- Questions will be dynamically loaded here -->
+        <div class="loading">Loading questions...</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/config.js"></script>
+  <script>
+    // Global variables for search functionality
+    let allQuestions = [];
+    let filteredQuestions = [];
+
+    // Load sidebar
+    function loadSidebar() {
+      fetch('/sidebar.html')
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById('sidebar-container').innerHTML = data;
+          // Execute sidebar scripts
+          const sidebarScripts = document.getElementById('sidebar-container').querySelectorAll('script');
+          sidebarScripts.forEach(script => {
+            const newScript = document.createElement('script');
+            newScript.textContent = script.textContent;
+            document.head.appendChild(newScript);
+          });
+          // Set active state for feed page
+          setTimeout(() => {
+            const feedNavItem = document.querySelector('[data-page="feed"]');
+            if (feedNavItem) {
+              // Remove active from all items
+              document.querySelectorAll('.nav-item, .user-item').forEach(item => {
+                item.classList.remove('active');
+              });
+              // Add active to feed item
+              feedNavItem.classList.add('active');
+            }
+          }, 100);
+        })
+        .catch(error => console.error('Error loading sidebar:', error));
+    }
+
+    // Search functionality
+    function initializeSearch() {
+      const searchInput = document.getElementById('searchInput');
+      const searchClear = document.getElementById('searchClear');
+
+      searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.trim();
+        
+        // Show/hide clear button
+        if (searchTerm) {
+          searchClear.classList.add('show');
+        } else {
+          searchClear.classList.remove('show');
+        }
+
+        // Filter questions
+        filterQuestions(searchTerm);
+      });
+
+      searchInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          const searchTerm = this.value.trim();
+          filterQuestions(searchTerm);
+        }
+      });
+    }
+
+    function clearSearch() {
+      const searchInput = document.getElementById('searchInput');
+      const searchClear = document.getElementById('searchClear');
+      
+      searchInput.value = '';
+      searchClear.classList.remove('show');
+      
+      // Show all questions
+      filteredQuestions = [...allQuestions];
+      displayQuestions(filteredQuestions);
+    }
+
+    function filterQuestions(searchTerm) {
+      if (!searchTerm) {
+        filteredQuestions = [...allQuestions];
+      } else {
+        const term = searchTerm.toLowerCase();
+        filteredQuestions = allQuestions.filter(question => {
+          return (
+            question.subject.toLowerCase().includes(term) ||
+            question.text_content.toLowerCase().includes(term) ||
+            question.username.toLowerCase().includes(term)
+          );
+        });
+      }
+      
+      displayQuestions(filteredQuestions);
+    }
+
+    /**
+     * Close feed overlay and return to parent page
+     */
+    function closeFeedOverlay() {
+      // Close overlay by hiding it
+      document.getElementById('feedOverlay').style.display = 'none';
+      
+      // If opened from another page, go back
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        // Fallback to index page
+        window.location.href = '/index.html';
+      }
+    }
+
+    /**
+     * Load and display all questions in feed format
+     */
+    async function loadQuestionsFeed() {
+      const feedContainer = document.getElementById('questions-feed');
+      feedContainer.innerHTML = '<div class="loading">Loading questions...</div>';
+      
+      try {
+        const res = await fetch(`${BASE_URL}/questions`, {
+          method: 'GET',
+          credentials: 'include'
+        });
+        const data = await res.json();
+        
+        if (res.ok && data.questions) {
+          if (data.questions.length === 0) {
+            feedContainer.innerHTML = '<div class="empty-state">No questions available yet.</div>';
+            allQuestions = [];
+            filteredQuestions = [];
+          } else {
+            // Store all questions globally for search functionality
+            allQuestions = data.questions;
+            filteredQuestions = [...allQuestions];
+            displayQuestions(filteredQuestions);
+          }
+        } else {
+          feedContainer.innerHTML = '<div class="error">Error loading questions.</div>';
+        }
+      } catch (err) {
+        console.error('Error loading questions:', err);
+        feedContainer.innerHTML = '<div class="error">Network error while loading questions.</div>';
+      }
+    }
+
+    /**
+     * Display questions in feed format
+     */
+    function displayQuestions(questions) {
+      const feedContainer = document.getElementById('questions-feed');
+      feedContainer.innerHTML = '';
+      
+      if (questions.length === 0) {
+        feedContainer.innerHTML = '<div class="empty-state">No questions match your search criteria.</div>';
+        return;
+      }
+      
+      questions.forEach((question, index) => {
+        const questionCard = createQuestionCard(question, index);
+        feedContainer.appendChild(questionCard);
+      });
+    }
+
+    /**
+     * Render file preview for img_url or pdf_url
+     */
+    function renderFilePreview(img_url, pdf_url) {
+      if (img_url) {
+        return `<div style=\"margin-top:8px;\"><img src=\"${img_url}\" alt=\"file\" style=\"max-width:90px;max-height:90px;border-radius:6px;border:1px solid #eee;box-shadow:0 2px 8px #0001;object-fit:cover;\" /></div>`;
+      } else if (pdf_url) {
+        const fileName = pdf_url.split('/').pop();
+        return `<div style=\"margin-top:8px;display:flex;align-items:center;gap:8px;\"><span style=\"font-size:32px;\">📄</span><a href=\"${pdf_url}\" target=\"_blank\" style=\"font-size:14px;\">${fileName}</a></div>`;
+      }
+      return '';
+    }
+
+    /**
+     * Create a question card element
+     */
+    function createQuestionCard(question, index) {
+      const card = document.createElement('div');
+      card.className = 'question-card';
+      card.style.setProperty('--card-index', index + 1);
+      
+      // Format date
+      const date = new Date(question.date_posted).toLocaleDateString();
+      
+      card.innerHTML = `
+        <div class="question-header">
+          <span class="question-subject">${question.subject}</span>
+          <div class="question-meta">
+            <span>By ${question.username}</span>
+            <span>${date}</span>
+          </div>
+        </div>
+        
+        <div class="question-title">
+          ${question.text_content.length > 100 ? 
+            question.text_content.substring(0, 100) + '...' : 
+            question.text_content}
+        </div>
+        
+        ${renderFilePreview(question.img_url, question.pdf_url)}
+        
+        <div class="question-actions">
+          <div class="question-stats">
+            <div class="stat-item">
+              <span>❤️</span>
+              <span>${question.so_luot_like || 0} likes</span>
+            </div>
+          </div>
+          
+          <button class="action-btn" onclick="viewQuestionDetails(${question.question_id})">
+            View Details
+          </button>
+        </div>
+      `;
+      
+      // Make the entire card clickable
+      card.style.cursor = 'pointer';
+      card.addEventListener('click', (e) => {
+        // Don't trigger if clicking on the button
+        if (!e.target.classList.contains('action-btn')) {
+          viewQuestionDetails(question.question_id);
+        }
+      });
+      
+      return card;
+    }
+
+    /**
+     * View question details - Opens in learner.html with question parameter
+     */
+    function viewQuestionDetails(questionId) {
+      // Close overlay and navigate to question details
+      window.location.href = `/learner.html?question_id=${questionId}`;
+    }
+
+    /**
+     * Authentication check and load questions
+     */
+    async function checkAuthAndRedirect() {
+      try {
+        const res = await fetch(`${BASE_URL}/auth/check-auth`, {
+          method: 'GET',
+          credentials: 'include'
+        });
+        const data = await res.json();
+        
+        if (!data.isAuthenticated) {
+          window.location.href = '/index.html';
+          return;
+        }
+        
+        // Allow both student and teacher to view feed
+        if (data.user && (data.user.role === 'learner' || data.user.role === 'tutor')) {
+          loadQuestionsFeed();
+        } else {
+          window.location.href = '/index.html';
+        }
+      } catch (err) {
+        console.error('Auth check error:', err);
+        window.location.href = '/index.html';
+      }
+    }
+
+    // Handle ESC key to close overlay
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        closeFeedOverlay();
+      }
+    });
+
+    // Initialize overlay and load sidebar
+    window.onload = function() {
+      loadSidebar();
+      checkAuthAndRedirect();
+      // Initialize search functionality
+      initializeSearch();
+    };
+  </script>
+</body>
+</html>

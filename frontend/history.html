@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>History</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f0f4ff;
+      min-height: 100vh;
+      margin-left: 200px;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+    }
+
+    .welcome-card {
+      background: linear-gradient(135deg, #6fa8f5 0%, #4a90e2 100%);
+      color: white;
+      padding: 20px 32px;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(79, 144, 226, 0.3);
+    }
+
+    .welcome-text {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 4px;
+      opacity: 0.9;
+    }
+
+    .user-id {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .auth-buttons { 
+      display: flex; 
+      gap: 12px; 
+    }
+
+    .auth-btn {
+      padding: 12px 20px;
+      border: 2px solid #557cf2;
+      border-radius: 12px;
+      font-size: 15px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .tutor-upgrade-btn {
+      background: #557cf2;
+      color: white;
+      border-color: #557cf2;
+    }
+
+    .tutor-upgrade-btn:hover {
+      background: #7997f2;
+      border-color: #7997f2;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(85, 124, 242, 0.4);
+    }
+
+    .logout-btn {
+      background: white;
+      color: #557cf2;
+      border-color: #557cf2;
+    }
+
+    .logout-btn:hover {
+      background: #557cf2;
+      color: white;
+    }
+
+    h1 { 
+      text-align: center; 
+      font-size: 48px;
+      font-weight: 600;
+      color: #2a3f80;
+      margin-bottom: 48px;
+    }
+
+    .questions-container {
+      width: 100%;
+    }
+
+    .questions-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+      padding: 0 4px;
+    }
+
+    .questions-title {
+      font-size: 28px;
+      font-weight: 600;
+      color: #2a3f80;
+    }
+
+    .questions-count {
+      background: #a1caf1;
+      color: #003399;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .questions { 
+      display: grid; 
+      gap: 20px;
+      width: 100%;
+    }
+
+    .question-card { 
+      background-color: white; 
+      padding: 24px; 
+      border-radius: 16px; 
+      box-shadow: 0 4px 12px rgba(0, 127, 255, 0.08);
+      border: 1px solid #f0f4ff;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .question-card:hover {
+      box-shadow: 0 12px 32px rgba(0, 127, 255, 0.15);
+      border-color: #a1caf1;
+      transform: translateY(-4px);
+    }
+
+    .question-card.has-answer {
+      border-left: 4px solid #4ade80;
+    }
+
+    .question-card.no-answer {
+      border-left: 4px solid #f59e0b;
+    }
+
+    .question-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .meta-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .meta-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .likes {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #007fff;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .heart-icon {
+      width: 24px;
+      height: 24px;
+      background-color: #a1caf1;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #003399;
+    }
+
+    .comments {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #89CFF0;
+      font-size: 14px;
+    }
+
+    .comment-icon {
+      width: 24px;
+      height: 24px;
+      background-color: #f0f4ff;
+      border: 1px solid #a1caf1;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #003399;
+    }
+
+    .subject-tag { 
+      background-color: #f0f4ff; 
+      border: 1px solid #a1caf1;
+      padding: 6px 14px; 
+      border-radius: 20px; 
+      font-size: 13px;
+      font-weight: 600;
+      color: #003399;
+      display: inline-block;
+    }
+
+    .status-tag {
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .status-answered {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .status-unanswered {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .question-content {
+      margin-bottom: 16px;
+    }
+
+    .question-title { 
+      font-weight: 600;
+      color: #2a3f80;
+      font-size: 18px;
+      line-height: 1.6;
+      margin-bottom: 8px;
+    }
+
+    .question-text {
+      color: #555;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .question-info { 
+      color: #89CFF0; 
+      font-size: 14px;
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      padding-top: 16px;
+      border-top: 1px solid #e6f2ff;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .user-icon {
+      color: #a1caf1;
+      font-size: 16px;
+    }
+
+    .answer-section {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 2px solid #e6f2ff;
+      display: none;
+      animation: slideDown 0.3s ease-out;
+    }
+
+    .answer-section.expanded {
+      display: block;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .answer-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .answer-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 16px;
+    }
+
+    .answer-meta {
+      flex: 1;
+    }
+
+    .answer-author {
+      font-weight: 600;
+      color: #2a3f80;
+      font-size: 16px;
+    }
+
+    .answer-date {
+      color: #89CFF0;
+      font-size: 14px;
+    }
+
+    .answer-content {
+      background: #f8fafc;
+      padding: 20px;
+      border-radius: 12px;
+      border-left: 4px solid #4ade80;
+    }
+
+    .answer-text {
+      color: #374151;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .expand-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #557cf2;
+      font-size: 14px;
+      font-weight: 500;
+      margin-top: 12px;
+    }
+
+    .expand-icon {
+      transition: transform 0.3s ease;
+    }
+
+    .question-card.expanded .expand-icon {
+      transform: rotate(180deg);
+    }
+
+    .no-questions {
+      text-align: center;
+      padding: 60px 20px;
+      color: #89CFF0;
+      font-size: 18px;
+    }
+
+    .error {
+      background: #fff5f5;
+      color: #e53e3e;
+      padding: 16px;
+      border-radius: 12px;
+      border: 1px solid #fed7d7;
+      text-align: center;
+      font-weight: 500;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        margin-left: 70px;
+        padding: 16px;
+      }
+
+      .container {
+        padding: 20px 16px;
+      }
+
+      .header {
+        flex-direction: column;
+        gap: 20px;
+        align-items: stretch;
+      }
+
+      h1 {
+        font-size: 36px;
+        margin-bottom: 32px;
+      }
+
+      .questions-header {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+      }
+
+      .question-card {
+        padding: 20px;
+      }
+
+      .question-meta {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+      }
+
+      .meta-right {
+        align-self: flex-end;
+      }
+
+      .question-info {
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Include Sidebar -->
+  <div id="sidebar-container"></div>
+
+  <div class="container">
+    <div class="header">
+      <div class="welcome-card">
+        <div class="welcome-text">Welcome back</div>
+        <div class="user-id" id="userId">Loading...</div>
+      </div>
+
+      <div class="auth-buttons">
+        <button class="auth-btn tutor-upgrade-btn" id="tutorUpgradeBtn">Tutor upgrade</button>
+        <button onclick="logout()" class="auth-btn logout-btn">Logout</button>
+      </div>
+    </div>
+
+    <h1>Question History</h1>
+
+    <div class="questions-container">
+      <div class="questions-header">
+        <h2 class="questions-title">Your Questions</h2>
+        <div class="questions-count" id="questionsCount">0 questions</div>
+      </div>
+      
+      <div class="questions" id="questions">
+        <!-- Questions will be loaded here -->
+      </div>
+      
+      <p id="result"></p>
+    </div>
+
+    <div class="answers-container" style="margin-top: 48px;">
+      <div class="questions-header">
+        <h2 class="questions-title">Your Answers</h2>
+      </div>
+      <div class="answers" id="answers">
+        <!-- Answers will be loaded here -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const BASE_URL = 'http://localhost:3000';
+
+    // Load sidebar
+    fetch('/sidebar.html')
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById('sidebar-container').innerHTML = data;
+        // Execute sidebar scripts
+        const sidebarScripts = document.getElementById('sidebar-container').querySelectorAll('script');
+        sidebarScripts.forEach(script => {
+          const newScript = document.createElement('script');
+          newScript.textContent = script.textContent;
+          document.head.appendChild(newScript);
+        });
+      })
+      .catch(error => console.error('Error loading sidebar:', error));
+
+    /**
+     * Check authentication and redirect if needed
+     */
+    async function checkAuth() {
+      try {
+        const res = await fetch(`${BASE_URL}/auth/check-auth`, {
+          method: 'GET',
+          credentials: 'include'
+        });
+        const data = await res.json();
+        
+        if (!data.isAuthenticated) {
+          window.location.href = '/index.html';
+          return;
+        }
+
+        // Update user ID in welcome card
+        document.getElementById('userId').textContent = data.user.username || data.user.user_id || 'leaner';
+
+        // Setup tutor upgrade button based on role
+        const tutorUpgradeBtn = document.getElementById('tutorUpgradeBtn');
+        if (data.user && data.user.role === 'admin') {
+          tutorUpgradeBtn.textContent = 'Tutor request';
+          tutorUpgradeBtn.onclick = function() {
+            window.location.href = '/manage-tutor-requests.html';
+          };
+        } else {
+          tutorUpgradeBtn.textContent = 'Tutor upgrade';
+          tutorUpgradeBtn.onclick = function() {
+            window.location.href = '/tutor-request.html';
+          };
+        }
+
+        return data;
+      } catch (err) {
+        console.error('Auth check error:', err);
+        window.location.href = '/index.html';
+      }
+    }
+
+    /**
+     * Logout function
+     */
+    async function logout() {
+      try {
+        const res = await fetch(`${BASE_URL}/auth/logout`, {
+          method: 'POST',
+          credentials: 'include'
+        });
+        if (res.ok) window.location.href = '/index.html';
+      } catch (err) {
+        console.error('Logout error:', err);
+      }
+    }
+
+    /**
+     * Toggle answer visibility
+     */
+    function toggleAnswer(questionCard, questionId) {
+      const answerSection = questionCard.querySelector('.answer-section');
+      const expandIcon = questionCard.querySelector('.expand-icon');
+      
+      if (answerSection.classList.contains('expanded')) {
+        answerSection.classList.remove('expanded');
+        questionCard.classList.remove('expanded');
+      } else {
+        answerSection.classList.add('expanded');
+        questionCard.classList.add('expanded');
+      }
+    }
+
+    // Hàm render file preview cho 1 ảnh hoặc 1 PDF
+    function renderFilePreview(img_url, pdf_url) {
+      if (img_url) {
+        return `<div style=\"margin-top:8px;\"><img src=\"${img_url}\" alt=\"file\" style=\"max-width:120px;max-height:120px;border-radius:8px;border:1px solid #eee;object-fit:cover;\" /></div>`;
+      } else if (pdf_url) {
+        const fileName = pdf_url.split('/').pop();
+        return `<div style=\"margin-top:8px;display:flex;align-items:center;gap:8px;\"><span style=\"font-size:32px;\">📄</span><a href=\"${pdf_url}\" target=\"_blank\" style=\"font-size:14px;\">${fileName}</a></div>`;
+      }
+      return '';
+    }
+
+    /**
+     * Load user's question history
+     */
+    async function loadQuestionHistory() {
+      try {
+        const res = await fetch(`${BASE_URL}/questions/my-questions`, {
+          method: 'GET',
+          credentials: 'include'
+        });
+        const data = await res.json();
+        const questionsDiv = document.getElementById('questions');
+        const questionsCount = document.getElementById('questionsCount');
+        questionsDiv.innerHTML = '';
+
+        if (res.ok && data.questions) {
+          const questionCount = data.questions.length;
+          questionsCount.textContent = `${questionCount} question${questionCount !== 1 ? 's' : ''}`;
+
+          if (questionCount === 0) {
+            questionsDiv.innerHTML = '<div class="no-questions">You haven\'t asked any questions yet. Start learning! 📚</div>';
+            return;
+          }
+
+          for (const q of data.questions) {
+            const div = document.createElement('div');
+            div.className = 'question-card';
+
+            // Check if question has an answer
+            let answerHtml = '';
+            let hasAnswer = false;
+            let statusClass = 'no-answer';
+            let statusText = 'Unanswered';
+
+            try {
+              const answerRes = await fetch(`${BASE_URL}/questions/answer/${q.question_id}`, { 
+                credentials: 'include' 
+              });
+              
+              if (answerRes.ok) {
+                const answerData = await answerRes.json();
+                if (answerData && answerData.text_content) {
+                  hasAnswer = true;
+                  statusClass = 'has-answer';
+                  statusText = 'Answered';
+                  
+                  answerHtml = `
+                    <div class="answer-section">
+                      <div class="answer-header">
+                        <div class="answer-icon">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                        </div>
+                        <div class="answer-meta">
+                          <div class="answer-author">Answered by ${answerData.user_answer}</div>
+                          <div class="answer-date">${new Date(answerData.date_answered).toLocaleDateString()}</div>
+                        </div>
+                      </div>
+                      <div class="answer-content">
+                        <div class="answer-text">${answerData.text_content}</div>
+                      </div>
+                    </div>
+                  `;
+                }
+              }
+            } catch (err) {
+              console.log('No answer found for question:', q.question_id);
+            }
+
+            div.classList.add(statusClass);
+            div.innerHTML = `
+              <div class="question-meta">
+                <div class="meta-left">
+                  <span class="subject-tag">${q.subject}</span>
+                  <span class="status-tag status-${statusClass === 'has-answer' ? 'answered' : 'unanswered'}">${statusText}</span>
+                </div>
+                <div class="meta-right">
+                  <div class="likes">
+                    <span class="heart-icon">❤️</span>
+                    ${q.likes || q.so_luot_like || 0}
+                  </div>
+                  <div class="comments">
+                    <span class="comment-icon">💬</span>
+                    ${q.comments || q.so_luot_comment || 0}
+                  </div>
+                </div>
+              </div>
+              <div class="question-content">
+                <h3 class="question-title">${q.title || 'Question'}</h3>
+                <p class="question-text">${q.text_content}</p>
+                ${renderFilePreview(q.img_url, q.pdf_url)}
+              </div>
+              <div class="question-info">
+                <div class="user-info">
+                  <span class="user-icon">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M20.5899 22C20.5899 18.13 16.7399 15 11.9999 15C7.25991 15 3.40991 18.13 3.40991 22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </span>
+                  ${q.username}
+                </div>
+                <div class="date">
+                  ${new Date(q.date_posted).toLocaleDateString()}
+                </div>
+              </div>
+              ${hasAnswer ? `
+                <div class="expand-indicator">
+                  <span>Click to ${hasAnswer ? 'view answer' : 'see details'}</span>
+                  <svg class="expand-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+              ` : ''}
+              ${answerHtml}
+            `;
+
+            // Add click event to toggle answer if it exists
+            if (hasAnswer) {
+              div.addEventListener('click', (e) => {
+                // Don't toggle if clicking on links or buttons
+                if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') return;
+                toggleAnswer(div, q.question_id);
+              });
+            }
+
+            questionsDiv.appendChild(div);
+          }
+        } else {
+          questionsCount.textContent = '0 questions';
+          questionsDiv.innerHTML = `<div class="error">Server error: ${data.error || 'Unknown error'}</div>`;
+        }
+      } catch (err) {
+        document.getElementById('questions').innerHTML = '<div class="error">Network error or server unavailable</div>';
+        document.getElementById('questionsCount').textContent = '0 questions';
+        console.error('Fetch error:', err);
+      }
+    }
+
+    // Load user's answer history
+    async function loadAnswerHistory() {
+      try {
+        const res = await fetch(`${BASE_URL}/questions/my-answers`, {
+          method: 'GET',
+          credentials: 'include'
+        });
+        const data = await res.json();
+        const answersDiv = document.getElementById('answers');
+        answersDiv.innerHTML = '';
+
+        if (res.ok && data.answers) {
+          if (data.answers.length === 0) {
+            answersDiv.innerHTML = '<div class="no-questions">You haven\'t answered any questions yet.</div>';
+            return;
+          }
+          for (const a of data.answers) {
+            const div = document.createElement('div');
+            div.className = 'question-card has-answer';
+            div.innerHTML = `
+              <div class="question-meta">
+                <div class="meta-left">
+                  <span class="subject-tag">${a.subject}</span>
+                  <span class="status-tag status-answered">Answered</span>
+                </div>
+              </div>
+              <div class="question-content">
+                <h3 class="question-title">${a.question_content}</h3>
+                <p class="question-text"><b>Your answer:</b> ${a.answer_content}</p>
+              </div>
+              <div class="question-info">
+                <div class="date">
+                  Asked: ${new Date(a.question_date).toLocaleDateString()}<br>
+                  Answered: ${new Date(a.answer_date).toLocaleDateString()}
+                </div>
+              </div>
+            `;
+            answersDiv.appendChild(div);
+          }
+        } else {
+          answersDiv.innerHTML = `<div class="error">Server error: ${data.error || 'Unknown error'}</div>`;
+        }
+      } catch (err) {
+        document.getElementById('answers').innerHTML = '<div class="error">Network error or server unavailable</div>';
+        console.error('Fetch error:', err);
+      }
+    }
+
+    window.onload = async () => {
+      await checkAuth();
+      loadQuestionHistory();
+      loadAnswerHistory();
+    };
+  </script>
+</body>
+</html>

@@ -19,4 +19,16 @@ router.get('/post-question.html', isAuthenticated, (req, res) => {
   res.sendFile(path.join(__dirname, '../..', 'frontend', 'post-question.html'));
 });
 
+router.get('/answer.html', isAuthenticated, (req, res) => {
+  res.sendFile(path.join(__dirname, '../..', 'frontend', 'answer.html'));
+});
+
+router.get('/learner.html', isAuthenticated, (req, res) => {
+  res.sendFile(path.join(__dirname, '../..', 'frontend', 'learner.html'));
+});
+
+router.get('/tutor.html', isAuthenticated, (req, res) => {
+  res.sendFile(path.join(__dirname, '../..', 'frontend', 'tutor.html'));
+});
+
 module.exports = router;
