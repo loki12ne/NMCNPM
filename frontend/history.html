@@ -523,16 +523,27 @@
 
         // Setup tutor upgrade button based on role
         const tutorUpgradeBtn = document.getElementById('tutorUpgradeBtn');
+        const answersContainer = document.querySelector('.answers-container');
+        
         if (data.user && data.user.role === 'admin') {
           tutorUpgradeBtn.textContent = 'Tutor request';
           tutorUpgradeBtn.onclick = function() {
             window.location.href = '/manage-tutor-requests.html';
           };
+          // Show answers section for admin
+          answersContainer.style.display = 'block';
+        } else if (data.user && data.user.role === 'tutor') {
+          tutorUpgradeBtn.style.display = 'none';
+          // Show answers section for tutor
+          answersContainer.style.display = 'block';
         } else {
+          // Learner role
           tutorUpgradeBtn.textContent = 'Tutor upgrade';
           tutorUpgradeBtn.onclick = function() {
             window.location.href = '/tutor-request.html';
           };
+          // Hide answers section for learner
+          answersContainer.style.display = 'none';
         }
 
         return data;
@@ -772,9 +783,13 @@
     }
 
     window.onload = async () => {
-      await checkAuth();
+      const authData = await checkAuth();
       loadQuestionHistory();
-      loadAnswerHistory();
+      
+      // Only load answer history for tutors and admins
+      if (authData && authData.user && (authData.user.role === 'tutor' || authData.user.role === 'admin')) {
+        loadAnswerHistory();
+      }
     };
   </script>
 </body>

@@ -127,36 +127,7 @@
       cursor: pointer;
       font-size: 18px;
     }
-
-    .topic-container {
-      margin-bottom: 32px;
-    }
-
-    .topic-label {
-      display: block;
-      font-size: 14px;
-      font-weight: 500;
-      color: #2a3f80;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 12px;
-    }
-
-    .topic-input {
-      width: 100%;
-      padding: 16px;
-      border: 1px solid #a1caf1;
-      border-radius: 8px;
-      font-size: 16px;
-      font-family: 'Inter', sans-serif;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-
-    .topic-input:focus {
-      border-color: #557cf2;
-    }
-
+   
     .category-container {
       margin-bottom: 32px;
     }
@@ -349,16 +320,6 @@
           <label for="file" style="font-weight:500; color:#2a3f80;">Đính kèm (ảnh hoặc PDF, chỉ 1 file):</label><br>
           <input type="file" id="file" name="file" accept="image/*,.pdf" style="margin-top:8px;" />
           <div id="file-preview" style="margin-top:8px;"></div>
-        </div>
-        <div class="topic-container">
-          <label for="topic" class="topic-label">TOPIC</label>
-          <input 
-            type="text" 
-            id="topic" 
-            name="topic" 
-            class="topic-input" 
-            placeholder="Enter topic..."
-          />
         </div>
         <div class="category-container">
           <label class="category-label">Category</label>

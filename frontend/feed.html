@@ -30,34 +30,36 @@
     .feed-container {
       position: relative;
       width: 100%;
-      height: calc(100vh - 160px); /* Fixed height minus search bar area */
-      margin-left: 200px; /* Space for sidebar */
-      margin-top: 160px; /* Space for search bar */
+      min-height: calc(100vh - 140px); /* Minimum height minus search bar area */
+      margin-left: clamp(0px, 15vw, 200px); /* Responsive sidebar space */
+      margin-top: clamp(120px, 12vh, 160px); /* Responsive search bar space */
       transition: margin-left 0.3s ease;
       overflow-y: auto; /* Enable scrolling for questions */
       overflow-x: hidden; /* Prevent horizontal overflow */
-      max-width: calc(100vw - 200px); /* Ensure it doesn't exceed viewport width */
+      max-width: calc(100vw - clamp(0px, 15vw, 200px)); /* Responsive max width */
+      padding: clamp(10px, 2vw, 20px); /* Responsive padding */
     }
 
     /* Question Cards - Following the exact position specifications from Figma */
     .question-card {
       position: relative; /* Changed from absolute to relative for normal flow */
-      width: min(853px, calc(100vw - 260px)); /* Responsive width that fits viewport */
-      height: 168px;
+      width: min(90vw, 853px); /* Fluid width with maximum */
+      min-height: clamp(140px, 15vh, 168px); /* Responsive height */
+      height: auto; /* Allow content to determine height */
       background: #ffffff;
       border: 1px solid #e5e7eb;
-      border-radius: 12px;
+      border-radius: clamp(8px, 1.5vw, 12px); /* Responsive border radius */
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      padding: 20px;
+      padding: clamp(12px, 2.5vw, 20px); /* Responsive padding */
       transition: all 0.3s ease;
       font-family: 'Inter', Arial, sans-serif;
-      max-width: 853px;
-      margin: 0 auto 20px auto; /* Center cards with spacing */
+      max-width: min(90vw, 853px);
+      margin: 0 auto clamp(12px, 2vh, 20px) auto; /* Responsive spacing */
     }
 
     /* Remove absolute positioning styles as cards are now relative */
     .question-card:first-child {
-      margin-top: 10px; /* Small margin for first card */
+      margin-top: clamp(5px, 1vh, 10px); /* Responsive first card margin */
     }
 
     .question-card:hover {
@@ -75,32 +77,33 @@
     .question-subject {
       background: #f0f4ff;
       color: #557cf2;
-      padding: 4px 12px;
-      border-radius: 16px;
-      font-size: 12px;
+      padding: clamp(3px, 0.5vw, 4px) clamp(8px, 1.5vw, 12px); /* Responsive padding */
+      border-radius: clamp(12px, 2vw, 16px); /* Responsive border radius */
+      font-size: clamp(10px, 1.2vw, 12px); /* Responsive font size */
       font-weight: 600;
     }
 
     .question-meta {
       display: flex;
-      gap: 16px;
-      font-size: 12px;
+      gap: clamp(8px, 2vw, 16px); /* Responsive gap */
+      font-size: clamp(10px, 1.2vw, 12px); /* Responsive font size */
       color: #6b7280;
+      flex-wrap: wrap; /* Allow wrapping on small screens */
     }
 
     .question-title {
-      font-size: 16px;
+      font-size: clamp(14px, 2vw, 16px); /* Responsive font size */
       font-weight: 600;
       color: #1f2937;
-      margin-bottom: 8px;
+      margin-bottom: clamp(6px, 1vh, 8px); /* Responsive margin */
       line-height: 1.4;
     }
 
     .question-content {
-      font-size: 14px;
+      font-size: clamp(12px, 1.8vw, 14px); /* Responsive font size */
       color: #4b5563;
       line-height: 1.5;
-      margin-bottom: 12px;
+      margin-bottom: clamp(8px, 1.5vh, 12px); /* Responsive margin */
       overflow: hidden;
       display: -webkit-box;
       -webkit-line-clamp: 2;
@@ -116,27 +119,29 @@
 
     .question-stats {
       display: flex;
-      gap: 16px;
-      font-size: 14px;
+      gap: clamp(8px, 2vw, 16px); /* Responsive gap */
+      font-size: clamp(12px, 1.8vw, 14px); /* Responsive font size */
       color: #6b7280;
+      flex-wrap: wrap; /* Allow wrapping */
     }
 
     .stat-item {
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: clamp(2px, 0.5vw, 4px); /* Responsive gap */
     }
 
     .action-btn {
-      padding: 8px 16px;
+      padding: clamp(6px, 1vh, 8px) clamp(12px, 2vw, 16px); /* Responsive padding */
       border: 1px solid #557cf2;
-      border-radius: 8px;
+      border-radius: clamp(6px, 1vw, 8px); /* Responsive border radius */
       background: transparent;
       color: #557cf2;
-      font-size: 12px;
+      font-size: clamp(10px, 1.2vw, 12px); /* Responsive font size */
       cursor: pointer;
       transition: all 0.3s ease;
       font-weight: 500;
+      white-space: nowrap; /* Prevent text wrapping */
     }
 
     .action-btn:hover {
@@ -168,15 +173,15 @@
     /* Search Bar Styles - Fixed positioning */
     .search-container {
       position: fixed; /* Fixed position to stay in place */
-      top: 60px; /* Fixed distance from top */
-      left: 56%; /* Center horizontally */
+      top: clamp(40px, 8vh, 60px); /* Responsive top position */
+      left: 50%; /* Center horizontally */
       transform: translateX(-50%); /* Perfect centering */
-      width: min(853px, calc(100vw - 260px)); /* Responsive width that matches question cards */
-      padding: 0 20px;
-      max-width: 853px;
+      width: min(90vw, 853px); /* Responsive width that matches question cards */
+      padding: 0 clamp(10px, 2vw, 20px); /* Responsive padding */
+      max-width: min(90vw, 853px);
       z-index: 100; /* Ensure it stays above other content */
       background: #f0f4ff; /* Match page background */
-      padding-bottom: 10px; /* Space below search bar */
+      padding-bottom: clamp(5px, 1vh, 10px); /* Responsive space below search bar */
     }
 
     .search-wrapper {
@@ -187,20 +192,20 @@
 
     .search-icon {
       position: absolute;
-      left: 20px;
+      left: clamp(15px, 2.5vw, 20px); /* Responsive left position */
       color: #557cf2;
-      font-size: 18px;
+      font-size: clamp(16px, 2.2vw, 18px); /* Responsive font size */
       z-index: 1;
     }
 
     .search-input {
       width: 100%;
-      padding: 16px 20px 16px 55px;
+      padding: clamp(12px, 2vh, 16px) clamp(15px, 2.5vw, 20px) clamp(12px, 2vh, 16px) clamp(45px, 7vw, 55px); /* Responsive padding */
       border: 2px solid #e5e7eb;
-      border-radius: 90px; /* Rounded corners */
+      border-radius: clamp(20px, 8vw, 90px); /* Responsive rounded corners */
       background-color: #ffffff;
       outline: none;
-      font-size: 16px;
+      font-size: clamp(14px, 2vw, 16px); /* Responsive font size */
       color: #1f2937;
       transition: all 0.3s ease;
       font-family: 'Inter', Arial, sans-serif;
@@ -217,15 +222,15 @@
 
     .search-clear {
       position: absolute;
-      right: 15px;
+      right: clamp(10px, 2vw, 15px); /* Responsive right position */
       background: none;
       border: none;
       color: #6b7280;
-      font-size: 18px;
+      font-size: clamp(16px, 2.2vw, 18px); /* Responsive font size */
       cursor: pointer;
       display: none;
-      width: 24px;
-      height: 24px;
+      width: clamp(20px, 3vw, 24px); /* Responsive width */
+      height: clamp(20px, 3vw, 24px); /* Responsive height */
       align-items: center;
       justify-content: center;
       border-radius: 50%;
@@ -248,12 +253,14 @@
       left: 50%;
       transform: translate(-50%, -50%);
       text-align: center;
-      padding: 40px;
-      font-size: 16px;
+      padding: clamp(20px, 5vw, 40px); /* Responsive padding */
+      font-size: clamp(14px, 2vw, 16px); /* Responsive font size */
       color: #6b7280;
       background: white;
-      border-radius: 12px;
+      border-radius: clamp(8px, 1.5vw, 12px); /* Responsive border radius */
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: min(80vw, 400px); /* Responsive width */
+      max-width: 90vw;
     }
 
     .error {
@@ -263,10 +270,13 @@
       transform: translate(-50%, -50%);
       color: #ef4444;
       text-align: center;
-      padding: 40px;
+      padding: clamp(20px, 5vw, 40px); /* Responsive padding */
       background: white;
-      border-radius: 12px;
+      border-radius: clamp(8px, 1.5vw, 12px); /* Responsive border radius */
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: min(80vw, 400px); /* Responsive width */
+      max-width: 90vw;
+      font-size: clamp(14px, 2vw, 16px); /* Responsive font size */
     }
 
     .empty-state {
@@ -275,116 +285,130 @@
       left: 50%;
       transform: translate(-50%, -50%);
       text-align: center;
-      padding: 80px 20px;
+      padding: clamp(40px, 8vw, 80px) clamp(15px, 3vw, 20px); /* Responsive padding */
       color: #6b7280;
       background: white;
-      border-radius: 12px;
+      border-radius: clamp(8px, 1.5vw, 12px); /* Responsive border radius */
       box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: min(80vw, 500px); /* Responsive width */
+      max-width: 90vw;
+      font-size: clamp(14px, 2vw, 16px); /* Responsive font size */
     }
 
-    /* Responsive Design for Mobile */
-    @media (max-width: 1280px) {
+    /* Enhanced Responsive Design */
+    @media (max-width: 1400px) {
       .feed-container {
-        margin-left: 70px; /* Smaller margin for collapsed sidebar */
-        margin-top: 160px; /* Keep space for search bar */
-        height: calc(100vh - 160px); /* Maintain fixed height */
-        max-width: calc(100vw - 70px); /* Adjust for collapsed sidebar */
-        padding: 10px;
-      }
-
-      .search-container {
-        left: 50%; /* Center horizontally */
-        transform: translateX(-50%); /* Perfect centering */
-        width: calc(100vw - 140px); /* Adjust for collapsed sidebar */
-        max-width: calc(100vw - 140px);
-      }
-
-      .question-card {
-        position: relative !important;
-        left: auto !important;
-        top: auto !important;
-        width: calc(100% - 20px);
-        max-width: calc(100vw - 100px);
-        margin: 10px auto 20px auto;
-        display: block;
-      }
-
-      .question-card:nth-child(1),
-      .question-card:nth-child(2),
-      .question-card:nth-child(3),
-      .question-card:nth-child(4),
-      .question-card:nth-child(n+5) {
-        position: relative;
-        left: auto;
-        top: auto;
+        margin-left: clamp(0px, 8vw, 120px); /* Responsive sidebar space */
+        max-width: calc(100vw - clamp(0px, 8vw, 120px));
       }
     }
 
-    /* Medium screens - adjust for smaller widths */
+    @media (max-width: 1200px) {
+      .feed-container {
+        margin-left: clamp(0px, 6vw, 80px); /* Smaller sidebar space */
+        max-width: calc(100vw - clamp(0px, 6vw, 80px));
+      }
+    }
+
     @media (max-width: 1024px) {
+      .feed-container {
+        margin-left: clamp(0px, 4vw, 60px); /* Even smaller sidebar space */
+        max-width: calc(100vw - clamp(0px, 4vw, 60px));
+      }
+
       .search-container {
-        left: 50%; /* Center horizontally */
-        transform: translateX(-50%); /* Perfect centering */
-        width: calc(100vw - 140px); /* More responsive width */
-        max-width: calc(100vw - 140px);
+        width: min(85vw, 700px); /* Adjust width for medium screens */
+        max-width: min(85vw, 700px);
       }
 
       .question-card {
-        width: calc(100% - 20px);
-        max-width: calc(100vw - 110px);
+        width: min(85vw, 700px);
+        max-width: min(85vw, 700px);
+      }
+
+      .question-header {
+        flex-direction: column;
+        gap: clamp(6px, 1vh, 8px);
+        align-items: flex-start;
       }
     }
 
     @media (max-width: 768px) {
       .feed-container {
         margin-left: 0; /* No sidebar on mobile */
-        margin-top: 140px; /* Adjust for mobile search bar */
-        height: calc(100vh - 140px); /* Adjust height for mobile */
+        margin-top: clamp(100px, 15vh, 140px); /* Responsive top margin */
+        min-height: calc(100vh - clamp(100px, 15vh, 140px));
         max-width: 100vw;
-        padding: 10px;
+        padding: clamp(5px, 2vw, 15px);
       }
 
       .search-container {
-        position: fixed;
-        top: 60px;
-        left: 50%; /* Center horizontally */
-        transform: translateX(-50%); /* Perfect centering */
-        width: calc(100vw - 30px); /* Full width minus padding */
-        padding: 0 15px;
-        max-width: calc(100vw - 30px);
+        top: clamp(30px, 6vh, 50px);
+        width: calc(100vw - clamp(20px, 4vw, 30px));
+        padding: 0 clamp(10px, 2vw, 15px);
+        max-width: calc(100vw - clamp(20px, 4vw, 30px));
       }
 
       .search-input {
-        padding: 14px 18px 14px 50px;
-        font-size: 14px;
-        border-radius: 12px; /* Keep rounded corners on mobile */
-      }
-
-      .search-icon {
-        left: 18px;
-        font-size: 16px;
+        border-radius: clamp(15px, 4vw, 25px); /* Less rounded on mobile */
       }
 
       .question-card {
-        width: calc(100% - 20px);
-        height: auto;
-        min-height: 168px;
-        padding: 16px;
-        margin: 10px auto 20px auto;
-        max-width: calc(100vw - 40px);
+        width: calc(100vw - clamp(30px, 6vw, 40px));
+        max-width: calc(100vw - clamp(30px, 6vw, 40px));
+        min-height: auto;
       }
 
       .question-header {
         flex-direction: column;
-        gap: 8px;
+        gap: clamp(4px, 1vh, 6px);
         align-items: flex-start;
       }
 
+      .question-meta {
+        gap: clamp(6px, 1.5vw, 12px);
+      }
+
+      .question-actions {
+        flex-direction: column;
+        gap: clamp(8px, 2vh, 12px);
+        align-items: stretch;
+      }
+
+      .action-btn {
+        width: 100%;
+        text-align: center;
+      }
+
       .overlay-close {
-        top: 10px;
-        right: 10px;
-        padding: 8px 12px;
-        font-size: 12px;
+        top: clamp(5px, 2vh, 10px);
+        right: clamp(5px, 2vw, 10px);
+        padding: clamp(6px, 1.5vh, 8px) clamp(8px, 2vw, 12px);
+        font-size: clamp(10px, 1.2vw, 12px);
+      }
+    }
+
+    @media (max-width: 480px) {
+      .question-card {
+        width: calc(100vw - 20px);
+        max-width: calc(100vw - 20px);
+        margin: 0 auto clamp(8px, 2vh, 15px) auto;
+      }
+
+      .search-container {
+        width: calc(100vw - 20px);
+        max-width: calc(100vw - 20px);
+        padding: 0 10px;
+      }
+
+      .question-stats {
+        justify-content: center;
+      }
+
+      .loading, .error, .empty-state {
+        width: calc(100vw - 40px);
+        max-width: calc(100vw - 40px);
+        margin: 0 20px;
       }
     }
   </style>
@@ -661,7 +685,7 @@
      */
     function viewQuestionDetails(questionId) {
       // Close overlay and navigate to question details
-      window.location.href = `/learner.html?question_id=${questionId}`;
+      window.location.href = `/question-detail.html?question_id=${questionId}`;
     }
 
     /**
