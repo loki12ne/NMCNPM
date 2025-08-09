@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Learner Dashboard</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f0f4ff;
+      min-height: 100vh;
+      margin: 0; /* Remove margin-left */
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 100vw;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 80vh;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 48px;
+      font-weight: 600;
+      color: #2a3f80;
+      margin-bottom: 48px;
+    }
+
+    /* Auth Buttons */
+    .auth-buttons {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      gap: 12px;
+    }
+
+    .auth-btn {
+      padding: 12px 20px;
+      border: 2px solid #557cf2;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .logout-btn {
+      background: white;
+      color: #557cf2;
+    }
+
+    .logout-btn:hover {
+      background: #557cf2;
+      color: white;
+    }
+
+    .tutor-upgrade-btn {
+      background: #557cf2;
+      color: white;
+    }
+
+    .tutor-upgrade-btn:hover {
+      background: #7997f2;
+    }
+
+    /* Home View */
+    .post-question-container {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      width: 800px;
+    }
+
+    .post-question-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 80px;
+      background: linear-gradient(135deg, #557cf2 0%, #7997f2 100%);
+      border: none;
+      border-radius: 90px;
+      color: white;
+      font-size: 20px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      gap: 16px;
+      box-shadow: 0 4px 20px rgba(85, 124, 242, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .post-question-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .post-question-btn:hover::before {
+      left: 100%;
+    }
+
+    .post-question-btn:hover {
+      background: linear-gradient(135deg, #7997f2 0%, #89CFF0 100%);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 35px rgba(85, 124, 242, 0.4);
+    }
+
+    .post-question-btn svg {
+      width: 28px;
+      height: 28px;
+      transition: transform 0.3s ease;
+    }
+
+    .post-question-btn:hover svg {
+      transform: scale(1.1);
+    }
+
+    /* Question Detail View */
+    .back-button {
+      margin-bottom: 20px;
+    }
+
+    .back-btn {
+      background: #557cf2;
+      color: white;
+      border: none;
+      padding: 12px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .back-btn:hover {
+      background: #7997f2;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 127, 255, 0.4);
+    }
+
+    /* Sections */
+    .question-detail-section,
+    .answer-section,
+    .feedback-section {
+      width: 100%;
+      max-width: 1200px; /* Make this as wide as you want */
+      margin-left: auto;
+      margin-right: auto;
+      background: white;
+      padding: 32px 36px;
+      border-radius: 12px;
+      margin-bottom: 32px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #2a3f80;
+      margin-bottom: 16px;
+      border-bottom: 2px solid #f0f4ff;
+      padding-bottom: 8px;
+    }
+
+    /* Question Card */
+    .question-card {
+      background: #f8faff;
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid #e6f2ff;
+    }
+
+    .question-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .subject-tag {
+      background: #f0f4ff;
+      border: 1px solid #a1caf1;
+      padding: 4px 12px;
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #003399;
+    }
+
+    .likes-display {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #007fff;
+      font-weight: 600;
+    }
+
+    .heart-icon {
+      color: #ff4757;
+      font-size: 18px;
+    }
+
+    .question-text {
+      font-size: 16px;
+      line-height: 1.6;
+      color: #333;
+      margin-bottom: 12px;
+    }
+
+    .question-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #89CFF0;
+      font-size: 14px;
+      padding-top: 12px;
+      border-top: 1px solid #e6f2ff;
+    }
+
+    /* Answer Card */
+    .answer-card {
+      background: #f8faff;
+      padding: 20px;
+      border-radius: 8px;
+      border: 1px solid #e6f2ff;
+      margin-bottom: 16px;
+    }
+
+    .answer-text {
+      font-size: 16px;
+      line-height: 1.6;
+      color: #333;
+      margin-bottom: 12px;
+    }
+
+    .answer-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #89CFF0;
+      font-size: 14px;
+      padding-top: 12px;
+      border-top: 1px solid #e6f2ff;
+    }
+
+    /* Feedback Section */
+    .feedback-section h4 {
+      color: #2a3f80;
+      margin-bottom: 16px;
+      font-size: 20px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .feedback-section h4::before {
+      content: '💬';
+      font-size: 20px;
+    }
+
+    .feedback-list {
+      max-height: 600px;
+      overflow-y: auto;
+      padding-right: 8px;
+    }
+
+    .feedback-list::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .feedback-list::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 3px;
+    }
+
+    .feedback-list::-webkit-scrollbar-thumb {
+      background: #89CFF0;
+      border-radius: 3px;
+    }
+
+    .feedback-list::-webkit-scrollbar-thumb:hover {
+      background: #557cf2;
+    }
+
+    /* Feedback Item */
+    .feedback-item {
+      background: linear-gradient(135deg, #f8faff 0%, #ffffff 100%);
+      padding: 24px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      border: 1px solid #e6f2ff;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feedback-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    }
+
+    .feedback-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #89CFF0, #557cf2);
+    }
+
+    .feedback-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #f0f4ff;
+    }
+
+    .feedback-user-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .feedback-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #89CFF0, #557cf2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 18px;
+      text-transform: uppercase;
+    }
+
+    .feedback-user-details {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .feedback-username {
+      font-weight: 600;
+      color: #2a3f80;
+      font-size: 16px;
+      margin-bottom: 4px;
+    }
+
+    .feedback-date {
+      font-size: 12px;
+      color: #89CFF0;
+      font-weight: 500;
+    }
+
+    .rating-stars {
+      color: #ffd700;
+      font-size: 20px;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .rating-number {
+      margin-left: 8px;
+      font-size: 14px;
+      color: #666;
+      font-weight: 500;
+    }
+
+    .feedback-comment {
+      font-size: 15px;
+      color: #444;
+      line-height: 1.7;
+      margin-bottom: 16px;
+      padding: 16px;
+      background: rgba(240, 244, 255, 0.5);
+      border-radius: 8px;
+      border-left: 4px solid #89CFF0;
+      font-style: italic;
+    }
+
+    .feedback-comment::before {
+      content: '"';
+      font-size: 24px;
+      color: #89CFF0;
+      font-weight: bold;
+      margin-right: 4px;
+    }
+
+    .feedback-comment::after {
+      content: '"';
+      font-size: 24px;
+      color: #89CFF0;
+      font-weight: bold;
+      margin-left: 4px;
+    }
+
+    .feedback-stats {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 12px;
+      border-top: 1px solid #f0f4ff;
+      font-size: 13px;
+      color: #89CFF0;
+    }
+
+    .feedback-helpful {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .feedback-helpful-icon {
+      color: #4CAF50;
+    }
+
+    .no-feedback {
+      text-align: center;
+      padding: 40px;
+      color: #89CFF0;
+      font-size: 16px;
+      font-style: italic;
+      background: rgba(240, 244, 255, 0.3);
+      border-radius: 12px;
+      border: 2px dashed #e6f2ff;
+    }
+
+    .no-feedback::before {
+      content: '📝';
+      font-size: 32px;
+      display: block;
+      margin-bottom: 12px;
+    }
+
+    /* Feedback Form */
+    .feedback-form {
+      background: linear-gradient(135deg, #f0f4ff 0%, #ffffff 100%);
+      padding: 32px;
+      border-radius: 16px;
+      margin-top: 32px;
+      border: 2px solid #e6f2ff;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .feedback-form::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #89CFF0, #557cf2);
+    }
+
+    .feedback-form h3 {
+      color: #2a3f80;
+      margin-bottom: 24px;
+      font-size: 24px;
+      font-weight: 600;
+      text-align: center;
+      position: relative;
+    }
+
+    .feedback-form h3::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(90deg, #89CFF0, #557cf2);
+      border-radius: 2px;
+    }
+
+    .form-group {
+      margin-bottom: 24px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #2a3f80;
+      font-weight: 600;
+      font-size: 15px;
+    }
+
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e6f2ff;
+      border-radius: 8px;
+      font-size: 15px;
+      transition: all 0.3s ease;
+      background: white;
+    }
+
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #89CFF0;
+      box-shadow: 0 0 0 3px rgba(137, 207, 240, 0.1);
+    }
+
+    .form-group textarea {
+      min-height: 120px;
+      resize: vertical;
+      font-family: inherit;
+      line-height: 1.6;
+    }
+
+    .rating-select {
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 16px;
+      padding-right: 40px;
+    }
+
+    .submit-btn {
+      background: linear-gradient(135deg, #557cf2 0%, #89CFF0 100%);
+      color: white;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(85, 124, 242, 0.3);
+    }
+
+    .submit-btn:active {
+      transform: translateY(0);
+    }
+
+    .submit-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    .submit-btn:hover::before {
+      left: 100%;
+    }
+
+    /* Utility Classes */
+    .loading {
+      text-align: center;
+      color: #89CFF0;
+      padding: 20px;
+    }
+
+    .error {
+      background: #fff5f5;
+      color: #e53e3e;
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid #fed7d7;
+      margin: 10px 0;
+    }
+
+    .success {
+      background: #f0fff4;
+      color: #38a169;
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid #c6f6d5;
+      margin: 10px 0;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        margin-left: 70px;
+        padding: 16px;
+      }
+
+      h1 {
+        font-size: 36px;
+        margin-bottom: 32px;
+      }
+
+      .post-question-container {
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .post-question-btn {
+        width: 100%;
+        max-width: 1000px;
+        height: 80px;
+        border-radius: 12px;
+        font-size: 18px;
+      }
+
+      .post-question-btn svg {
+        width: 24px;
+        height: 24px;
+      }
+
+      .auth-buttons {
+        position: relative;
+        top: auto;
+        right: auto;
+        justify-content: center;
+        margin-bottom: 20px;
+      }
+
+      .container {
+        padding: 20px;
+        min-height: 70vh;
+      }
+
+      .feedback-item {
+        padding: 16px;
+        margin-bottom: 16px;
+      }
+
+      .feedback-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+
+      .feedback-user-info {
+        width: 100%;
+      }
+
+      .feedback-avatar {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+      }
+
+      .feedback-username {
+        font-size: 15px;
+      }
+
+      .feedback-comment {
+        font-size: 14px;
+        padding: 12px;
+        margin-bottom: 12px;
+      }
+
+      .feedback-stats {
+        flex-direction: column;
+        gap: 8px;
+        align-items: flex-start;
+      }
+
+      .feedback-form {
+        padding: 20px;
+        margin-top: 20px;
+      }
+
+      .feedback-form h3 {
+        font-size: 20px;
+        margin-bottom: 20px;
+      }
+
+      .feedback-section h4 {
+        font-size: 18px;
+      }
+
+      .feedback-list {
+        max-height: 400px;
+      }
+
+      .rating-stars {
+        font-size: 18px;
+      }
+
+      .form-group select,
+      .form-group textarea {
+        padding: 10px 14px;
+        font-size: 14px;
+      }
+
+      .submit-btn {
+        padding: 12px 24px;
+        font-size: 15px;
+      }
+    }
+
+    @media (max-width: 1024px) {
+      .question-detail-section,
+      .answer-section,
+      .feedback-section {
+        max-width: 100vw;
+        padding: 20px 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Include Sidebar -->
+  <div id="sidebar-container"></div>
+
+  <div class="auth-buttons">
+    <button class="auth-btn tutor-upgrade-btn" id="tutorUpgradeBtn">Tutor upgrade</button>
+    <button id="logoutBtn" class="auth-btn logout-btn">Log out</button>
+  </div>
+
+  <div class="container">
+    <h1 id="page-title">Home</h1>
+
+    <!-- Home View -->
+    <div id="home-view">
+      <div class="post-question-container">
+        <a href="/post-question.html" class="post-question-btn" id="postQuestionBtn">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Post a Question
+        </a>
+      </div>
+    </div>
+
+    <!-- Question Detail View -->
+    <div id="question-detail-view" style="display: none;">
+      <div class="back-button">
+        <button onclick="showHomeView()" class="back-btn">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M20 12.75C20.4142 12.75 20.75 12.4142 20.75 12C20.75 11.5858 20.4142 11.25 20 11.25V12.75ZM4 11.25C3.58579 11.25 3.25 11.5858 3.25 12C3.25 12.4142 3.58579 12.75 4 12.75V11.25ZM7.47204 17.5327C7.76624 17.8243 8.24111 17.8222 8.53269 17.528C8.82427 17.2338 8.82216 16.7589 8.52796 16.4673L7.47204 17.5327ZM6.23703 15.2527L6.76499 14.72H6.76499L6.23703 15.2527ZM6.23703 8.74731L5.70907 8.21462H5.70907L6.23703 8.74731ZM8.52796 7.53269C8.82216 7.24111 8.82428 6.76624 8.53269 6.47204C8.24111 6.17784 7.76624 6.17573 7.47204 6.46731L8.52796 7.53269ZM4.01989 12.3133L3.27591 12.4082L3.27591 12.4082L4.01989 12.3133ZM4.01989 11.6867L3.27591 11.5918L3.27591 11.5918L4.01989 11.6867ZM20 11.25H4V12.75H20V11.25ZM8.52796 16.4673L6.76499 14.72L5.70907 15.7854L7.47204 17.5327L8.52796 16.4673ZM6.76499 9.28L8.52796 7.53269L7.47204 6.46731L5.70907 8.21462L6.76499 9.28ZM6.76499 14.72C6.0495 14.0109 5.55869 13.5228 5.22659 13.1093C4.904 12.7076 4.79332 12.4496 4.76387 12.2185L3.27591 12.4082C3.35469 13.0263 3.64963 13.5412 4.05706 14.0485C4.45498 14.544 5.01863 15.1011 5.70907 15.7854L6.76499 14.72ZM5.70907 8.21462C5.01863 8.89892 4.45498 9.45597 4.05706 9.95146C3.64963 10.4588 3.3547 10.9737 3.27591 11.5918L4.76387 11.7815C4.79332 11.5504 4.904 11.2924 5.22659 10.8907C5.55869 10.4772 6.0495 9.98914 6.76499 9.28L5.70907 8.21462ZM4.76387 12.2185C4.74538 12.0734 4.74538 11.9266 4.76387 11.7815L3.27591 11.5918C3.24136 11.8629 3.24136 12.1371 3.27591 12.4082L4.76387 12.2185Z" fill="#ffffff" stroke="#ffffff" stroke-width="0.5"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="question-detail-section">
+        <h2 class="section-title">Question Details</h2>
+        <div id="question-detail-content">
+          <div class="loading">Loading question...</div>
+        </div>
+      </div>
+
+      <div class="answer-section">
+        <h2 class="section-title">Answer</h2>
+        <div id="answer-content">
+          <div class="loading">Loading answer...</div>
+        </div>
+      </div>
+
+      <div class="feedback-section">
+        <h4>Reviews & Feedback</h4>
+        <div class="feedback-list" id="feedback-content">
+          <div class="loading">Loading feedback...</div>
+        </div>
+      </div>
+
+      <!-- Feedback Form -->
+      <div class="feedback-form">
+        <h3>Share Your Feedback</h3>
+        <form id="feedbackForm">
+          <div class="form-group">
+            <label for="rating">Rating ⭐</label>
+            <select id="rating" class="rating-select" required>
+              <option value="">Select a rating</option>
+              <option value="1">⭐ 1 - Poor</option>
+              <option value="2">⭐⭐ 2 - Fair</option>
+              <option value="3">⭐⭐⭐ 3 - Good</option>
+              <option value="4">⭐⭐⭐⭐ 4 - Very Good</option>
+              <option value="5">⭐⭐⭐⭐⭐ 5 - Excellent</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="comment">Your Review (Optional)</label>
+            <textarea id="comment" placeholder="Share your thoughts about this answer... What did you like? How could it be improved?"></textarea>
+          </div>
+          <button type="submit" class="submit-btn">Submit Feedback</button>
+          </form>
+          <div id="feedback-result"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/config.js"></script>
+  <script>
+    // Load sidebar
+    fetch('/sidebar.html')
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById('sidebar-container').innerHTML = data;
+        // Execute sidebar scripts
+        const sidebarScripts = document.getElementById('sidebar-container').querySelectorAll('script');
+        sidebarScripts.forEach(script => {
+          const newScript = document.createElement('script');
+          newScript.textContent = script.textContent;
+          document.head.appendChild(newScript);
+        });
+      })
+      .catch(error => console.error('Error loading sidebar:', error));
+
+    // Authentication functions
+    async function checkAuth() {
+      try {
+        const res = await fetch(`${BASE_URL}/auth/check-auth`, {
+          method: 'GET',
+          credentials: 'include'
+        });
+        const data = await res.json();
+
+        if (!data.isAuthenticated) {
+          window.location.href = '/login.html';
+          return;
+        }
+
+        // Chỉ redirect nếu user không phải là learner và có role khác
+        if (data.user && data.user.role && data.user.role !== 'learner') {
+          if (data.user.role === 'tutor') {
+            window.location.href = '/tutor.html';
+            return;
+          } else if (data.user.role === 'admin') {
+            window.location.href = '/admin.html';
+            return;
+          }
+        }
+
+        const tutorUpgradeBtn = document.getElementById('tutorUpgradeBtn');
+
+        // Setup tutor upgrade button - chỉ hiển thị nếu là learner hoặc chưa có role
+        if (!data.user.role || data.user.role === 'learner') {
+          tutorUpgradeBtn.textContent = 'Tutor upgrade';
+          tutorUpgradeBtn.onclick = function() {
+            window.location.href = '/tutor-request.html';
+          };
+        } else {
+          tutorUpgradeBtn.style.display = 'none';
+        }
+      } catch (err) {
+        console.error('Auth check error:', err);
+        window.location.href = '/login.html';
+      }
+    }
+
+    async function logout() {
+      try {
+        const res = await fetch(`${BASE_URL}/auth/logout`, {
+          method: 'POST',
+          credentials: 'include'
+        });
+        const data = await res.json();
+        if (res.ok) {
+          window.location.href = '/index.html';
+        } else {
+          alert(`Error: ${data.error}`);
+        }
+      } catch (err) {
+        console.error('Logout error:', err);
+        alert('Network error');
+      }
+    }
+
+    // View management functions
+    function showHomeView() {
+      document.getElementById('home-view').style.display = 'block';
+      document.getElementById('question-detail-view').style.display = 'none';
+      document.getElementById('page-title').textContent = 'Home';
+
+      // Clear URL params
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    async function showQuestionDetail(questionId) {
+      document.getElementById('home-view').style.display = 'none';
+      document.getElementById('question-detail-view').style.display = 'block';
+      document.getElementById('page-title').textContent = 'Question Details';
+
+      // Update URL
+      window.history.replaceState({}, document.title, `${window.location.pathname}?question_id=${questionId}`);
+
+      await loadQuestionDetail(questionId);
+      await loadAnswer(questionId);
+      await loadFeedback(questionId);
+
+      // Setup feedback form
+      setupFeedbackForm(questionId);
+    }
+
+    // Data loading functions
+    async function loadQuestionDetail(questionId) {
+      const contentDiv = document.getElementById('question-detail-content');
+      contentDiv.innerHTML = '<div class="loading">Loading question...</div>';
+
+      try {
+        const res = await fetch(`${BASE_URL}/questions`, {
+          method: 'GET',
+          credentials: 'include'
+        });
+        const data = await res.json();
+
+        if (data.questions) {
+          const question = data.questions.find(q => q.question_id == questionId);
+          if (question) {
+            contentDiv.innerHTML = `
+              <div class="question-card">
+                <div class="question-meta">
+                  <span class="subject-tag">${question.subject}</span>
+                  <div class="likes-display">
+                    <span class="heart-icon">❤️</span>
+                    <span>${question.so_luot_like || 0} likes</span>
+                  </div>
+                </div>
+                <div class="question-text">${question.text_content}</div>
+                ${renderFilePreview(question.img_url, question.pdf_url)}
+                <div class="question-info">
+                  <span>By: ${question.username}</span>
+                  <span>${new Date(question.date_posted).toLocaleDateString()}</span>
+                </div>
+              </div>
+            `;
+          } else {
+            contentDiv.innerHTML = '<div class="error">Question not found</div>';
+          }
+        } else {
+          contentDiv.innerHTML = '<div class="error">Error loading question</div>';
+        }
+      } catch (error) {
+        console.error('Error loading question:', error);
+        contentDiv.innerHTML = '<div class="error">Network error loading question</div>';
+      }
+    }
+
+    async function loadAnswer(questionId) {
+      const contentDiv = document.getElementById('answer-content');
+      contentDiv.innerHTML = '<div class="loading">Loading answer...</div>';
+
+      try {
+        const res = await fetch(`${BASE_URL}/questions/answer/${questionId}`, {
+          method: 'GET',
+          credentials: 'include'
+        });
+
+        if (res.ok) {
+          const answer = await res.json();
+          contentDiv.innerHTML = `
+            <div class="answer-card">
+              <div class="answer-text">${answer.text_content}</div>
+              <div class="answer-info">
+                <span>Answered by: ${answer.user_answer}</span>
+                <span>${new Date(answer.date_posted).toLocaleDateString()}</span>
+              </div>
+            </div>
+          `;
+        } else {
+          contentDiv.innerHTML = '<div class="error">No answer available yet</div>';
+        }
+      } catch (error) {
+        console.error('Error loading answer:', error);
+        contentDiv.innerHTML = '<div class="error">Network error loading answer</div>';
+      }
+    }
+
+    async function loadFeedback(questionId) {
+      const contentDiv = document.getElementById('feedback-content');
+
+      try {
+        const res = await fetch(`${BASE_URL}/questions/feedback/${questionId}`, {
+          method: 'GET',
+          credentials: 'include'
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data.feedbacks && data.feedbacks.length > 0) {
+            let feedbackHtml = '';
+            data.feedbacks.forEach(feedback => {
+              const stars = '★'.repeat(feedback.rating) + '☆'.repeat(5 - feedback.rating);
+              const userInitial = feedback.username.charAt(0).toUpperCase();
+              const formatDate = new Date(feedback.date_posted).toLocaleDateString('vi-VN', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              });
+
+              feedbackHtml += `
+                <div class="feedback-item">
+                  <div class="feedback-header">
+                    <div class="feedback-user-info">
+                      <div class="feedback-avatar">${userInitial}</div>
+                      <div class="feedback-user-details">
+                        <div class="feedback-username">${feedback.username}</div>
+                        <div class="feedback-date">${formatDate}</div>
+                      </div>
+                    </div>
+                    <div class="rating-stars">
+                      ${stars}
+                      <span class="rating-number">${feedback.rating}/5</span>
+                    </div>
+                  </div>
+                  ${feedback.comment ? `
+                    <div class="feedback-comment">${feedback.comment}</div>
+                  ` : ''}
+                  <div class="feedback-stats">
+                    <span class="feedback-helpful">
+                      <span class="feedback-helpful-icon">👍</span>
+                      Helpful review
+                    </span>
+                    <span>Posted ${new Date(feedback.date_posted).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              `;
+            });
+            contentDiv.innerHTML = feedbackHtml;
+          } else {
+            contentDiv.innerHTML = '<div class="no-feedback">No feedback available yet<br>Be the first to share your thoughts!</div>';
+          }
+        } else {
+          contentDiv.innerHTML = '<div class="error">Error loading feedback</div>';
+        }
+      } catch (error) {
+        console.error('Error loading feedback:', error);
+        contentDiv.innerHTML = '<div class="error">Network error loading feedback</div>';
+      }
+    }
+
+    // Feedback form setup
+    function setupFeedbackForm(questionId) {
+      const form = document.getElementById('feedbackForm');
+      form.onsubmit = async (e) => {
+        e.preventDefault();
+
+        const rating = document.getElementById('rating').value;
+        const comment = document.getElementById('comment').value;
+        const resultDiv = document.getElementById('feedback-result');
+
+        if (!rating) {
+          resultDiv.innerHTML = '<div class="error">Please select a rating</div>';
+          return;
+        }
+
+        try {
+          const res = await fetch(`${BASE_URL}/questions/feedback`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+              question_id: questionId,
+              rating: parseInt(rating),
+              comment: comment || null
+            })
+          });
+
+          const data = await res.json();
+          if (res.ok) {
+            resultDiv.innerHTML = `<div class="success">${data.message}</div>`;
+            form.reset();
+            // Reload feedback to show the new one
+            setTimeout(() => {
+              loadFeedback(questionId);
+              resultDiv.innerHTML = '';
+            }, 2000);
+          } else {
+            resultDiv.innerHTML = `<div class="error">${data.error}</div>`;
+          }
+        } catch (error) {
+          console.error('Error submitting feedback:', error);
+          resultDiv.innerHTML = '<div class="error">Network error submitting feedback</div>';
+        }
+      };
+    }
+
+    // Hàm render file preview cho 1 ảnh hoặc 1 PDF
+    function renderFilePreview(img_url, pdf_url) {
+      if (img_url) {
+        return `<div style=\"margin-top:8px;\"><img src=\"${img_url}\" alt=\"file\" style=\"max-width:120px;max-height:120px;border-radius:8px;border:1px solid #eee;object-fit:cover;\" /></div>`;
+      } else if (pdf_url) {
+        const fileName = pdf_url.split('/').pop();
+        return `<div style=\"margin-top:8px;display:flex;align-items:center;gap:8px;\"><span style=\"font-size:32px;\">📄</span><a href=\"${pdf_url}\" target=\"_blank\" style=\"font-size:14px;\">${fileName}</a></div>`;
+      }
+      return '';
+    }
+
+    // Initialize application
+    window.onload = () => {
+      checkAuth();
+      document.getElementById('logoutBtn').addEventListener('click', logout);
+
+      // Check if there's a question ID in URL params
+      const urlParams = new URLSearchParams(window.location.search);
+      const questionId = urlParams.get('question_id');
+      if (questionId) {
+        showQuestionDetail(questionId);
+      }
+    };
+
+    // Make showQuestionDetail globally accessible
+    window.showQuestionDetail = showQuestionDetail;
+  </script>
+</body>
+</html>

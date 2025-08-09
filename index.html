@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PANDA - From Curiosity to Clarity</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f0f4ff;
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      margin: 0;
+      padding: 0;
+      background: #f0f4ff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Logo Section */
+    .logo-section {
+      flex: 0 0 52.7%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding-left: 10vw;
+      max-width: 52.7vw;
+    }
+
+    .logo-title {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 700;
+      font-size: clamp(4rem, 8vw, 8rem);
+      line-height: 1.2;
+      margin: 0;
+      background: linear-gradient(45deg, #557cf2, #a2b8fa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .logo-subtitle {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 700;
+      font-size: clamp(1.5rem, 3vw, 2.5rem);
+      line-height: 1.2;
+      margin-top: 1rem;
+      color: #2a3f80;
+    }
+
+    /* Auth Section */
+    .auth-section {
+      flex: 0 0 47.3%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+      max-width: 47.3vw;
+      min-width: 400px;
+    }
+
+    .join-text {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 900;
+      font-size: clamp(2rem, 3vw, 2.5rem);
+      line-height: 1.2;
+      margin-bottom: 2rem;
+      color: #2a3f80;
+      text-align: left;
+      width: 100%;
+      max-width: 476px;
+      display: flex;
+      align-items: center;
+    }
+
+    .signup-btn {
+      width: 100%;
+      max-width: 476px;
+      height: clamp(50px, 5vw, 69px);
+      background: #557cf2;
+      border-radius: 90px;
+      border: none;
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 700;
+      font-size: clamp(1.2rem, 2vw, 1.75rem);
+      line-height: 1.2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: #f0f4ff;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 1.5rem;
+    }
+
+    .signup-btn:hover {
+      background: #7997f2;
+      transform: translateY(-2px);
+    }
+
+    .or-divider {
+      width: 100%;
+      max-width: 476px;
+      height: 40px;
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 300;
+      font-size: clamp(1rem, 1.5vw, 1.25rem);
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: #5B5B5B;
+      margin: 1.5rem auto;
+      position: relative;
+      background: #f0f4ff;
+    }
+
+    .or-divider::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      width: calc(50% - 25px);
+      height: 1px;
+      background: #5B5B5B;
+    }
+
+    .or-divider::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 50%;
+      width: calc(50% - 25px);
+      height: 1px;
+      background: #767676;
+    }
+
+    .account-text {
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 700;
+      font-size: clamp(1.2rem, 1.8vw, 1.5rem);
+      line-height: 1.2;
+      color: #2a3f80;
+      text-align: left;
+      width: 100%;
+      max-width: 476px;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .login-btn {
+      width: 100%;
+      max-width: 476px;
+      height: clamp(50px, 5vw, 69px);
+      box-sizing: border-box;
+      border: 2px solid #557cf2;
+      border-radius: 90px;
+      background: transparent;
+      font-family: 'Inter';
+      font-style: normal;
+      font-weight: 700;
+      font-size: clamp(1.2rem, 2vw, 1.75rem);
+      line-height: 1.2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: #557cf2;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .login-btn:hover {
+      background: #7997f2;
+      border-color: #7997f2;
+      color: #f0f4ff;
+      transform: translateY(-2px);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+        overflow-y: auto;
+        padding: 2rem 1rem;
+      }
+
+      .logo-section {
+        max-width: 100%;
+        padding-left: 0;
+        text-align: center;
+        margin-bottom: 2rem;
+      }
+
+      .logo-title {
+        font-size: clamp(3rem, 10vw, 6rem);
+      }
+
+      .logo-subtitle {
+        font-size: clamp(1.2rem, 4vw, 2rem);
+      }
+
+      .auth-section {
+        max-width: 100%;
+        min-width: auto;
+        padding: 1rem;
+      }
+
+      .join-text {
+        font-size: clamp(1.5rem, 5vw, 2rem);
+      }
+
+      .signup-btn, .login-btn {
+        max-width: 100%;
+        font-size: clamp(1rem, 3vw, 1.5rem);
+      }
+
+      .or-divider {
+        font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+      }
+
+      .account-text {
+        font-size: clamp(0.9rem, 2.5vw, 1.3rem);
+      }
+
+      body {
+        overflow-y: auto;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 1rem 0.5rem;
+      }
+
+      .logo-section {
+        margin-bottom: 1rem;
+      }
+
+      .auth-section {
+        padding: 0.5rem;
+      }
+
+      .signup-btn, .login-btn {
+        height: 50px;
+        font-size: 1rem;
+      }
+
+      .join-text {
+        margin-bottom: 1rem;
+      }
+
+      .or-divider {
+        margin: 1rem 0;
+      }
+
+      .account-text {
+        margin-bottom: 1rem;
+      }
+    }
+
+    /* Landscape orientation for tablets */
+    @media (max-width: 1024px) and (orientation: landscape) {
+      .container {
+        flex-direction: row;
+        padding: 1rem;
+      }
+
+      .logo-section {
+        padding-left: 5vw;
+      }
+
+      .auth-section {
+        padding: 1rem;
+      }
+    }
+
+    /* Commented out - Questions section (not used in this design) */
+    /*
+    .questions-section {
+      position: absolute;
+      bottom: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 1200px;
+    }
+
+    .question {
+      margin: 10px 0;
+      padding: 20px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .like-btn {
+      background: #557cf2;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.3s ease;
+    }
+
+    .like-btn:hover {
+      background: #8a9676;
+    }
+    */
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Logo Section -->
+    <div class="logo-section">
+      <h1 class="logo-title">PANDA</h1>
+      <p class="logo-subtitle">from curiosity to clarity</p>
+    </div>
+
+    <!-- Auth Section -->
+    <div class="auth-section">
+      <h2 class="join-text">Join today.</h2>
+      
+      <button class="signup-btn" id="signupBtn">Sign up</button>
+      
+      <div class="or-divider">OR</div>
+      
+      <p class="account-text">Already have an account?</p>
+      
+      <button class="login-btn" id="loginBtn">Log in</button>
+    </div>
+
+    <!-- Hidden buttons for authenticated users -->
+    <div class="hidden" id="authenticatedButtons">
+      <button id="logoutBtn" class="hidden">Logout</button>
+      <a href="/post-question.html" id="postQuestionBtn" class="hidden">Post Question</a>
+      <a href="/tutor-request.html" id="tutorRequestBtn" class="hidden">Đăng ký làm gia sư</a>
+      <a href="/manage-tutor-requests.html" id="manageTutorRequestsBtn" class="hidden">Quản lý yêu cầu gia sư</a>
+    </div>
+  </div>
+
+  <!-- Commented out - Questions section (not used in this landing page design) -->
+  <!--
+  <div class="questions-section">
+    <h2>Questions</h2>
+    <div id="questions"></div>
+  </div>
+  -->
+
+  <script src="/js/config.js"></script>
+  <script>
+    /**
+     * Kiểm tra xác thực người dùng - chỉ để kiểm tra có đăng nhập hay chưa
+     * Nếu đã đăng nhập, redirect ngay lập tức
+     */
+    async function checkAuth() {
+      try {
+        const res = await fetch(`${BASE_URL}/auth/check-auth`, {
+          method: 'GET',
+          credentials: 'include'
+        });
+        const data = await res.json();
+        // 
+        const loginBtn = document.getElementById('loginBtn');
+        const signupBtn = document.getElementById('signupBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const postQuestionBtn = document.getElementById('postQuestionBtn');
+
+        if (data.isAuthenticated) {
+          // Nếu đã đăng nhập, kiểm tra role để redirect
+          if (data.user && data.user.role === 'learner') {
+            // Nếu là learner, redirect đến learner.html
+            window.location.href = '/learner.html';
+            return;
+          } else if (data.user && data.user.role === 'tutor') {
+            // Nếu là tutor, redirect đến tutor.html
+            window.location.href = '/tutor.html';
+            return;
+          } else if (data.user && data.user.role === 'admin') {
+            // Nếu là admin, redirect đến admin.html
+            window.location.href = '/admin.html';
+            return;
+          }
+          // Nếu đã đăng nhập nhưng không có role cụ thể, ẩn nút login/signup
+          loginBtn.classList.add('hidden');
+          signupBtn.classList.add('hidden');
+          logoutBtn.classList.remove('hidden');
+          postQuestionBtn.classList.remove('hidden');
+          document.getElementById('tutorRequestBtn').classList.remove('hidden');
+          document.getElementById('manageTutorRequestsBtn').classList.remove('hidden');
+        } else {
+          // Nếu chưa đăng nhập, hiển thị nút login/signup
+          loginBtn.classList.remove('hidden');
+          signupBtn.classList.remove('hidden');
+          logoutBtn.classList.add('hidden');
+          postQuestionBtn.classList.add('hidden');
+          document.getElementById('tutorRequestBtn').classList.add('hidden');
+          document.getElementById('manageTutorRequestsBtn').classList.add('hidden');
+        }
+      } catch (err) {
+        console.error('Auth check error:', err);
+        // Nếu có lỗi, hiển thị nút login/signup
+        document.getElementById('loginBtn').classList.remove('hidden');
+        document.getElementById('signupBtn').classList.remove('hidden');
+        document.getElementById('logoutBtn').classList.add('hidden');
+        document.getElementById('postQuestionBtn').classList.add('hidden');
+        document.getElementById('tutorRequestBtn').classList.add('hidden');
+        document.getElementById('manageTutorRequestsBtn').classList.add('hidden');
+      }
+    }
+
+    async function logout() {
+      try {
+        const res = await fetch(`${BASE_URL}/auth/logout`, {
+          method: 'POST',
+          credentials: 'include'
+        });
+        const data = await res.json();
+        if (res.ok) {
+          window.location.reload();
+        } else {
+          alert(`Error: ${data.error}`);
+        }
+      } catch (err) {
+        console.error('Logout error:', err);
+        alert('Network error');
+      }
+    }
+
+    // Commented out - loadQuestions function (not used in this landing page design)
+    /*
+    async function loadQuestions() {
+      try {
+        const res = await fetch(`${BASE_URL}/questions`, {
+          method: 'GET',
+          credentials: 'include'
+        });
+        const data = await res.json();
+        const questionsDiv = document.getElementById('questions');
+        questionsDiv.innerHTML = '';
+        if (res.ok) {
+          if (data.questions.length === 0) {
+            questionsDiv.textContent = 'No questions available.';
+          } else {
+            data.questions.forEach(q => {
+              const div = document.createElement('div');
+              div.className = 'question';
+              // Hiển thị số like và nút like/unlike
+              let likeText = `<span id="like-count-${q.question_id}">${q.so_luot_like}</span> lượt thích`;
+              let likeBtn = '';
+              if (q.da_like == 1) {
+                likeBtn = `<button class="like-btn" data-id="${q.question_id}" data-liked="1">Bỏ thích</button>`;
+              } else {
+                likeBtn = `<button class="like-btn" data-id="${q.question_id}" data-liked="0">Thích</button>`;
+              }
+              div.innerHTML = `<strong>${q.subject}</strong> bởi ${q.username} lúc ${q.date_posted}:<br>${q.text_content}<br>${likeText} ${likeBtn}`;
+              questionsDiv.appendChild(div);
+            });
+            // Gán sự kiện cho các nút like/unlike
+            document.querySelectorAll('.like-btn').forEach(btn => {
+              btn.addEventListener('click', async function() {
+                const questionId = this.getAttribute('data-id');
+                const liked = this.getAttribute('data-liked') === '1';
+                if (!liked) {
+                  // Gửi yêu cầu like
+                  const res = await fetch(`${BASE_URL}/questions/${questionId}/like`, {
+                    method: 'POST',
+                    credentials: 'include'
+                  });
+                  if (res.ok) {
+                    // Cập nhật giao diện
+                    this.textContent = 'Bỏ thích';
+                    this.setAttribute('data-liked', '1');
+                    const countSpan = document.getElementById(`like-count-${questionId}`);
+                    countSpan.textContent = parseInt(countSpan.textContent) + 1;
+                  } else {
+                    const data = await res.json();
+                    alert(data.error || 'Lỗi khi like');
+                  }
+                } else {
+                  // Gửi yêu cầu unlike
+                  const res = await fetch(`${BASE_URL}/questions/${questionId}/like`, {
+                    method: 'DELETE',
+                    credentials: 'include'
+                  });
+                  if (res.ok) {
+                    // Cập nhật giao diện
+                    this.textContent = 'Thích';
+                    this.setAttribute('data-liked', '0');
+                    const countSpan = document.getElementById(`like-count-${questionId}`);
+                    countSpan.textContent = Math.max(0, parseInt(countSpan.textContent) - 1);
+                  } else {
+                    const data = await res.json();
+                    alert(data.error || 'Lỗi khi bỏ like');
+                  }
+                }
+              });
+            });
+          }
+        } else {
+          questionsDiv.textContent = `Error: ${data.error}`;
+        }
+      } catch (err) {
+        const questionsDiv = document.getElementById('questions');
+        questionsDiv.textContent = 'Server or network error';
+        console.error('Fetch error:', err);
+      }
+    }
+    */
+
+    // Button event handlers
+    document.getElementById('loginBtn').addEventListener('click', function() {
+      window.location.href = '/login.html';
+    });
+
+    document.getElementById('signupBtn').addEventListener('click', function() {
+      window.location.href = '/signup.html';
+    });
+
+    // Kiểm tra auth khi load trang
+    window.onload = () => {
+      checkAuth();
+      // loadQuestions(); // Commented out - not used in this landing page design
+      document.getElementById('logoutBtn').addEventListener('click', logout);
+    };
+  </script>
+</body>
+</html>
