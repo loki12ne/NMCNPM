@@ -590,7 +590,8 @@
         return `<div style=\"margin-top:8px;\"><img src=\"${img_url}\" alt=\"file\" style=\"max-width:120px;max-height:120px;border-radius:8px;border:1px solid #eee;object-fit:cover;\" /></div>`;
       } else if (pdf_url) {
         const fileName = pdf_url.split('/').pop();
-        return `<div style=\"margin-top:8px;display:flex;align-items:center;gap:8px;\"><span style=\"font-size:32px;\">📄</span><a href=\"${pdf_url}\" target=\"_blank\" style=\"font-size:14px;\">${fileName}</a></div>`;
+        const pdfHref = `/view-pdf?u=${encodeURIComponent(pdf_url)}`;
+        return `<div style=\"margin-top:8px;display:flex;align-items:center;gap:8px;\"><span style=\"font-size:32px;\">📄</span><a href=\"${pdfHref}\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"font-size:14px;\">${fileName}</a></div>`;
       }
       return '';
     }

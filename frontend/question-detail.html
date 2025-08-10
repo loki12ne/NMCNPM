@@ -1001,7 +1001,8 @@
         return `<div style="margin-top:16px;"><img src="${img_url}" alt="file" style="max-width:200px;max-height:200px;border-radius:8px;border:1px solid #e6f2ff;object-fit:cover;" /></div>`;
       } else if (pdf_url) {
         const fileName = pdf_url.split('/').pop();
-        return `<div style="margin-top:16px;display:flex;align-items:center;gap:12px;padding:12px;background:#f8faff;border-radius:8px;border:1px solid #e6f2ff;"><span style="font-size:32px;">📄</span><a href="${pdf_url}" target="_blank" style="font-size:15px;color:#557cf2;text-decoration:none;font-weight:500;">${fileName}</a></div>`;
+        const pdfHref = `/view-pdf?u=${encodeURIComponent(pdf_url)}`;
+        return `<div style="margin-top:16px;display:flex;align-items:center;gap:12px;padding:12px;background:#f8faff;border-radius:8px;border:1px solid #e6f2ff;"><span style="font-size:32px;">📄</span><a href="${pdfHref}" target="_blank" rel="noopener noreferrer" style="font-size:15px;color:#557cf2;text-decoration:none;font-weight:500;">${fileName}</a></div>`;
       }
       return '';
     }
