@@ -156,10 +156,7 @@
       transform: translateY(-2px);
     }
 
-    .notification-item.unread {
-      border-left: 4px solid #557cf2;
-      background-color: #fafbff;
-    }
+ 
 
     .notification-icon {
       width: 40px;
@@ -241,34 +238,9 @@
     </div>
 
     <h1>Notifications</h1>
-    
-    <div class="notification-filters">
-      <button class="filter-btn active" data-filter="all">Read</button>
-      <button class="filter-btn" data-filter="unread">Unread</button>
-    </div>
 
     <div class="notifications-list" id="notificationsList">
-      <!-- Sample notifications -->
-      <div class="notification-item unread">
-        <div class="notification-icon">👤</div>
-        <div class="notification-content">
-          <div class="notification-date">1 day ago</div>
-        </div>
-      </div>
-    
-      <div class="notification-item unread">
-        <div class="notification-icon">👤</div>
-        <div class="notification-content">
-          <div class="notification-date">1 day ago</div>
-        </div>
-      </div>
-      
-      <div class="notification-item unread">
-        <div class="notification-icon">👤</div>
-        <div class="notification-content">
-          <div class="notification-date">1 day ago</div>
-        </div>
-      </div>
+      <!-- Notifications will be loaded from database -->
     </div>
   </div>
 
@@ -316,6 +288,8 @@
           tutorUpgradeBtn.onclick = function() {
             window.location.href = '/manage-tutor-requests.html';
           };
+        } else if (data.user && data.user.role === 'tutor') {
+          tutorUpgradeBtn.style.display = 'none';
         } else {
           tutorUpgradeBtn.textContent = 'Tutor upgrade';
           tutorUpgradeBtn.onclick = function() {
@@ -343,30 +317,6 @@
       } catch (err) {
         console.error('Logout error:', err);
       }
-    }
-
-    // Filter functionality
-    function setupFilters() {
-      const filterBtns = document.querySelectorAll('.filter-btn');
-      filterBtns.forEach(btn => {
-        btn.addEventListener('click', () => {
-          filterBtns.forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          const filter = btn.getAttribute('data-filter');
-          const notifications = document.querySelectorAll('.notification-item');
-          notifications.forEach(notification => {
-            if (filter === 'all') {
-              notification.style.display = 'flex';
-            } else if (filter === 'unread') {
-              if (notification.classList.contains('unread')) {
-                notification.style.display = 'flex';
-              } else {
-                notification.style.display = 'none';
-              }
-            }
-          });
-        });
-      });
     }
 
     function formatTime(dateString) {
@@ -411,18 +361,18 @@
                 n.is_read = true;
                 div.classList.remove('unread');
                 // Nếu đang ở filter Unread thì ẩn luôn
-                const activeFilter = document.querySelector('.filter-btn.active').getAttribute('data-filter');
-                if (activeFilter === 'unread') {
-                  div.style.display = 'none';
-                }
+                // const activeFilter = document.querySelector('.filter-btn.active').getAttribute('data-filter');
+                // if (activeFilter === 'unread') {
+                //   div.style.display = 'none';
+                // }
               }
               // Điều hướng đến trang chi tiết
               if (n.related_type === 'question' && n.related_id) {
-                window.location.href = `/learner.html?question_id=${n.related_id}`;
+                window.location.href = `/question-detail.html?question_id=${n.related_id}`;
               } else if (n.related_type === 'tutor_request') {
                 // window.location.href = '/manage-tutor-requests.html';
               } else if (n.related_type === 'answer' && n.related_id) {
-                window.location.href = `/learner.html?question_id=${n.related_id}`;
+                window.location.href = `/question-detail.html?question_id=${n.related_id}`;
               }
             });
             listDiv.appendChild(div);
@@ -438,7 +388,6 @@
     window.onload = async () => {
       await checkAuth();
       await loadNotifications();
-      setupFilters();
     };
   </script>
 </body>

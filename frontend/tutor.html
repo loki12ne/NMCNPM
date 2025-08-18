@@ -520,27 +520,30 @@
         const data = await res.json();
         
         if (!data.isAuthenticated) {
-          window.location.href = '/index.html';
+          window.location.href = '/login.html';
           return;
         }
 
-        // If user is not tutor/teacher/admin, redirect to learner page
-        const allowedRoles = ['tutor', 'admin'];
-        if (!data.user || !allowedRoles.includes(data.user.role)) {
+        // Check role and redirect if not appropriate for this page
+        if (data.user && data.user.role === 'learner') {
           window.location.href = '/learner.html';
+          return;
+        } else if (data.user && data.user.role === 'admin') {
+          window.location.href = '/admin.html';
+          return;
+        } else if (!data.user || data.user.role !== 'tutor') {
+          // If not tutor, learner, or admin, redirect to login
+          window.location.href = '/login.html';
           return;
         }
 
         // Update user ID in welcome card
         document.getElementById('userId').textContent = data.user.username || data.user.user_id || 'Tutor';
 
-        // Setup tutor upgrade button based on role
-        
-
         return data;
       } catch (err) {
         console.error('Auth check error:', err);
-        window.location.href = '/index.html';
+        window.location.href = '/login.html';
       }
     }
 
