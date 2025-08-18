@@ -58,7 +58,7 @@
       align-items: center;
       justify-content: center;
     }
-
+    
     .btn-secondary {
       background: white;
       color: #557cf2;
@@ -111,17 +111,12 @@
       flex: 0 0 300px;
     }
 
-    /* Line Chart Widget */
-    .line-chart-widget {
-      grid-column: 1;
-      grid-row: 1;
-    }
-
-    .chart-container {
-      width: 100%;
-      height: 300px;
-      margin-top: 16px;
-      position: relative;
+    .stat-number {
+      font-size: 48px;
+      font-weight: 700;
+      color: #2a3f80;
+      margin: 8px 0;
+      line-height: 1;
     }
 
     /* Chart Widget */
@@ -137,28 +132,8 @@
       position: relative;
     }
 
-    /* Pie Chart Widget */
-    .stat-number {
-      font-size: 48px;
-      font-weight: 700;
-      color: #2a3f80;
-      margin: 8px 0;
-      line-height: 1;
-    }
-
-    .pie-chart-widget {
-      grid-column: 2;
-      grid-row: 1;
-    }
-
-    /* Top 10 Widget */
-    .top-tutors-widget {
-      grid-column: 3;
-      grid-row: 1 / 3;
-    }
-
-    /* Learners List Widget */
-    .learners-list-widget {
+    /* Tutors List Widget */
+    .tutors-list-widget {
       width: 100%;
       margin-top: 24px;
     }
@@ -204,23 +179,23 @@
       cursor: pointer;
     }
 
-    .learners-list {
+    .tutors-list {
       max-height: 400px;
       overflow-y: auto;
     }
 
-    .learner-item {
+    .tutor-item {
       display: flex;
       align-items: center;
       padding: 16px 0;
       border-bottom: 1px solid #f3f4f6;
     }
 
-    .learner-item:last-child {
+    .tutor-item:last-child {
       border-bottom: none;
     }
 
-    .learner-avatar {
+    .tutor-avatar {
       margin-right: 16px;
     }
 
@@ -231,132 +206,16 @@
       border-radius: 50%;
     }
 
-    .learner-name {
+    .tutor-name {
       font-size: 16px;
       font-weight: 600;
       color: #1f2937;
       margin-bottom: 4px;
     }
 
-    .learner-status {
-      grid-column: 3;
-      grid-row: 1 / 3;
-    }
-
-    .top-list {
-      margin-top: 16px;
-    }
-
-    .top-item {
-      display: flex;
-      align-items: center;
-      padding: 12px 0;
-      border-bottom: 1px solid #f3f4f6;
-      font-size: 14px;
-    }
-
-    .top-item:last-child {
-      border-bottom: none;
-    }
-
-    .rank-number {
-      width: 24px;
-      font-weight: 700;
-      color: #557cf2;
-    }
-
-    .username {
-      flex: 1;
-      color: #374151;
-    }
-
-    .dropdown-container {
-      margin-top: 20px;
-    }
-
-    .dropdown {
-      width: 100%;
-      padding: 8px 12px;
-      border: 1px solid #d1d5db;
-      border-radius: 6px;
-      background: white;
-      font-size: 14px;
-      cursor: pointer;
-    }
-
-    /* New Questions Widget */
-    .new-questions-widget {
-      grid-column: 1;
-      grid-row: 2;
-    }
-
-    .questions-stats {
-      display: flex;
-      gap: 32px;
-      margin-top: 16px;
-    }
-
-    .stat-item {
-      text-align: center;
-      flex: 1;
-    }
-
-    .stat-label {
+    .tutor-status {
       font-size: 14px;
       color: #6b7280;
-      margin-bottom: 8px;
-    }
-
-    .stat-value {
-      font-size: 32px;
-      font-weight: 700;
-      color: #2a3f80;
-    }
-
-    /* Productivity Chart Widget */
-    .productivity-widget {
-      grid-column: 2;
-      grid-row: 2;
-    }
-
-    /* Bottom Actions */
-    .bottom-actions {
-      display: flex;
-      justify-content: center;
-      gap: 24px;
-      margin-top: 32px;
-    }
-
-    .action-card {
-      background: white;
-      padding: 32px;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-decoration: none;
-      min-width: 200px;
-    }
-
-    .action-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
-    }
-
-    .action-title {
-      font-size: 18px;
-      font-weight: 700;
-      color: #2a3f80;
-      margin-bottom: 8px;
-    }
-
-    .action-subtitle {
-      font-size: 14px;
-      color: #6b7280;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      font-weight: 600;
     }
 
     /* Widget Titles */
@@ -373,38 +232,6 @@
     }
 
     /* Responsive Design */
-    @media (max-width: 1200px) {
-      .dashboard-grid {
-        grid-template-columns: 1fr 1fr;
-        grid-template-rows: auto auto auto auto;
-      }
-
-      .line-chart-widget {
-        grid-column: 1 / 3;
-        grid-row: 1;
-      }
-
-      .pie-chart-widget {
-        grid-column: 1;
-        grid-row: 2;
-      }
-
-      .top-tutors-widget {
-        grid-column: 2;
-        grid-row: 2 / 4;
-      }
-
-      .new-questions-widget {
-        grid-column: 1;
-        grid-row: 3;
-      }
-
-      .productivity-widget {
-        grid-column: 1 / 3;
-        grid-row: 4;
-      }
-    }
-
     @media (max-width: 768px) {
       .main-content {
         margin-left: 70px;
@@ -412,32 +239,8 @@
       }
 
       .dashboard-grid {
-        grid-template-columns: 1fr;
-        gap: 16px;
-      }
-
-      .line-chart-widget,
-      .pie-chart-widget,
-      .top-tutors-widget,
-      .new-questions-widget,
-      .productivity-widget {
-        grid-column: 1;
-        grid-row: auto;
-      }
-
-      .questions-stats {
         flex-direction: column;
         gap: 16px;
-      }
-
-      .bottom-actions {
-        flex-direction: column;
-        align-items: center;
-      }
-
-      .action-card {
-        width: 100%;
-        max-width: 300px;
       }
 
       .header {
@@ -467,48 +270,48 @@
 
     <!-- Section Title -->
     <div class="section-header">
-      <h2 class="section-title">LEARNER STATISTICS</h2>
+      <h2 class="section-title">TUTOR STATISTICS</h2>
     </div>
 
     <!-- Dashboard Grid -->
     <div class="dashboard-grid">
-      <!-- Current Learners Widget -->
+      <!-- Current Tutors Widget -->
       <div class="widget stats-widget">
-        <div class="widget-title">Current learners</div>
-        <div class="stat-number" id="currentLearners">0</div>
-        <div class="widget-title" style="margin-top: 20px;">New learners today</div>
-        <div class="stat-number" id="newLearnersToday">0</div>
+        <div class="widget-title">Current tutors</div>
+        <div class="stat-number" id="currentTutors">0</div>
+        <div class="widget-title" style="margin-top: 20px;">Tutor approvals</div>
+        <div class="stat-number" id="tutorApprovals">0</div>
       </div>
 
       <!-- Bar Chart Widget -->
       <div class="widget chart-widget">
-        <div class="widget-title">New Questions by Learners by Day</div>
+        <div class="widget-title">New Replies by Tutors by Day</div>
         <div class="chart-container">
-          <canvas id="learnersChart"></canvas>
+          <canvas id="tutorsChart"></canvas>
         </div>
       </div>
     </div>
 
-    <!-- Learners List Widget -->
-    <div class="widget learners-list-widget">
+    <!-- Tutors List Widget -->
+    <div class="widget tutors-list-widget">
       <div class="list-header">
-        <div class="widget-title">Learners list</div>
+        <div class="widget-title">Tutors list</div>
         <div class="filter-controls">
           <button class="filter-btn">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M3 4.6C3 4.03995 3 3.75992 3.10899 3.54601C3.20487 3.35785 3.35785 3.20487 3.54601 3.10899C3.75992 3 4.03995 3 4.6 3H19.4C19.9601 3 20.2401 3 20.454 3.10899C20.6422 3.20487 20.7951 3.35785 20.891 3.54601C21 3.75992 21 4.03995 21 4.6V6.33726C21 6.58185 21 6.70414 20.9724 6.81923C20.9479 6.92127 20.9075 7.01881 20.8526 7.10828C20.7908 7.2092 20.7043 7.29568 20.5314 7.46863L14.4686 13.5314C14.2957 13.7043 14.2092 13.7908 14.1474 13.8917C14.0925 13.9812 14.0521 14.0787 14.0276 14.1808C14 14.2959 14 14.4182 14 14.6627V17L10 21V14.6627C10 14.4182 10 14.2959 9.97237 14.1808C9.94787 14.0787 9.90747 13.9812 9.85264 13.8917C9.7908 13.7908 9.70432 13.7043 9.53137 13.5314L3.46863 7.46863C3.29568 7.29568 3.2092 7.2092 3.14736 7.10828C3.09253 7.01881 3.05213 6.92127 3.02763 6.81923C3 6.70414 3 6.58185 3 6.33726V4.6Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </button>
-          <select class="filter-dropdown" id="learnerFilter" onchange="handleLearnerFilterChange()">
+          <select class="filter-dropdown" id="tutorFilter" onchange="handleTutorFilterChange()">
             <option value="recently-active">Recently active</option>
-            <option value="all">All learners</option>
-            <option value="new">New learners</option>
+            <option value="all">All tutors</option>
+            <option value="new">New tutors</option>
             <option value="inactive">Inactive</option>
           </select>
         </div>
       </div>
-      <div class="learners-list" id="learnersList">
-        <!-- Learner list will be loaded dynamically -->
+      <div class="tutors-list" id="tutorsList">
+        <!-- Tutor list will be loaded dynamically -->
       </div>
     </div>
   </div>
@@ -528,16 +331,16 @@
             newScript.textContent = script.textContent;
             document.head.appendChild(newScript);
           });
-          // Set active state for learner statistics page
+          // Set active state for tutor statistics page
           setTimeout(() => {
-            const learnerStatsNavItem = document.querySelector('[data-page="learner-statistics"]');
-            if (learnerStatsNavItem) {
+            const tutorStatsNavItem = document.querySelector('[data-page="tutor-statistics"]');
+            if (tutorStatsNavItem) {
               // Remove active from all items
               document.querySelectorAll('.nav-item, .user-item').forEach(item => {
                 item.classList.remove('active');
               });
-              // Add active to learner statistics item
-              learnerStatsNavItem.classList.add('active');
+              // Add active to tutor statistics item
+              tutorStatsNavItem.classList.add('active');
             }
           }, 100);
         })
@@ -545,18 +348,18 @@
     }
 
     // Chart variables
-    let questionsChart, statusChart, productivityChart;
+    let tutorsChart;
 
     // Initialize charts
     function initializeCharts() {
-      // Learners Questions Bar Chart
-      const learnersCtx = document.getElementById('learnersChart').getContext('2d');
-      questionsChart = new Chart(learnersCtx, {
+      // Tutors Replies Bar Chart
+      const tutorsCtx = document.getElementById('tutorsChart').getContext('2d');
+      tutorsChart = new Chart(tutorsCtx, {
         type: 'bar',
         data: {
-          labels: ['Loading...'],
+          labels: ['...'],
           datasets: [{
-            label: 'New Questions',
+            label: 'New Replies',
             data: [0],
             backgroundColor: '#557cf2',
             borderColor: '#557cf2',
@@ -577,11 +380,13 @@
           scales: {
             y: {
               beginAtZero: true,
+              max: 25,
               grid: {
                 color: '#f3f4f6'
               },
               ticks: {
-                color: '#6b7280'
+                color: '#6b7280',
+                stepSize: 5
               }
             },
             x: {
@@ -600,23 +405,28 @@
     // Authentication check
     async function checkAuth() {
       try {
+        console.log('Checking authentication...');
         const res = await fetch(`${BASE_URL}/auth/check-auth`, {
           method: 'GET',
           credentials: 'include'
         });
+        console.log('Auth response status:', res.status);
         const data = await res.json();
+        console.log('Auth response data:', data);
         
         if (!data.isAuthenticated) {
+          console.log('User not authenticated, redirecting to login');
           window.location.href = '/login.html';
           return;
         }
 
         // Check if user is admin
         if (!data.user || data.user.role !== 'admin') {
+          console.log('User role:', data.user?.role, 'Expected: admin');
           // Redirect based on role
-          if (data.user.role === 'learner') {
+          if (data.user?.role === 'learner') {
             window.location.href = '/learner.html';
-          } else if (data.user.role === 'tutor') {
+          } else if (data.user?.role === 'tutor') {
             window.location.href = '/tutor.html';
           } else {
             window.location.href = '/login.html';
@@ -624,6 +434,7 @@
           return;
         }
 
+        console.log('User authenticated as admin, loading dashboard...');
         // Load dashboard data
         loadDashboardData();
       } catch (err) {
@@ -654,128 +465,135 @@
     // Load dashboard data
     async function loadDashboardData() {
       try {
+        console.log('Loading dashboard data...');
         // Load statistics data
         await Promise.all([
-          loadLearnerOverview(),
-          loadLearnerQuestionsPerDay(),
-          loadLearnersList()
+          loadTutorOverview(),
+          loadTutorRepliesPerDay(),
+          loadTutorsList()
         ]);
+        console.log('Dashboard data loaded successfully');
       } catch (err) {
         console.error('Error loading dashboard data:', err);
       }
     }
 
-    // Load learner overview statistics
-    async function loadLearnerOverview() {
+    // Load tutor overview statistics
+    async function loadTutorOverview() {
       try {
-        const res = await fetch(`${BASE_URL}/learner-statistics/overview`, {
+        const res = await fetch(`${BASE_URL}/tutor-statistics/overview`, {
           credentials: 'include'
         });
         
         if (res.ok) {
           const data = await res.json();
           if (data.success) {
-            updateLearnerOverview(data.overview);
+            updateTutorOverview(data.overview);
           } else {
             console.error('API returned error:', data.error);
           }
         } else {
-          console.error('Failed to fetch learner overview:', res.status);
+          console.error('Failed to fetch tutor overview:', res.status);
         }
       } catch (err) {
-        console.error('Error loading learner overview:', err);
+        console.error('Error loading tutor overview:', err);
       }
     }
 
-    // Load learner questions per day statistics
-    async function loadLearnerQuestionsPerDay() {
+    // Load tutor replies per day statistics
+    async function loadTutorRepliesPerDay() {
       try {
-        const res = await fetch(`${BASE_URL}/learner-statistics/questions-per-day`, {
+        const res = await fetch(`${BASE_URL}/tutor-statistics/replies-per-day`, {
           credentials: 'include'
         });
         
         if (res.ok) {
           const data = await res.json();
           if (data.success) {
-            updateLearnerChart(data);
+            updateTutorChart(data);
           } else {
             console.error('API returned error:', data.error);
           }
         } else {
-          console.error('Failed to fetch questions per day:', res.status);
+          console.error('Failed to fetch replies per day:', res.status);
         }
       } catch (err) {
-        console.error('Error loading questions per day:', err);
+        console.error('Error loading replies per day:', err);
       }
     }
 
-    // Load learners list
-    async function loadLearnersList() {
+    // Load tutors list
+    async function loadTutorsList() {
       try {
-        const filter = document.getElementById('learnerFilter')?.value || 'recently-active';
-        const res = await fetch(`${BASE_URL}/learner-statistics/list?filter=${filter}`, {
+        const filter = document.getElementById('tutorFilter')?.value || 'recently-active';
+        const res = await fetch(`${BASE_URL}/tutor-statistics/list?filter=${filter}`, {
           credentials: 'include'
         });
         
         if (res.ok) {
           const data = await res.json();
           if (data.success) {
-            updateLearnersList(data.learners);
+            updateTutorsList(data.tutors);
           } else {
             console.error('API returned error:', data.error);
           }
         } else {
-          console.error('Failed to fetch learners list:', res.status);
+          console.error('Failed to fetch tutors list:', res.status);
         }
       } catch (err) {
-        console.error('Error loading learners list:', err);
+        console.error('Error loading tutors list:', err);
       }
     }
 
-    // Update learner overview with real data
-    function updateLearnerOverview(overview) {
-      const currentLearnersEl = document.getElementById('currentLearners');
-      const newLearnersTodayEl = document.getElementById('newLearnersToday');
+    // Update tutor overview with real data
+    function updateTutorOverview(overview) {
+      const currentTutorsEl = document.getElementById('currentTutors');
+      const tutorApprovalsEl = document.getElementById('tutorApprovals');
       
-      if (currentLearnersEl) currentLearnersEl.textContent = overview.totalLearners || 0;
-      if (newLearnersTodayEl) newLearnersTodayEl.textContent = overview.activeLearnersToday || 0;
+      if (currentTutorsEl) currentTutorsEl.textContent = overview.totalTutors || 0;
+      if (tutorApprovalsEl) tutorApprovalsEl.textContent = overview.pendingApprovals || 0;
     }
 
-    // Update learner chart with real data
-    function updateLearnerChart(data) {
-      if (data.questionsPerDay && questionsChart) {
-        questionsChart.data.labels = data.questionsPerDay.labels || ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-        questionsChart.data.datasets[0].data = data.questionsPerDay.data || [0, 0, 0, 0, 0, 0, 0];
-        questionsChart.update();
+    // Update tutor chart with real data
+    function updateTutorChart(data) {
+      if (data.repliesPerDay && tutorsChart) {
+        tutorsChart.data.labels = data.repliesPerDay.labels || ['...'];
+        tutorsChart.data.datasets[0].data = data.repliesPerDay.data || [0];
+        tutorsChart.update();
       }
     }
 
-    // Update learners list with real data
-    function updateLearnersList(learners) {
-      const learnersListEl = document.getElementById('learnersList');
-      if (learnersListEl && Array.isArray(learners)) {
-        if (learners.length === 0) {
-          learnersListEl.innerHTML = '<div class="learner-item"><div class="learner-info"><div class="learner-name">No learners found</div></div></div>';
+    // Update tutors list with real data
+    function updateTutorsList(tutors) {
+      const tutorsListEl = document.getElementById('tutorsList');
+      if (tutorsListEl && Array.isArray(tutors)) {
+        if (tutors.length === 0) {
+          tutorsListEl.innerHTML = '<div class="tutor-item"><div class="tutor-info"><div class="tutor-name">No tutors found</div></div></div>';
           return;
         }
         
-        learnersListEl.innerHTML = learners.map(learner => `
-          <div class="learner-item">
-            <div class="learner-avatar">
-              <div class="avatar-circle"></div>
+        tutorsListEl.innerHTML = tutors.map(tutor => `
+          <div class="tutor-item" onclick="goToEvaluation('${tutor.username}')" style="cursor: pointer;">
+            <div class="tutor-avatar">
+              <div class="avatar-circle">${tutor.username.charAt(0).toUpperCase()}</div>
             </div>
-            <div class="learner-info">
-              <div class="learner-name">${learner.username}</div>
-              <div class="learner-status">${learner.status}</div>
+            <div class="tutor-info">
+              <div class="tutor-name">${tutor.username}</div>
+              <div class="tutor-status">${tutor.status}</div>
             </div>
           </div>
         `).join('');
       }
     }
 
-    // Handle learner filter change
-    function handleLearnerFilterChange() {
-      loadLearnersList();
+    // Navigate to evaluation page
+    function goToEvaluation(username) {
+      window.location.href = `/evaluate.html?tutor=${encodeURIComponent(username)}`;
+    }
+
+    // Handle tutor filter change
+    function handleTutorFilterChange() {
+      loadTutorsList();
     }
 
     // Initialize dashboard

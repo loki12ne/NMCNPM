@@ -75,22 +75,29 @@ router.get('/overview', isAuthenticated, async (req, res) => {
 router.get('/questions-per-day', isAuthenticated, async (req, res) => {
   try {
     const query = `
-      SELECT 
-        TO_CHAR(generate_series(
+      WITH date_series AS (
+        SELECT generate_series(
           CURRENT_DATE - INTERVAL '6 days',
           CURRENT_DATE,
           INTERVAL '1 day'
-        ), 'Dy') as day,
-        COALESCE(COUNT(q.question_id), 0) as count
-      FROM generate_series(
-        CURRENT_DATE - INTERVAL '6 days',
-        CURRENT_DATE,
-        INTERVAL '1 day'
-      ) gs
-      LEFT JOIN Questions q ON DATE(q.date_posted) = gs
-        AND q.username IN (SELECT username FROM Accounts WHERE role = 'learner')
-      GROUP BY gs
-      ORDER BY gs
+        )::date as date
+      ),
+      question_counts AS (
+        SELECT 
+          DATE(q.date_posted) as question_date,
+          COUNT(*) as count
+        FROM Questions q
+        INNER JOIN Accounts acc ON q.username = acc.username
+        WHERE acc.role = 'learner'
+          AND q.date_posted >= CURRENT_DATE - INTERVAL '6 days'
+        GROUP BY DATE(q.date_posted)
+      )
+      SELECT 
+        TO_CHAR(ds.date, 'Dy') as day,
+        COALESCE(qc.count, 0) as count
+      FROM date_series ds
+      LEFT JOIN question_counts qc ON ds.date = qc.question_date
+      ORDER BY ds.date
     `;
     
     const result = await client.query(query);

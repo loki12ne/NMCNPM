@@ -3,40 +3,67 @@ const router = express.Router();
 const client = require('../config/db');
 const { isAuthenticated } = require('../middleware/auth');
 
+// Cache for storing data to avoid frequent database calls
+const cache = {
+  questionsOverTime: null,
+  questionsOverTimeExpiry: null
+};
+
 /**
  * Lấy thống kê tổng quan về câu hỏi theo thời gian
  * Trả về số lượng câu hỏi theo từng tháng trong 6 tháng gần nhất
+ * Cache kết quả trong 30 phút để tránh gọi database liên tục
  */
 router.get('/questions-over-time', isAuthenticated, async (req, res) => {
   try {
+    // Check cache first
+    const now = new Date();
+    if (cache.questionsOverTime && cache.questionsOverTimeExpiry && now < cache.questionsOverTimeExpiry) {
+      console.log('Returning cached questions-over-time data');
+      return res.json(cache.questionsOverTime);
+    }
+
+    console.log('Fetching fresh questions-over-time data from database');
+    
     const query = `
+      WITH monthly_series AS (
+        SELECT 
+          generate_series(
+            DATE_TRUNC('month', CURRENT_DATE - INTERVAL '5 months'),
+            DATE_TRUNC('month', CURRENT_DATE),
+            INTERVAL '1 month'
+          ) as month_date
+      )
       SELECT 
-        TO_CHAR(generate_series(
-          CURRENT_DATE - INTERVAL '5 months',
-          CURRENT_DATE,
-          INTERVAL '1 month'
-        ), 'Mon') as month,
+        TO_CHAR(ms.month_date, 'Mon') as month,
         COALESCE(COUNT(q.question_id), 0) as count
-      FROM generate_series(
-        CURRENT_DATE - INTERVAL '5 months',
-        CURRENT_DATE,
-        INTERVAL '1 month'
-      ) gs
-      LEFT JOIN Questions q ON TO_CHAR(q.date_posted, 'YYYY-MM') = TO_CHAR(gs, 'YYYY-MM')
-      GROUP BY gs
-      ORDER BY gs
+      FROM monthly_series ms
+      LEFT JOIN Questions q ON DATE_TRUNC('month', q.date_posted) = ms.month_date
+      GROUP BY ms.month_date, TO_CHAR(ms.month_date, 'Mon')
+      ORDER BY ms.month_date
     `;
     
     const result = await client.query(query);
     
+    console.log('Raw database result:', result.rows);
+    
     const labels = result.rows.map(row => row.month);
     const data = result.rows.map(row => parseInt(row.count));
     
-    res.json({
+    console.log('Processed labels:', labels);
+    console.log('Processed data:', data);
+    
+    const responseData = {
       success: true,
       labels: labels,
       data: data
-    });
+    };
+
+    // Cache for 30 minutes
+    cache.questionsOverTime = responseData;
+    cache.questionsOverTimeExpiry = new Date(now.getTime() + 30 * 60 * 1000);
+    
+    res.json(responseData);
   } catch (error) {
     console.error('Error fetching questions over time:', error);
     res.status(500).json({ 

@@ -361,8 +361,7 @@
             id="text" 
             name="text" 
             class="question-input" 
-            placeholder="Type something or drop your file here"
-            required
+            placeholder="Type your question here (or just attach a file below)"
           ></textarea>
         </div>
         
@@ -553,8 +552,10 @@
         const fileInput = document.getElementById('file');
         const file = fileInput && fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
         result.className = 'result hidden';
-        if (!text_content) {
-          showResult('Please enter a question', 'error');
+        
+        // Validation: require either text content or file
+        if (!text_content && !file) {
+          showResult('Please enter a question or attach a file', 'error');
           return;
         }
         if (!subject) {
@@ -564,7 +565,9 @@
         try {
           let fetchOptions;
           const formData = new FormData();
-          formData.append('text_content', text_content);
+          
+          // Add text content (can be empty if file is provided)
+          formData.append('text_content', text_content || '');
           formData.append('subject', subject);
           if (topic) formData.append('topic', topic);
           if (file) formData.append('file', file);

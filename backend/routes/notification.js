@@ -65,4 +65,59 @@ router.post('/', isAuthenticated, async (req, res) => {
   }
 });
 
+/**
+ * Gửi reminder đến tutor (dành cho admin)
+ */
+router.post('/send-reminder', isAuthenticated, async (req, res) => {
+  try {
+    // Verify admin role
+    if (req.session.user.role !== 'admin') {
+      return res.status(403).json({ 
+        success: false, 
+        error: 'Only admin can send reminders' 
+      });
+    }
+    
+    const { username, message } = req.body;
+    
+    if (!username || !message) {
+      return res.status(400).json({ 
+        success: false, 
+        error: 'Username and message are required' 
+      });
+    }
+    
+    // Verify target user exists
+    const userCheck = await client.query(
+      'SELECT username FROM Accounts WHERE username = $1',
+      [username]
+    );
+    
+    if (userCheck.rows.length === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        error: 'User not found' 
+      });
+    }
+    
+    // Insert notification
+    await client.query(
+      `INSERT INTO Notifications (username, type, title, message, created_at)
+       VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)`,
+      [username, 'reminder', 'Performance Reminder', message]
+    );
+    
+    res.json({ 
+      success: true,
+      message: 'Reminder sent successfully' 
+    });
+  } catch (err) {
+    console.error('Send reminder error:', err);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Server error' 
+    });
+  }
+});
+
 module.exports = router; 

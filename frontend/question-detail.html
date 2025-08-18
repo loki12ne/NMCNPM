@@ -724,6 +724,10 @@
 
   <script>
     const BASE_URL = 'http://localhost:3000';
+    
+    // Global variables to track user and question info
+    let currentUser = null;
+    let questionOwner = null;
 
     // Load sidebar
     fetch('/sidebar.html')
@@ -758,6 +762,9 @@
 
         // Update user ID in welcome card
         document.getElementById('userId').textContent = data.user.username || data.user.user_id || 'Student';
+        
+        // Store current user info for feedback authorization
+        currentUser = data.user;
 
         // Setup tutor upgrade button based on role
         const tutorUpgradeBtn = document.getElementById('tutorUpgradeBtn');
@@ -817,6 +824,9 @@
         if (data.questions) {
           const question = data.questions.find(q => q.question_id == questionId);
           if (question) {
+            // Store question owner info for feedback authorization
+            questionOwner = question.username;
+            
             contentDiv.innerHTML = `
               <div class="question-card">
                 <div class="question-meta">
@@ -844,15 +854,19 @@
                 </div>
               </div>
             `;
+            return question; // Return question data
           } else {
             contentDiv.innerHTML = '<div class="error">Question not found</div>';
+            return null;
           }
         } else {
           contentDiv.innerHTML = '<div class="error">Error loading question</div>';
+          return null;
         }
       } catch (error) {
         console.error('Error loading question:', error);
         contentDiv.innerHTML = '<div class="error">Network error loading question</div>';
+        return null;
       }
     }
 
@@ -952,8 +966,54 @@
       }
     }
 
+    // Check if current user can provide feedback (only question owner can give feedback)
+    function canUserProvideFeedback() {
+      return currentUser && questionOwner && 
+             (currentUser.username === questionOwner || currentUser.user_id === questionOwner);
+    }
+
+    // Show or hide feedback form based on authorization
+    function toggleFeedbackForm() {
+      const feedbackForm = document.querySelector('.feedback-form');
+      if (canUserProvideFeedback()) {
+        feedbackForm.style.display = 'block';
+      } else {
+        feedbackForm.style.display = 'none';
+        // Add a message explaining why feedback is not available
+        const feedbackSection = document.querySelector('.section:last-child');
+        const existingMessage = feedbackSection.querySelector('.feedback-restriction-message');
+        if (!existingMessage) {
+          const restrictionMessage = document.createElement('div');
+          restrictionMessage.className = 'feedback-restriction-message';
+          restrictionMessage.style.cssText = `
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+            color: #856404;
+            text-align: center;
+            font-size: 14px;
+          `;
+          restrictionMessage.innerHTML = `
+            <strong>📝 Feedback Restriction</strong><br>
+            Only the person who asked this question can provide feedback on the answers.
+          `;
+          feedbackSection.appendChild(restrictionMessage);
+        }
+      }
+    }
+
     // Feedback form setup
     function setupFeedbackForm(questionId) {
+      // Check authorization first
+      toggleFeedbackForm();
+      
+      // Only set up form if user can provide feedback
+      if (!canUserProvideFeedback()) {
+        return;
+      }
+      
       const form = document.getElementById('feedbackForm');
       form.onsubmit = async (e) => {
         e.preventDefault();
@@ -1002,22 +1062,42 @@
       } else if (pdf_url) {
         const fileName = pdf_url.split('/').pop();
         const pdfHref = `/view-pdf?u=${encodeURIComponent(pdf_url)}`;
-        return `<div style="margin-top:16px;display:flex;align-items:center;gap:12px;padding:12px;background:#f8faff;border-radius:8px;border:1px solid #e6f2ff;"><span style="font-size:32px;">📄</span><a href="${pdfHref}" target="_blank" rel="noopener noreferrer" style="font-size:15px;color:#557cf2;text-decoration:none;font-weight:500;">${fileName}</a></div>`;
+        
+        // Generate thumbnail URL for Cloudinary PDFs
+        let thumbnailUrl = '';
+        if (pdf_url.includes('cloudinary.com')) {
+          thumbnailUrl = pdf_url.replace('/raw/upload/', '/image/upload/f_auto,q_auto,w_200,h_200,c_fill,pg_1/');
+        }
+        
+        if (thumbnailUrl) {
+          return `<div style="margin-top:16px;position:relative;display:inline-block;">
+            <a href="${pdfHref}" target="_blank" rel="noopener noreferrer">
+              <img src="${thumbnailUrl}" alt="PDF preview" 
+                   style="max-width:200px;max-height:200px;border-radius:8px;border:1px solid #e6f2ff;object-fit:cover;" />
+              <div style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.8);color:white;font-size:12px;padding:4px 8px;border-radius:4px;">📄 PDF</div>
+            </a>
+          </div>`;
+        } else {
+          // Fallback for non-Cloudinary PDFs
+          return `<div style="margin-top:16px;display:flex;align-items:center;gap:12px;padding:12px;background:#f8faff;border-radius:8px;border:1px solid #e6f2ff;"><span style="font-size:32px;">📄</span><a href="${pdfHref}" target="_blank" rel="noopener noreferrer" style="font-size:15px;color:#557cf2;text-decoration:none;font-weight:500;">${fileName}</a></div>`;
+        }
       }
       return '';
     }
 
     // Initialize application
     window.onload = async () => {
-      await checkAuth();
+      const authData = await checkAuth();
       
       // Get question ID from URL
       const urlParams = new URLSearchParams(window.location.search);
       const questionId = urlParams.get('question_id');
       if (questionId) {
-        loadQuestionDetail(questionId);
+        // Load question first to get question owner info
+        await loadQuestionDetail(questionId);
         loadAnswer(questionId);
         loadFeedback(questionId);
+        // Setup feedback form after question is loaded
         setupFeedbackForm(questionId);
       }
     };

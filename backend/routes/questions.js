@@ -393,4 +393,52 @@ router.get('/my-answers', isAuthenticated, async (req, res) => {
   }
 });
 
+/**
+ * Lấy feedback của một tutor cụ thể (dành cho admin)
+ */
+router.get('/feedback-by-tutor/:username', isAuthenticated, async (req, res) => {
+  try {
+    const { username } = req.params;
+    
+    // Verify admin role
+    if (req.session.user.role !== 'admin') {
+      return res.status(403).json({ 
+        success: false, 
+        error: 'Only admin can view tutor feedback' 
+      });
+    }
+    
+    const query = `
+      SELECT 
+        f.feedback_id, 
+        f.question_id, 
+        f.username as reviewer_username, 
+        f.rating, 
+        f.comment, 
+        f.date_posted,
+        q.subject,
+        q.text_content as question_text
+      FROM FeedBacks f
+      INNER JOIN Questions q ON f.question_id = q.question_id
+      INNER JOIN Answers a ON q.question_id = a.question_id
+      WHERE a.user_answer = $1
+      ORDER BY f.date_posted DESC
+      LIMIT 50
+    `;
+    
+    const result = await client.query(query, [username]);
+    
+    res.json({ 
+      success: true,
+      feedbacks: result.rows 
+    });
+  } catch (err) {
+    console.error('Get tutor feedback error:', err);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Server error' 
+    });
+  }
+});
+
 module.exports = router;
