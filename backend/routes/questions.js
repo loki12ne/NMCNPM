@@ -25,18 +25,42 @@ function isLearner(req, res, next) {
 
 const question_file_storage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: {
-    folder: 'question_files',
-    allowed_formats: ['jpg', 'png', 'jpeg', 'pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx']
+  params: async (req, file) => {
+    const originalName = (file.originalname || 'file').replace(/\.[^/.]+$/, '');
+    const safeBase = originalName.toLowerCase().replace(/[^a-z0-9-_]+/g, '-').slice(0, 80);
+    const uniqueSuffix = Date.now();
+    const publicId = `${safeBase}-${uniqueSuffix}`;
+    const isPdf = (file.mimetype === 'application/pdf');
+    const isImage = file.mimetype && file.mimetype.startsWith('image/');
+    return {
+      folder: 'question_files',
+      public_id: publicId,
+      resource_type: isPdf ? 'raw' : 'image',
+      format: isPdf ? 'pdf' : undefined,
+      allowed_formats: isPdf ? ['pdf'] : ['jpg', 'png', 'jpeg']
+    };
   }
 });
 const upload_question_files = multer({ storage: question_file_storage });
 
 const answer_file_storage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: {
-    folder: 'answer_files',
-    allowed_formats: ['jpg', 'png', 'jpeg', 'pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx']
+  params: async (req, file) => {
+    const originalName = (file.originalname || 'file').replace(/\.[^/.]+$/, '');
+    const safeBase = originalName.toLowerCase().replace(/[^a-z0-9-_]+/g, '-').slice(0, 80);
+    const uniqueSuffix = Date.now();
+    const publicId = `${safeBase}-${uniqueSuffix}`;
+    const isImage = file.mimetype && file.mimetype.startsWith('image/');
+    const isRaw = !isImage;
+    return {
+      folder: 'answer_files',
+      public_id: publicId,
+      resource_type: isRaw ? 'raw' : 'image',
+      format: isRaw ? undefined : undefined,
+      allowed_formats: isRaw
+        ? ['pdf', 'doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx', 'txt']
+        : ['jpg', 'png', 'jpeg']
+    };
   }
 });
 const upload_answer_files = multer({ storage: answer_file_storage });
@@ -44,9 +68,20 @@ const upload_answer_files = multer({ storage: answer_file_storage });
 // Sử dụng CloudinaryStorage cho 1 file duy nhất (ảnh hoặc PDF)
 const single_file_storage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: {
-    folder: 'question_files',
-    allowed_formats: ['jpg', 'jpeg', 'png', 'pdf']
+  params: async (req, file) => {
+    const originalName = (file.originalname || 'file').replace(/\.[^/.]+$/, '');
+    const safeBase = originalName.toLowerCase().replace(/[^a-z0-9-_]+/g, '-').slice(0, 80);
+    const uniqueSuffix = Date.now();
+    const publicId = `${safeBase}-${uniqueSuffix}`;
+    const isPdf = (file.mimetype === 'application/pdf');
+    const isImage = file.mimetype && file.mimetype.startsWith('image/');
+    return {
+      folder: 'question_files',
+      public_id: publicId,
+      resource_type: isPdf ? 'raw' : 'image',
+      format: isPdf ? 'pdf' : undefined,
+      allowed_formats: isPdf ? ['pdf'] : ['jpg', 'jpeg', 'png']
+    };
   }
 });
 const upload_single_file = multer({ storage: single_file_storage });
@@ -103,7 +138,8 @@ router.post('/', isAuthenticated, upload_single_file.single('file'), async (req,
   if (!text_content || !subject) {
     return res.status(400).json({ error: 'Missing text or subject' });
   }
-  if (!['toán', 'lý', 'hóa'].includes(subject)) {
+  const allowedSubjects = ['toán', 'lý', 'hóa', 'Math', 'Physics', 'Chemistry'];
+  if (!allowedSubjects.includes(subject)) {
     return res.status(400).json({ error: 'Invalid subject' });
   }
 
@@ -246,6 +282,13 @@ router.post('/answer', isAuthenticated, isTutor, upload_answer_files.array('file
       [question_id, user_ask, user_answer, text_content]
     );
     const answer_id = answerResult.rows[0].answer_id;
+    
+    // Cập nhật trạng thái câu hỏi thành đã trả lời
+    await client.query(
+      'UPDATE Questions SET is_answered = true WHERE question_id = $1',
+      [question_id]
+    );
+    
     await save_answer_files(answer_id, files, client);
     await addNotification(client, user_ask, 'answer', 'Câu hỏi đã được trả lời', `Câu hỏi của bạn đã được trả lời bởi ${user_answer}`, question_id, 'question');
 

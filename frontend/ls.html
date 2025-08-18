@@ -487,9 +487,9 @@
       <!-- Current Learners Widget -->
       <div class="widget stats-widget">
         <div class="widget-title">Current learners</div>
-        <div class="stat-number">100</div>
+        <div class="stat-number" id="currentLearners">0</div>
         <div class="widget-title" style="margin-top: 20px;">New learners today</div>
-        <div class="stat-number">2</div>
+        <div class="stat-number" id="newLearnersToday">0</div>
       </div>
 
       <!-- Bar Chart Widget -->
@@ -511,7 +511,7 @@
               <path d="M3 4.6C3 4.03995 3 3.75992 3.10899 3.54601C3.20487 3.35785 3.35785 3.20487 3.54601 3.10899C3.75992 3 4.03995 3 4.6 3H19.4C19.9601 3 20.2401 3 20.454 3.10899C20.6422 3.20487 20.7951 3.35785 20.891 3.54601C21 3.75992 21 4.03995 21 4.6V6.33726C21 6.58185 21 6.70414 20.9724 6.81923C20.9479 6.92127 20.9075 7.01881 20.8526 7.10828C20.7908 7.2092 20.7043 7.29568 20.5314 7.46863L14.4686 13.5314C14.2957 13.7043 14.2092 13.7908 14.1474 13.8917C14.0925 13.9812 14.0521 14.0787 14.0276 14.1808C14 14.2959 14 14.4182 14 14.6627V17L10 21V14.6627C10 14.4182 10 14.2959 9.97237 14.1808C9.94787 14.0787 9.90747 13.9812 9.85264 13.8917C9.7908 13.7908 9.70432 13.7043 9.53137 13.5314L3.46863 7.46863C3.29568 7.29568 3.2092 7.2092 3.14736 7.10828C3.09253 7.01881 3.05213 6.92127 3.02763 6.81923C3 6.70414 3 6.58185 3 6.33726V4.6Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </button>
-          <select class="filter-dropdown" id="learnerFilter">
+          <select class="filter-dropdown" id="learnerFilter" onchange="handleLearnerFilterChange()">
             <option value="recently-active">Recently active</option>
             <option value="all">All learners</option>
             <option value="new">New learners</option>
@@ -598,13 +598,13 @@
     function initializeCharts() {
       // Learners Questions Bar Chart
       const learnersCtx = document.getElementById('learnersChart').getContext('2d');
-      const learnersChart = new Chart(learnersCtx, {
+      learnersChart = new Chart(learnersCtx, {
         type: 'bar',
         data: {
-          labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          labels: ['Loading...'],
           datasets: [{
             label: 'New Questions',
-            data: [12, 19, 15, 25, 22, 18, 14],
+            data: [0],
             backgroundColor: '#557cf2',
             borderColor: '#557cf2',
             borderWidth: 1,
@@ -703,37 +703,126 @@
       try {
         // Load statistics data
         await Promise.all([
-          loadLearnerStats()
+          loadLearnerOverview(),
+          loadLearnerQuestionsPerDay(),
+          loadLearnersList()
         ]);
       } catch (err) {
         console.error('Error loading dashboard data:', err);
       }
     }
 
-    // Load learner statistics
-    async function loadLearnerStats() {
+    // Load learner overview statistics
+    async function loadLearnerOverview() {
       try {
-        const res = await fetch(`${BASE_URL}/admin/learner-stats`, {
+        const res = await fetch(`${BASE_URL}/learner-statistics/overview`, {
           credentials: 'include'
         });
         
         if (res.ok) {
           const data = await res.json();
-          // Update charts with real data
-          updateLearnerChart(data);
+          if (data.success) {
+            updateLearnerOverview(data.overview);
+          } else {
+            console.error('API returned error:', data.error);
+          }
+        } else {
+          console.error('Failed to fetch learner overview:', res.status);
         }
       } catch (err) {
-        console.error('Error loading learner stats:', err);
+        console.error('Error loading learner overview:', err);
       }
+    }
+
+    // Load learner questions per day statistics
+    async function loadLearnerQuestionsPerDay() {
+      try {
+        const res = await fetch(`${BASE_URL}/learner-statistics/questions-per-day`, {
+          credentials: 'include'
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success) {
+            updateLearnerChart(data);
+          } else {
+            console.error('API returned error:', data.error);
+          }
+        } else {
+          console.error('Failed to fetch questions per day:', res.status);
+        }
+      } catch (err) {
+        console.error('Error loading questions per day:', err);
+      }
+    }
+
+    // Load learners list
+    async function loadLearnersList() {
+      try {
+        const filter = document.getElementById('learnerFilter')?.value || 'recently-active';
+        const res = await fetch(`${BASE_URL}/learner-statistics/list?filter=${filter}`, {
+          credentials: 'include'
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success) {
+            updateLearnersList(data.learners);
+          } else {
+            console.error('API returned error:', data.error);
+          }
+        } else {
+          console.error('Failed to fetch learners list:', res.status);
+        }
+      } catch (err) {
+        console.error('Error loading learners list:', err);
+      }
+    }
+
+    // Update learner overview with real data
+    function updateLearnerOverview(overview) {
+      const currentLearnersEl = document.getElementById('currentLearners');
+      const newLearnersTodayEl = document.getElementById('newLearnersToday');
+      
+      if (currentLearnersEl) currentLearnersEl.textContent = overview.totalLearners || 0;
+      if (newLearnersTodayEl) newLearnersTodayEl.textContent = overview.activeLearnersToday || 0;
     }
 
     // Update learner chart with real data
     function updateLearnerChart(data) {
       if (data.questionsPerDay && learnersChart) {
         learnersChart.data.labels = data.questionsPerDay.labels || ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-        learnersChart.data.datasets[0].data = data.questionsPerDay.data || [12, 19, 15, 25, 22, 18, 14];
+        learnersChart.data.datasets[0].data = data.questionsPerDay.data || [0, 0, 0, 0, 0, 0, 0];
         learnersChart.update();
       }
+    }
+
+    // Update learners list with real data
+    function updateLearnersList(learners) {
+      const learnersListEl = document.getElementById('learnersList');
+      if (learnersListEl && Array.isArray(learners)) {
+        if (learners.length === 0) {
+          learnersListEl.innerHTML = '<div class="learner-item"><div class="learner-info"><div class="learner-name">No learners found</div></div></div>';
+          return;
+        }
+        
+        learnersListEl.innerHTML = learners.map(learner => `
+          <div class="learner-item">
+            <div class="learner-avatar">
+              <div class="avatar-circle"></div>
+            </div>
+            <div class="learner-info">
+              <div class="learner-name">${learner.username}</div>
+              <div class="learner-status">${learner.status}</div>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    // Handle learner filter change
+    function handleLearnerFilterChange() {
+      loadLearnersList();
     }
 
     // Initialize dashboard

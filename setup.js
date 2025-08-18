@@ -129,6 +129,8 @@ async function createTables() {
         priority VARCHAR(20) DEFAULT 'medium' CHECK (priority IN ('low', 'medium', 'high')),
         status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'in_progress', 'completed')),
         due_date DATE,
+        start_hour INTEGER DEFAULT 8 CHECK (start_hour BETWEEN 0 AND 23),
+        end_hour INTEGER DEFAULT 9 CHECK (end_hour BETWEEN 1 AND 24),
         progress_percentage INTEGER DEFAULT 0 CHECK (progress_percentage BETWEEN 0 AND 100),
         created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
       );
@@ -248,9 +250,9 @@ async function createTables() {
     `);
 
     await client.query(`
-      INSERT INTO StudyPlans (username, title, subject, description, due_date, progress_percentage) VALUES
-        ('learner', 'Học Toán Lớp 10', 'toán', 'Ôn tập hình học', '2025-07-15', 30),
-        ('learner', 'Học Lý Cơ Bản', 'lý', 'Nghiên cứu lực', '2025-07-20', 10)
+      INSERT INTO StudyPlans (username, title, subject, description, due_date, start_hour, end_hour, progress_percentage) VALUES
+        ('learner', 'Học Toán Lớp 10', 'toán', 'Ôn tập hình học', '2025-07-15', 8, 10, 30),
+        ('learner', 'Học Lý Cơ Bản', 'lý', 'Nghiên cứu lực', '2025-07-20', 14, 16, 10)
       ON CONFLICT (plan_id) DO NOTHING;
     `);
 

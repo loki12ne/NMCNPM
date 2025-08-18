@@ -411,13 +411,9 @@
             window.location.href = '/tutor.html';
             return;
           } else if (data.user && data.user.role === 'admin') {
-            // Nếu là admin, hiển thị trang quản lý
-            loginBtn.classList.add('hidden');
-            signupBtn.classList.add('hidden');
-            logoutBtn.classList.remove('hidden');
-            postQuestionBtn.classList.add('hidden');
-            document.getElementById('tutorRequestBtn').classList.add('hidden');
-            document.getElementById('manageTutorRequestsBtn').classList.remove('hidden');
+            // Nếu là admin, redirect đến admin.html
+            window.location.href = '/admin.html';
+            return;
           }
         } else {
           // Nếu chưa đăng nhập, hiển thị nút login/signup

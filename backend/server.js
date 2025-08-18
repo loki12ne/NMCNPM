@@ -9,6 +9,9 @@ const rootRoutes = require('./routes/root');
 const client = require('./config/db');
 const tutorRequestRoutes = require('./routes/tutorRequest');
 const notificationRouter = require('./routes/notification');
+const statisticRoutes = require('./routes/statistic');
+const learnerStatisticsRoutes = require('./routes/learner_statistics');
+
 require('dotenv').config();
 
 const app = express();
@@ -42,6 +45,8 @@ app.use('/questions', questionRoutes);
 app.use('/', rootRoutes);
 app.use('/api', tutorRequestRoutes);
 app.use('/notifications', notificationRouter);
+app.use('/statistics', statisticRoutes);
+app.use('/learner-statistics', learnerStatisticsRoutes);
 
 // Start server
 app.listen(PORT, () => {
