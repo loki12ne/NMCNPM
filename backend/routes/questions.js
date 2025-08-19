@@ -119,10 +119,10 @@ async function getAnswersByUser(username, client) {
   );
 }
 
-const addNotification = async (client, username, type, title, message, related_id, related_type) => {
+const addNotification = async (client, username, type, message, related_id, related_type) => {
   await client.query(
-    `INSERT INTO Notifications (username, type, title, message, related_id, related_type) VALUES ($1, $2, $3, $4, $5, $6)`,
-    [username, type, title, message, related_id, related_type]
+    `INSERT INTO Notifications (username, type, message, related_id, related_type) VALUES ($1, $2, $3, $4, $5)`,
+    [username, type, message, related_id, related_type]
   );
 };
 
@@ -164,7 +164,7 @@ router.post('/', isAuthenticated, upload_single_file.single('file'), async (req,
     const result = await client.query(query, [username, text_content, subject, img_url, pdf_url]);
     const question_id = result.rows[0].question_id;
     // Notification cho admin
-    await addNotification(client, 'admin', 'answer', 'Câu hỏi mới được đăng', `Câu hỏi mới từ ${username}`, question_id, 'question');
+    await addNotification(client, 'admin', 'answer', `New question posted by ${username}`, question_id, 'question');
     res.json({ message: 'Question posted successfully', question_id });
   } catch (err) {
     console.error('Question post error:', err);
@@ -290,7 +290,7 @@ router.post('/answer', isAuthenticated, isTutor, upload_answer_files.array('file
     );
     
     await save_answer_files(answer_id, files, client);
-    await addNotification(client, user_ask, 'answer', 'Câu hỏi đã được trả lời', `Câu hỏi của bạn đã được trả lời bởi ${user_answer}`, question_id, 'question');
+    await addNotification(client, user_ask, 'answer', `Your question has been answered by ${user_answer}`, question_id, 'question');
 
     res.json({ message: 'Câu trả lời đã được gửi thành công.' });
   } catch (err) {
@@ -308,22 +308,41 @@ router.post('/feedback', isAuthenticated, isLearner, async (req, res) => {
   }
 
   try {
+    await client.query('BEGIN');
+    
+    // Check if the question has been answered
     const answer = await client.query(
-      'SELECT question_id FROM Answers WHERE question_id = $1',
+      'SELECT question_id, user_answer FROM Answers WHERE question_id = $1',
       [question_id]
     );
     if (answer.rows.length === 0) {
+      await client.query('ROLLBACK');
       return res.status(400).json({ error: 'Câu hỏi chưa được trả lời.' });
     }
 
+    const tutorUsername = answer.rows[0].user_answer;
+
+    // Insert feedback
     await client.query(
       `INSERT INTO FeedBacks (question_id, username, rating, comment, date_posted)
        VALUES ($1, $2, $3, $4, NOW())`,
       [question_id, username, rating, comment || null]
     );
 
+    // Send notification to the tutor who answered the question
+    await addNotification(
+      client, 
+      tutorUsername, 
+      'feedback', 
+      `You received new feedback (${rating}★) from ${username} on your answer`, 
+      question_id, 
+      'question'
+    );
+
+    await client.query('COMMIT');
     res.json({ message: 'Phản hồi đã được gửi thành công.' });
   } catch (err) {
+    await client.query('ROLLBACK');
     console.error('Feedback error:', err);
     res.status(500).json({ error: 'Server error' });
   }

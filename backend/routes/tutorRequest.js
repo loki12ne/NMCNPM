@@ -25,10 +25,10 @@ function isAdmin(req, res, next) {
 }
 
 // Hàm thêm notification
-const addNotification = async (client, username, type, title, message, related_id, related_type) => {
+const addNotification = async (client, username, type, message, related_id, related_type) => {
   await client.query(
-    `INSERT INTO Notifications (username, type, title, message, related_id, related_type) VALUES ($1, $2, $3, $4, $5, $6)`,
-    [username, type, title, message, related_id, related_type]
+    `INSERT INTO Notifications (username, type, message, related_id, related_type) VALUES ($1, $2, $3, $4, $5)`,
+    [username, type, message, related_id, related_type]
   );
 };
 
@@ -75,9 +75,15 @@ router.patch('/tutor-request-action', isAdmin, async (req, res) => {
       const username = result.rows[0].username;
       if (action === 'approved') {
         await client.query('UPDATE Accounts SET role = $1 WHERE username = $2', ['tutor', username]);
-        await addNotification(client, username, 'tutor_approved', 'Yêu cầu gia sư đã được duyệt', 'Chúc mừng! Bạn đã được duyệt làm gia sư.', id, 'tutor_request');
+        // Add to TutorPerformance table when approved
+        await client.query(`
+          INSERT INTO TutorPerformance (username, average_rating, questions_answered, total_feedback, last_updated) 
+          VALUES ($1, 0.00, 0, 0, CURRENT_TIMESTAMP) 
+          ON CONFLICT (username) DO NOTHING
+        `, [username]);
+        await addNotification(client, username, 'tutor_approved', 'Congratulations! Your tutor application has been approved.', id, 'tutor_request');
       } else if (action === 'rejected') {
-        await addNotification(client, username, 'tutor_rejected', 'Yêu cầu gia sư bị từ chối', 'Rất tiếc! Yêu cầu gia sư của bạn đã bị từ chối.', id, 'tutor_request');
+        await addNotification(client, username, 'tutor_rejected', 'Sorry! Your tutor application has been rejected.', id, 'tutor_request');
       }
     }
     res.json({ message: `Đã cập nhật trạng thái yêu cầu thành '${action}'.` });
