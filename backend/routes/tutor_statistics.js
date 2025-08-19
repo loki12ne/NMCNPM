@@ -171,7 +171,7 @@ router.get('/list', isAuthenticated, async (req, res) => {
             'New tutor' as status
           FROM Accounts acc
           LEFT JOIN Answers a ON acc.username = a.user_answer
-          LEFT JOIN TutorRequest tr ON acc.username = tr.username
+          LEFT JOIN TutorRequests tr ON acc.username = tr.username
           WHERE acc.role = 'tutor'
             AND tr.status = 'approved'
             AND tr.created_at >= CURRENT_DATE - INTERVAL '30 days'
