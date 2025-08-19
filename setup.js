@@ -17,6 +17,7 @@ async function createTables() {
 
     // Drop tables in correct order to avoid FK errors
     await client.query(`DROP TABLE IF EXISTS Notifications CASCADE;`);
+    await client.query(`DROP TABLE IF EXISTS StudyPlans CASCADE;`);
     await client.query(`DROP TABLE IF EXISTS TutorPerformance CASCADE;`);
     await client.query(`DROP TABLE IF EXISTS FeedBacks CASCADE;`);
     await client.query(`DROP TABLE IF EXISTS QuestionLikes CASCADE;`);
@@ -29,12 +30,6 @@ async function createTables() {
     await client.query(`DROP TABLE IF EXISTS SystemStatistics CASCADE;`);
     await client.query(`DROP TABLE IF EXISTS LearnerStatistics CASCADE;`);
     await client.query(`DROP TABLE IF EXISTS TutorAnswered CASCADE;`);
-
-
-
-    await client.query(`DROP TABLE IF EXISTS Tasks CASCADE;`);
-    await client.query(`DROP TABLE IF EXISTS Classes CASCADE;`);
-    await client.query(`DROP TABLE IF EXISTS Exams CASCADE;`);
 
 
     // Create Accounts
@@ -124,58 +119,35 @@ async function createTables() {
       );
     `);
 
+    // Create StudyPlans
+    await client.query(`
+      CREATE TABLE StudyPlans (
+        plan_id SERIAL PRIMARY KEY,
+        username VARCHAR(50) NOT NULL REFERENCES Accounts(username) ON DELETE CASCADE,
+        title VARCHAR(200) NOT NULL,
+        subject VARCHAR(100),
+        description TEXT,
+        priority VARCHAR(20) DEFAULT 'medium' CHECK (priority IN ('low', 'medium', 'high')),
+        status VARCHAR(20) DEFAULT 'pending' CHECK (status IN ('pending', 'in_progress', 'completed')),
+        due_date DATE,
+        start_hour INTEGER DEFAULT 8 CHECK (start_hour BETWEEN 0 AND 23),
+        end_hour INTEGER DEFAULT 9 CHECK (end_hour BETWEEN 1 AND 24),
+        progress_percentage INTEGER DEFAULT 0 CHECK (progress_percentage BETWEEN 0 AND 100),
+        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
     // Create Notifications
     await client.query(`
       CREATE TABLE Notifications (
         notification_id SERIAL PRIMARY KEY,
         username VARCHAR(50) NOT NULL REFERENCES Accounts(username) ON DELETE CASCADE,
         type VARCHAR(50) NOT NULL CHECK (type IN ('answer', 'feedback', 'tutor_approved', 'tutor_rejected', 'tutor_removed')),
+        title VARCHAR(200) NOT NULL,
         message TEXT NOT NULL,
         related_id INTEGER,
         related_type VARCHAR(50),
         is_read BOOLEAN DEFAULT FALSE,
-        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-    
-    // Create Tasks table
-    await client.query(`
-      CREATE TABLE Tasks (
-        id SERIAL PRIMARY KEY,
-        username VARCHAR(50) NOT NULL REFERENCES Accounts(username) ON DELETE CASCADE,
-        title VARCHAR(200) NOT NULL,
-        description TEXT,
-        subject VARCHAR(100),
-        time INTEGER NOT NULL,
-        due_date DATE NOT NULL,
-        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-
-    // Create Classes table
-    await client.query(`
-      CREATE TABLE Classes (
-        id SERIAL PRIMARY KEY,
-        username VARCHAR(50) NOT NULL REFERENCES Accounts(username) ON DELETE CASCADE,
-        class_name VARCHAR(200) NOT NULL,
-        subject VARCHAR(100),
-        start_date DATE NOT NULL,
-        start_time TIME NOT NULL,
-        end_time TIME NOT NULL,
-        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-
-    // Create Exams table
-    await client.query(`
-      CREATE TABLE Exams (
-        id SERIAL PRIMARY KEY,
-        username VARCHAR(50) NOT NULL REFERENCES Accounts(username) ON DELETE CASCADE,
-        subject VARCHAR(100) NOT NULL,
-        type VARCHAR(50) NOT NULL,
-        exam_date DATE NOT NULL,
-        exam_time TIME NOT NULL,
-        duration_minutes INTEGER NOT NULL CHECK (duration_minutes > 0),
         created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
       );
     `);
@@ -246,35 +218,35 @@ async function createTables() {
 
     await client.query(`
       INSERT INTO Questions (username, text_content, subject, date_posted, is_answered) VALUES
-        ('learner', 'Lực hấp dẫn giữa hai vật được tính như thế nào?', 'Physics', '2025-06-01 12:00:00', TRUE),
-        ('learner', 'Phương trình hóa học của phản ứng giữa Na và Cl2 là gì?', 'Chemistry', '2025-06-02 09:00:00', TRUE),
-        ('teacher1', 'Giải phương trình bậc hai: x^2 - 4x + 3 = 0', 'Math', '2025-06-02 14:00:00', FALSE),
-        ('learner', 'Tốc độ ánh sáng trong chân không là bao nhiêu?', 'Physics', '2025-06-02 15:30:00', FALSE),
+        ('learner', 'Lực hấp dẫn giữa hai vật được tính như thế nào?', 'lý', '2025-06-01 12:00:00', TRUE),
+        ('learner', 'Phương trình hóa học của phản ứng giữa Na và Cl2 là gì?', 'hóa', '2025-06-02 09:00:00', TRUE),
+        ('teacher1', 'Giải phương trình bậc hai: x^2 - 4x + 3 = 0', 'toán', '2025-06-02 14:00:00', FALSE),
+        ('learner', 'Tốc độ ánh sáng trong chân không là bao nhiêu?', 'lý', '2025-06-02 15:30:00', FALSE),
         
         -- Tháng 3: 3 câu hỏi
-        ('nguyenvana', 'Định luật Ohm trong điện học được phát biểu như thế nào?', 'Physics', '2025-03-05 08:30:00', TRUE),
-        ('tranvanb', 'Tính đạo hàm của hàm số y = x^3 + 2x^2 - 5x + 1', 'Math', '2025-03-12 14:20:00', TRUE),
-        ('learner', 'Phản ứng oxi hóa khử là gì? Cho ví dụ', 'Chemistry', '2025-03-25 16:45:00', FALSE),
+        ('nguyenvana', 'Định luật Ohm trong điện học được phát biểu như thế nào?', 'lý', '2025-03-05 08:30:00', TRUE),
+        ('tranvanb', 'Tính đạo hàm của hàm số y = x^3 + 2x^2 - 5x + 1', 'toán', '2025-03-12 14:20:00', TRUE),
+        ('learner', 'Phản ứng oxi hóa khử là gì? Cho ví dụ', 'hóa', '2025-03-25 16:45:00', FALSE),
         
         -- Tháng 4: 1 câu hỏi  
-        ('nguyenvana', 'Công thức tính diện tích hình tròn và chu vi hình tròn', 'Math', '2025-04-15 10:30:00', TRUE),
+        ('nguyenvana', 'Công thức tính diện tích hình tròn và chu vi hình tròn', 'toán', '2025-04-15 10:30:00', TRUE),
         
         -- Tháng 5: 6 câu hỏi
-        ('tranvanb', 'Động năng và thế năng khác nhau như thế nào?', 'Physics', '2025-05-03 09:15:00', FALSE),
-        ('learner', 'Phương trình phản ứng trung hòa giữa axit và bazơ', 'Chemistry', '2025-05-08 13:20:00', TRUE),
-        ('nguyenvana', 'Giải hệ phương trình: 2x + 3y = 7, x - y = 1', 'Math', '2025-05-12 11:40:00', TRUE),
-        ('tranvanb', 'Định luật bảo toàn khối lượng trong hóa học', 'Chemistry', '2025-05-18 15:30:00', FALSE),
-        ('learner', 'Tính giới hạn: lim(x→0) sin(x)/x', 'Math', '2025-05-22 14:50:00', FALSE),
-        ('nguyenvana', 'Hiện tượng khúc xạ ánh sáng là gì?', 'Physics', '2025-05-28 16:10:00', FALSE),
+        ('tranvanb', 'Động năng và thế năng khác nhau như thế nào?', 'lý', '2025-05-03 09:15:00', FALSE),
+        ('learner', 'Phương trình phản ứng trung hòa giữa axit và bazơ', 'hóa', '2025-05-08 13:20:00', TRUE),
+        ('nguyenvana', 'Giải hệ phương trình: 2x + 3y = 7, x - y = 1', 'toán', '2025-05-12 11:40:00', TRUE),
+        ('tranvanb', 'Định luật bảo toàn khối lượng trong hóa học', 'hóa', '2025-05-18 15:30:00', FALSE),
+        ('learner', 'Tính giới hạn: lim(x→0) sin(x)/x', 'toán', '2025-05-22 14:50:00', FALSE),
+        ('nguyenvana', 'Hiện tượng khúc xạ ánh sáng là gì?', 'lý', '2025-05-28 16:10:00', FALSE),
         
         -- Tháng 7: 2 câu hỏi
-        ('tranvanb', 'Cấu hình electron của nguyên tố Oxygen (O)', 'Chemistry', '2025-07-10 09:45:00', FALSE),
-        ('learner', 'Định Physics Pythagoras và ứng dụng trong tam giác vuông', 'Math', '2025-07-25 13:15:00', FALSE),
+        ('tranvanb', 'Cấu hình electron của nguyên tố Oxygen (O)', 'hóa', '2025-07-10 09:45:00', FALSE),
+        ('learner', 'Định lý Pythagoras và ứng dụng trong tam giác vuông', 'toán', '2025-07-25 13:15:00', FALSE),
         
         -- Tháng 8: 3 câu hỏi
-        ('nguyenvana', 'Lực ly tâm và lực hướng tâm trong chuyển động tròn đều', 'Physics', '2025-08-17 10:20:00', FALSE),
-        ('tranvanb', 'Phương trình đường thẳng đi qua hai điểm A(1,2) và B(3,4)', 'Math', '2025-08-18 14:35:00', FALSE),
-        ('learner', 'Tính pH của dung dịch HCl 0.1M', 'Chemistry', '2025-08-18 11:50:00', FALSE)
+        ('nguyenvana', 'Lực ly tâm và lực hướng tâm trong chuyển động tròn đều', 'lý', '2025-08-17 10:20:00', FALSE),
+        ('tranvanb', 'Phương trình đường thẳng đi qua hai điểm A(1,2) và B(3,4)', 'toán', '2025-08-18 14:35:00', FALSE),
+        ('learner', 'Tính pH của dung dịch HCl 0.1M', 'hóa', '2025-08-18 11:50:00', FALSE)
       ON CONFLICT (question_id) DO NOTHING;
     `);
 
@@ -333,19 +305,25 @@ async function createTables() {
     `);
 
     await client.query(`
-      INSERT INTO Notifications (username, type, message, related_id, related_type) VALUES
-        ('learner', 'answer', 'Your question has been answered by a tutor', 1, 'question'),
-        ('learner', 'feedback', 'You have submitted feedback for a question', 1, 'question')
-      ON CONFLICT (notification_id) DO NOTHING;
+      INSERT INTO StudyPlans (username, title, subject, description, due_date, start_hour, end_hour, progress_percentage) VALUES
+        ('learner', 'Học Toán Lớp 10', 'toán', 'Ôn tập hình học', '2025-07-15', 8, 10, 30),
+        ('learner', 'Học Lý Cơ Bản', 'lý', 'Nghiên cứu lực', '2025-07-20', 14, 16, 10)
+      ON CONFLICT (plan_id) DO NOTHING;
     `);
 
-
+    await client.query(`
+      INSERT INTO Notifications (username, type, title, message, related_id, related_type) VALUES
+        ('learner', 'answer', 'Câu hỏi đã được trả lời', 'Câu hỏi của bạn đã được tutor trả lời', 1, 'question'),
+        ('learner', 'feedback', 'Phản hồi đã được gửi', 'Bạn đã gửi phản hồi cho câu hỏi', 1, 'question')
+      ON CONFLICT (notification_id) DO NOTHING;
+    `);
 
     // Insert TutorPerformance data for existing tutors
     await client.query(`
       INSERT INTO TutorPerformance (username, average_rating, questions_answered, total_feedback, last_updated) VALUES
         ('tutor', 4.00, 3, 3, CURRENT_TIMESTAMP),
-        ('teacher1', 5.00, 4, 4, CURRENT_TIMESTAMP)
+        ('teacher1', 5.00, 4, 4, CURRENT_TIMESTAMP),
+        ('tranvanb', 0.00, 0, 0, CURRENT_TIMESTAMP)
       ON CONFLICT (username) DO NOTHING;
     `);
 
