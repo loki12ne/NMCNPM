@@ -12,7 +12,7 @@
       top: 0;
       width: 200px;
       height: 100vh;
-      background: /*linear-gradient(135deg, #89CFF0 0%, #89CFF0 100%)*/ #ffffff;
+      background: #ffffff;
       border-right: 0px solid #3b82f6;
       display: flex;
       flex-direction: column;
@@ -44,17 +44,6 @@
       background-clip: text;
     }
 
-    /* .logo-subtitle {
-      font-family: 'Inter', Arial, Helvetica, sans-serif;
-      font-style: normal;
-      font-weight: 500;
-      font-size: 10px;
-      line-height: 1.2;
-      margin-top: 2px;
-      color: #2a3f80;
-      text-align: center;
-    } */
-
     .nav-menu {
       flex: 1;
       display: flex;
@@ -74,6 +63,7 @@
       font-weight: 500;
       position: relative;
       overflow: hidden;
+      cursor: pointer;
     }
 
     .nav-item:hover {
@@ -87,17 +77,6 @@
       color: #003399;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     }
-
-    /* .nav-item.active::before { */
-    /*   content: ''; */
-    /*   position: absolute; */
-    /*   left: 0; */
-    /*   top: 0; */
-    /*   height: 100%; */
-    /*   width: 4px; */
-    /*   background-color: #007fff; */
-    /*   border-radius: 0 4px 4px 0; */
-    /* } */
 
     .nav-icon {
       width: 24px;
@@ -135,6 +114,7 @@
       margin-top: auto;
       padding: 20px;
       border-top: 1px solid #a1caf1;
+      position: relative;
     }
 
     .user-item {
@@ -146,10 +126,17 @@
       border-radius: 12px;
       transition: all 0.3s ease;
       font-weight: 500;
+      position: relative;
+      cursor: pointer;
     }
 
     .user-item:hover {
       background-color: #e6f2ff;
+      color: #003399;
+    }
+
+    .user-item.active {
+      background-color: #a1caf1;
       color: #003399;
     }
 
@@ -173,6 +160,98 @@
       transform: scale(1.1);
     }
 
+    .user-item.active .user-icon {
+      background-color: #a1caf1;
+      color: #fff;
+    }
+
+    /* Profile Dropdown Popup */
+    .profile-dropdown {
+      position: absolute;
+      bottom: 100%;
+      left: 20px;
+      right: 20px;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+      border: 2px solid #e6f2ff;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(10px);
+      transition: all 0.3s ease;
+      z-index: 1001;
+      margin-bottom: 12px;
+    }
+
+    .profile-dropdown.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      padding: 14px 18px;
+      color: #2a3f80;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      border-radius: 8px;
+      margin: 6px;
+      cursor: pointer;
+    }
+
+    .dropdown-item:hover {
+      background-color: #e6f2ff;
+      color: #003399;
+      transform: translateX(5px);
+    }
+
+    .dropdown-item:first-child {
+      margin-top: 6px;
+    }
+
+    .dropdown-item:last-child {
+      margin-bottom: 6px;
+    }
+
+    .dropdown-icon {
+      width: 20px;
+      height: 20px;
+      margin-right: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #f8fafc;
+      color: #557cf2;
+      border-radius: 6px;
+      transition: all 0.3s ease;
+    }
+
+    .dropdown-item:hover .dropdown-icon {
+      background-color: #557cf2;
+      color: #ffffff;
+      transform: scale(1.1);
+    }
+
+    .dropdown-text {
+      font-size: 14px;
+      font-weight: 600;
+      color: inherit;
+      font-family: 'Inter', Arial, Helvetica, sans-serif;
+    }
+
+    /* Arrow indicator for profile */
+    .profile-arrow {
+      margin-left: auto;
+      transition: transform 0.3s ease;
+    }
+
+    .user-item.active .profile-arrow {
+      transform: rotate(180deg);
+    }
+
     /* Mobile responsiveness */
     @media (max-width: 768px) {
       .sidebar {
@@ -187,11 +266,6 @@
       .logo-title {
         font-size: 20px;
       }
-
-      /* .logo-subtitle {
-        font-size: 8px;
-        margin-top: 1px;
-      } */
 
       .nav-menu {
         padding: 0 10px;
@@ -222,6 +296,17 @@
       .user-icon {
         margin-right: 0;
       }
+
+      .profile-arrow {
+        display: none;
+      }
+
+      .profile-dropdown {
+        left: 75px;
+        right: auto;
+        min-width: 200px;
+        bottom: 0;
+      }
     }
 
     /* Sidebar toggle for mobile */
@@ -250,22 +335,40 @@
         transform: translateX(-100%);
       }
     }
+
+    /* Overlay for mobile dropdown */
+    .dropdown-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.2);
+      z-index: 999;
+    }
+
+    .dropdown-overlay.show {
+      display: block;
+    }
   </style>
 </head>
 <body>
   <button class="sidebar-toggle" id="sidebarToggle">☰</button>
   
+  <!-- Dropdown overlay for mobile -->
+  <div class="dropdown-overlay" id="dropdownOverlay"></div>
+  
   <nav class="sidebar" id="sidebar">
     <div class="sidebar-logo">
       <h1 class="logo-title">PANDA</h1>
-      <!-- <p class="logo-subtitle">from curiosity to clarity</p> -->
     </div>
     
     <div class="nav-menu">
       <a href="javascript:void(0)" class="nav-item" data-page="home" onclick="navigateToHome()">
         <div class="nav-icon">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M3 11.0226V17.4065C3 19.9434 5.01472 22 7.5 22H16.5C18.9853 22 21 19.9434 21 17.4065V11.0226C21 9.64488 20.3942 8.33989 19.3496 7.46745L13.4248 2.51916C12.596 1.82694 11.404 1.82695 10.5752 2.51916L4.65043 7.46745C3.60582 8.33989 3 9.64488 3 11.0226Z" stroke="#2a3f80" stroke-width="2" stroke-linecap="round"/>
+            <path d="M3 11.0226V17.4065C3 19.9434 5.01472 22 7.5 22H16.5C18.9853 22 21 19.9434 21 17.4065V11.0226C21 9.64488 20.3942 8.33989 19.3496 7.46745L13.4248 2.51916C12.596 1.82694 11.404 1.82695 10.5752 2.51916L4.65043 7.46745C3.60582 8.33989 3 9.64488 3 11.0226Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
           </svg>
         </div>
         <span class="nav-text">Home</span>
@@ -274,8 +377,8 @@
       <a href="/history.html" class="nav-item" data-page="history">
         <div class="nav-icon">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 8V12L14.5 14.5" stroke="#2a3f80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M5.60423 5.60414L5.0739 5.07381V5.07381L5.60423 5.60414ZM4.33785 6.87052L3.58786 6.87429C3.58992 7.28556 3.92281 7.61844 4.33408 7.62051L4.33785 6.87052ZM6.87963 7.6333C7.29384 7.63539 7.63131 7.30129 7.63339 6.88708C7.63547 6.47287 7.30138 6.1354 6.88717 6.13332L6.87963 7.6333ZM5.07505 4.3212C5.07297 3.90699 4.7355 3.5729 4.32129 3.57498C3.90708 3.57706 3.57298 3.91453 3.57507 4.32874L5.07505 4.3212ZM3.82669 10.7849C3.88294 10.3745 3.59587 9.99627 3.18549 9.94002C2.77512 9.88377 2.39684 10.1708 2.34059 10.5812L3.82669 10.7849ZM18.8623 5.13777C15.0421 1.31758 8.86882 1.27889 5.0739 5.07381L6.13456 6.13447C9.33367 2.93536 14.5572 2.95395 17.8017 6.19843L18.8623 5.13777ZM5.13786 18.8622C8.95805 22.6824 15.1314 22.7211 18.9263 18.9262L17.8656 17.8655C14.6665 21.0646 9.443 21.0461 6.19852 17.8016L5.13786 18.8622ZM18.9263 18.9262C22.7212 15.1313 22.6825 8.95796 18.8623 5.13777L17.8017 6.19843C21.0461 9.44291 21.0647 14.6664 17.8656 17.8655L18.9263 18.9262ZM5.0739 5.07381L3.80752 6.34019L4.86818 7.40085L6.13456 6.13447L5.0739 5.07381ZM4.33408 7.62051L6.87963 7.6333L6.88717 6.13332L4.34162 6.12053L4.33408 7.62051ZM5.08784 6.86675L5.07505 4.3212L3.57507 4.32874L3.58786 6.87429L5.08784 6.86675ZM2.34059 10.5812C1.93916 13.5099 2.87401 16.5984 5.13786 18.8622L6.19852 17.8016C4.27794 15.881 3.48672 13.2652 3.82669 10.7849L2.34059 10.5812Z" stroke="#2a3f80" stroke-width=".5" fill="#2a3f80"/>
+            <path d="M12 8V12L14.5 14.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M5.60423 5.60414L5.0739 5.07381V5.07381L5.60423 5.60414ZM4.33785 6.87052L3.58786 6.87429C3.58992 7.28556 3.92281 7.61844 4.33408 7.62051L4.33785 6.87052ZM6.87963 7.6333C7.29384 7.63539 7.63131 7.30129 7.63339 6.88708C7.63547 6.47287 7.30138 6.1354 6.88717 6.13332L6.87963 7.6333ZM5.07505 4.3212C5.07297 3.90699 4.7355 3.5729 4.32129 3.57498C3.90708 3.57706 3.57298 3.91453 3.57507 4.32874L5.07505 4.3212ZM3.82669 10.7849C3.88294 10.3745 3.59587 9.99627 3.18549 9.94002C2.77512 9.88377 2.39684 10.1708 2.34059 10.5812L3.82669 10.7849ZM18.8623 5.13777C15.0421 1.31758 8.86882 1.27889 5.0739 5.07381L6.13456 6.13447C9.33367 2.93536 14.5572 2.95395 17.8017 6.19843L18.8623 5.13777ZM5.13786 18.8622C8.95805 22.6824 15.1314 22.7211 18.9263 18.9262L17.8656 17.8655C14.6665 21.0646 9.443 21.0461 6.19852 17.8016L5.13786 18.8622ZM18.9263 18.9262C22.7212 15.1313 22.6825 8.95796 18.8623 5.13777L17.8017 6.19843C21.0461 9.44291 21.0647 14.6664 17.8656 17.8655L18.9263 18.9262ZM5.0739 5.07381L3.80752 6.34019L4.86818 7.40085L6.13456 6.13447L5.0739 5.07381ZM4.33408 7.62051L6.87963 7.6333L6.88717 6.13332L4.34162 6.12053L4.33408 7.62051ZM5.08784 6.86675L5.07505 4.3212L3.57507 4.32874L3.58786 6.87429L5.08784 6.86675ZM2.34059 10.5812C1.93916 13.5099 2.87401 16.5984 5.13786 18.8622L6.19852 17.8016C4.27794 15.881 3.48672 13.2652 3.82669 10.7849L2.34059 10.5812Z" stroke="currentColor" stroke-width=".5" fill="currentColor"/>
           </svg>
         </div>
         <span class="nav-text">History</span>
@@ -283,8 +386,8 @@
       
       <a href="/feed.html" class="nav-item" data-page="feed">
         <div class="nav-icon">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M5 12H19M5 8H19M5 16H15" stroke="#2a3f80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M5 12H19M5 8H19M5 16H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
         <span class="nav-text">Feed</span>
@@ -293,28 +396,105 @@
       <a href="/notifications.html" class="nav-item" data-page="notifications">
         <div class="nav-icon">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M14.6457 20C13.9406 20.6223 13.0144 20.9999 12 20.9999C10.9856 20.9999 10.0594 20.6223 9.35426 20M17.9974 13.1808V10C17.9974 6.67772 15.3223 4 12 4C8.67772 4 5.96637 6.56356 5.96637 10V13.1593C5.96637 13.6424 5.89106 14.1224 5.74334 14.5808L5.00488 16.8723C4.98466 16.9351 5.02981 16.9999 5.09375 16.9999H18.8632C18.9308 16.9999 18.9788 16.934 18.958 16.8697L18.2146 14.5626C18.0707 14.1161 17.9974 13.6499 17.9974 13.1808Z" stroke="#2a3f80" stroke-width="2" stroke-linecap="round"/>
+          <path d="M14.6457 20C13.9406 20.6223 13.0144 20.9999 12 20.9999C10.9856 20.9999 10.0594 20.6223 9.35426 20M17.9974 13.1808V10C17.9974 6.67772 15.3223 4 12 4C8.67772 4 5.96637 6.56356 5.96637 10V13.1593C5.96637 13.6424 5.89106 14.1224 5.74334 14.5808L5.00488 16.8723C4.98466 16.9351 5.02981 16.9999 5.09375 16.9999H18.8632C18.9308 16.9999 18.9788 16.934 18.958 16.8697L18.2146 14.5626C18.0707 14.1161 17.9974 13.6499 17.9974 13.1808Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
           </svg>
-
         </div>
         <span class="nav-text">Notifications</span>
       </a>
     </div>
     
     <div class="user-section">
-      <a href="/profile.html" class="user-item" data-page="profile">
+      <!-- Profile Dropdown -->
+      <div class="profile-dropdown" id="profileDropdown">
+        <a href="/study-planner.html" class="dropdown-item" onclick="hideProfileDropdown()">
+          <div class="dropdown-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M8 2V6M16 2V6M3 10H21M5 4H19C20.1046 4 21 4.89543 21 6V20C21 21.1046 20.1046 22 19 22H5C3.89543 22 3 21.1046 3 20V6C3 4.89543 3.89543 4 5 4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="dropdown-text">Calendar</span>
+        </a>
+        
+        <a href="/studyplanner_task.html" class="dropdown-item" onclick="hideProfileDropdown()">
+          <div class="dropdown-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="dropdown-text">Tasks</span>
+        </a>
+      </div>
+      
+      <div class="user-item" data-page="profile" id="profileToggle" onclick="toggleProfileDropdown()">
         <div class="user-icon">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" stroke="#2a3f80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M20.5899 22C20.5899 18.13 16.7399 15 11.9999 15C7.25991 15 3.40991 18.13 3.40991 22" stroke="#2a3f80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M20.5899 22C20.5899 18.13 16.7399 15 11.9999 15C7.25991 15 3.40991 18.13 3.40991 22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
         <span class="nav-text">Profile</span>
-      </a>
+        <div class="profile-arrow">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
     </div>
   </nav>
 
   <script>
+    // Profile dropdown functionality
+    let isDropdownOpen = false;
+
+    function toggleProfileDropdown() {
+      const dropdown = document.getElementById('profileDropdown');
+      const profileToggle = document.getElementById('profileToggle');
+      const overlay = document.getElementById('dropdownOverlay');
+      
+      isDropdownOpen = !isDropdownOpen;
+      
+      if (isDropdownOpen) {
+        dropdown.classList.add('show');
+        profileToggle.classList.add('active');
+        overlay.classList.add('show');
+      } else {
+        dropdown.classList.remove('show');
+        profileToggle.classList.remove('active');
+        overlay.classList.remove('show');
+      }
+    }
+
+    function hideProfileDropdown() {
+      const dropdown = document.getElementById('profileDropdown');
+      const profileToggle = document.getElementById('profileToggle');
+      const overlay = document.getElementById('dropdownOverlay');
+      
+      dropdown.classList.remove('show');
+      profileToggle.classList.remove('active');
+      overlay.classList.remove('show');
+      isDropdownOpen = false;
+    }
+
+    // Close dropdown when clicking overlay
+    document.getElementById('dropdownOverlay').addEventListener('click', hideProfileDropdown);
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+      const profileSection = document.querySelector('.user-section');
+      const dropdown = document.getElementById('profileDropdown');
+      
+      if (!profileSection.contains(event.target) && isDropdownOpen) {
+        hideProfileDropdown();
+      }
+    });
+
+    // Close dropdown when pressing Escape
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape' && isDropdownOpen) {
+        hideProfileDropdown();
+      }
+    });
+
     // Role-based home navigation
     async function navigateToHome() {
       try {
@@ -359,7 +539,7 @@
     // Set active nav item based on current page
     function setActiveNavItem() {
       const currentPage = window.location.pathname;
-      const navItems = document.querySelectorAll('.nav-item, .user-item');
+      const navItems = document.querySelectorAll('.nav-item');
       
       navItems.forEach(item => {
         item.classList.remove('active');
@@ -373,6 +553,10 @@
         // Handle home page - activate home nav for both learner.html and tutor.html
         else if (dataPage === 'home' && (currentPage === '/learner.html' || currentPage === '/tutor.html')) {
           item.classList.add('active');
+        }
+        // Handle study planner pages - don't activate any nav item as these use profile dropdown
+        else if (currentPage === '/study-planner.html' || currentPage === '/studyplanner_task.html') {
+          // Don't activate any nav item, these are accessed via profile dropdown
         }
         // Handle index page fallback
         else if ((currentPage === '/' || currentPage === '/index.html') && href === '/index.html') {

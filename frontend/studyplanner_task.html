@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Study Planner - Tasks</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f0f4ff;
+      min-height: 100vh;
+      margin-left: 200px;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+    }
+
+    .welcome-card {
+      background: linear-gradient(135deg, #6fa8f5 0%, #4a90e2 100%);
+      color: white;
+      padding: 20px 32px;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(79, 144, 226, 0.3);
+    }
+
+    .welcome-text {
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 4px;
+      opacity: 0.9;
+    }
+
+    .user-id {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .auth-buttons {
+      display: flex;
+      gap: 12px;
+    }
+
+    .auth-btn {
+      padding: 12px 20px;
+      border: 2px solid #557cf2;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .tutor-upgrade-btn {
+      background: #557cf2;
+      color: white;
+      border-color: #557cf2;
+    }
+
+    .tutor-upgrade-btn:hover {
+      background: #7997f2;
+      border-color: #7997f2;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(85, 124, 242, 0.4);
+    }
+
+    .logout-btn {
+      background: white;
+      color: #557cf2;
+      border-color: #557cf2;
+    }
+
+    .logout-btn:hover {
+      background: #557cf2;
+      color: white;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 48px;
+      font-weight: 600;
+      color: #2a3f80;
+      margin-bottom: 48px;
+    }
+
+    /* Task Navigation */
+    .task-navigation {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      margin-bottom: 32px;
+      background: white;
+      padding: 20px 32px;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      background: #2a3f80;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .nav-btn:hover {
+      background: #557cf2;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(85, 124, 242, 0.4);
+    }
+
+    .date-display {
+      font-size: 18px;
+      font-weight: 600;
+      color: #2a3f80;
+      text-align: center;
+      min-width: 250px;
+    }
+
+    /* Task Sections */
+    .task-section {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+
+    .section-header {
+      padding: 24px 32px 16px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .section-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #2a3f80;
+      margin-bottom: 8px;
+    }
+
+    .section-date {
+      font-size: 16px;
+      color: #6b7280;
+      font-weight: 500;
+    }
+
+    .task-list {
+      padding: 0;
+    }
+
+    .task-item {
+      display: flex;
+      align-items: center;
+      padding: 20px 32px;
+      border-bottom: 1px solid #f3f4f6;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .task-item:hover {
+      background: #f8fafc;
+    }
+
+    .task-item:last-child {
+      border-bottom: none;
+    }
+
+    .task-time {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-width: 80px;
+      padding: 12px;
+      background: #f1f5f9;
+      border-radius: 12px;
+      margin-right: 24px;
+    }
+
+    .time-start {
+      font-size: 16px;
+      font-weight: 700;
+      color: #2a3f80;
+      line-height: 1.2;
+    }
+
+    .time-end {
+      font-size: 14px;
+      color: #6b7280;
+      line-height: 1.2;
+    }
+
+    .task-content {
+      flex: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .task-info {
+      flex: 1;
+    }
+
+    .task-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #2a3f80;
+      margin-bottom: 4px;
+    }
+
+    .task-subject {
+      font-size: 14px;
+      color: #6b7280;
+      margin-bottom: 4px;
+    }
+
+    .task-description {
+      font-size: 14px;
+      color: #9ca3af;
+    }
+
+    .task-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      padding: 6px 12px;
+      border-radius: 20px;
+    }
+
+    .task-status.class {
+      color: #065f46;
+      background: #d1fae5;
+    }
+    .task-status.class .status-dot { background: #10b981; }
+
+    .task-status.task {
+      color: #92400e;
+      background: #fef3c7;
+    }
+    .task-status.task .status-dot { background: #f59e0b; }
+
+    .task-status.exam {
+      color: #9d174d;
+      background: #ffe4e6;
+    }
+    .task-status.exam .status-dot { background: #f43f5e; }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    /* Summary Section */
+    .summary-section {
+      padding: 32px;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 24px;
+    }
+
+    .summary-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px;
+      background: #f8fafc;
+      border-radius: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .summary-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .summary-number {
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .summary-label {
+      font-size: 14px;
+      font-weight: 500;
+      text-align: center;
+      color: #6b7280;
+    }
+
+    .summary-card.classes {
+      background: linear-gradient(135deg, #a8e6cf 0%, #8dd4b8 100%);
+      color: white;
+    }
+
+    .summary-card.classes .summary-label {
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .summary-card.tasks {
+      background: linear-gradient(135deg, #f7d794 0%, #f0c975 100%);
+      color: white;
+    }
+
+    .summary-card.tasks .summary-label {
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    .summary-card.exams {
+      background: linear-gradient(135deg, #f8a5c2 0%, #f093b0 100%);
+      color: white;
+    }
+
+    .summary-card.exams .summary-label {
+      color: rgba(255, 255, 255, 0.9);
+    }
+
+    /* Add Button */
+    .add-task-button {
+      position: fixed;
+      bottom: 32px;
+      right: 32px;
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, #557cf2 0%, #7997f2 100%);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 32px rgba(85, 124, 242, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      z-index: 1000;
+    }
+
+    .add-task-button:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 12px 40px rgba(85, 124, 242, 0.5);
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 64px 32px;
+      color: #9ca3af;
+    }
+
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    .empty-state-text {
+      font-size: 18px;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .empty-state-subtext {
+      font-size: 14px;
+    }
+
+    /* Modal Styles - Reuse from calendar */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 32px;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-content h2 {
+      color: #2a3f80;
+      margin-bottom: 24px;
+      font-size: 24px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #2a3f80;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 15px;
+      transition: all 0.3s ease;
+      background: white;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #557cf2;
+      box-shadow: 0 0 0 3px rgba(85, 124, 242, 0.1);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      font-family: inherit;
+      line-height: 1.5;
+      min-height: 80px;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      flex: 1;
+      min-width: 100px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #557cf2 0%, #7997f2 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #7997f2 0%, #89CFF0 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(85, 124, 242, 0.4);
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background: linear-gradient(135deg, #f87171 0%, #fca5a5 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+    }
+
+    .btn-secondary {
+      background: white;
+      color: #6b7280;
+      border: 2px solid #e5e7eb;
+    }
+
+    .btn-secondary:hover {
+      background: #f9fafb;
+      border-color: #d1d5db;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      body {
+        margin-left: 70px;
+        padding: 16px;
+      }
+
+      .container {
+        padding: 20px 16px;
+      }
+
+      .header {
+        flex-direction: column;
+        gap: 20px;
+        align-items: stretch;
+      }
+
+      h1 {
+        font-size: 36px;
+        margin-bottom: 32px;
+      }
+
+      .task-navigation {
+        padding: 16px 24px;
+      }
+
+      .nav-btn {
+        width: 40px;
+        height: 40px;
+      }
+
+      .date-display {
+        font-size: 16px;
+        min-width: 200px;
+      }
+
+      .section-header {
+        padding: 20px 24px 12px;
+      }
+
+      .section-title {
+        font-size: 20px;
+      }
+
+      .task-item {
+        padding: 16px 24px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+
+      .task-time {
+        align-self: center;
+        margin-right: 0;
+        margin-bottom: 8px;
+      }
+
+      .task-content {
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+
+      .summary-section {
+        padding: 24px;
+      }
+
+      .summary-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      .add-task-button {
+        width: 56px;
+        height: 56px;
+        bottom: 24px;
+        right: 24px;
+        font-size: 20px;
+      }
+
+      .modal-content {
+        padding: 20px;
+        width: 95%;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+
+      .modal-actions {
+        flex-direction: column;
+      }
+
+      .btn {
+        flex: none;
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Include Sidebar -->
+  <div id="sidebar-container"></div>
+
+  <div class="container">
+    <div class="header">
+      <div class="welcome-card">
+        <div class="welcome-text">Study Planner</div>
+        <div class="user-id" id="userId">Task Management</div>
+      </div>
+
+      <div class="auth-buttons">
+        <button class="auth-btn tutor-upgrade-btn" id="tutorUpgradeBtn">Tutor upgrade</button>
+        <button onclick="logout()" class="auth-btn logout-btn">Logout</button>
+      </div>
+    </div>
+
+    <h1>Task</h1>
+
+    <!-- Task Navigation -->
+    <div class="task-navigation">
+      <button class="nav-btn" onclick="navigateDate('prev')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+
+      <div class="date-display" id="current-date-display">
+        Today - Monday, 1 May
+      </div>
+
+      <button class="nav-btn" onclick="navigateDate('next')">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Today's Tasks Section -->
+    <div class="task-section">
+      <div class="section-header">
+        <div class="section-title">Today</div>
+        <div class="section-date" id="today-date">Monday, 1 May</div>
+      </div>
+      <div class="task-list" id="today-tasks">
+        <!-- Tasks will be loaded here -->
+      </div>
+    </div>
+
+    <!-- Tomorrow's Summary Section -->
+    <div class="task-section">
+      <div class="section-header">
+        <div class="section-title">Tomorrow</div>
+        <div class="section-date" id="tomorrow-date">Tuesday, 2 May</div>
+      </div>
+      <div class="summary-section">
+        <div class="summary-grid">
+          <div class="summary-card classes">
+            <div class="summary-number" id="tomorrow-classes">0</div>
+            <div class="summary-label">classes</div>
+          </div>
+          <div class="summary-card tasks">
+            <div class="summary-number" id="tomorrow-tasks">0</div>
+            <div class="summary-label">task due</div>
+          </div>
+          <div class="summary-card exams">
+            <div class="summary-number" id="tomorrow-exams">0</div>
+            <div class="summary-label">exam</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Task Button -->
+  <button class="add-task-button" onclick="openModal('task')">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
+
+  <!-- Task Modal -->
+  <div class="modal" id="task-modal">
+    <div class="modal-content">
+      <h2 id="modal-title">Add Task</h2>
+      
+      <div class="form-group">
+        <label>Task Title</label>
+        <input type="text" id="task-title" required>
+      </div>
+
+      <div class="form-group">
+        <label>Subject</label>
+        <input type="text" id="task-subject" required>
+      </div>
+
+      <div class="form-group">
+        <label>Description</label>
+        <textarea id="task-description" rows="3"></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Due Date</label>
+          <input type="date" id="task-due-date">
+        </div>
+        <div class="form-group">
+          <label>End Hour</label>
+          <select id="task-end-hour">
+            <option value="6">06:00</option><option value="7">07:00</option><option value="8" selected>08:00</option><option value="9">09:00</option><option value="10">10:00</option><option value="11">11:00</option><option value="12">12:00</option><option value="13">13:00</option><option value="14">14:00</option><option value="15">15:00</option><option value="16">16:00</option><option value="17">17:00</option><option value="18">18:00</option><option value="19">19:00</option><option value="20">20:00</option><option value="21">21:00</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-primary" onclick="saveTask()">Save Task</button>
+        <button class="btn btn-danger" id="delete-btn" onclick="deleteTask()" style="display: none;">Delete</button>
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Global variables
+    let plans = [];
+    let currentDate = new Date();
+    let editingTask = null;
+
+    // Load sidebar
+    fetch('/sidebar.html')
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById('sidebar-container').innerHTML = data;
+        const sidebarScripts = document.getElementById('sidebar-container').querySelectorAll('script');
+        sidebarScripts.forEach(script => {
+          const newScript = document.createElement('script');
+          newScript.textContent = script.textContent;
+          document.head.appendChild(newScript);
+        });
+      })
+      .catch(error => console.error('Error loading sidebar:', error));
+
+    // Authentication check
+    async function checkAuth() {
+      try {
+        const res = await fetch('/auth/check-auth', {
+          method: 'GET',
+          credentials: 'include'
+        });
+        const data = await res.json();
+        
+        if (!data.isAuthenticated) {
+          window.location.href = '/index.html';
+          return;
+        }
+
+        document.getElementById('userId').textContent = data.user.username || 'Student';
+
+        const tutorUpgradeBtn = document.getElementById('tutorUpgradeBtn');
+        if (data.user && data.user.role === 'admin') {
+          tutorUpgradeBtn.textContent = 'Tutor request';
+          tutorUpgradeBtn.onclick = function() {
+            window.location.href = '/manage-tutor-requests.html';
+          };
+        } else if (data.user && data.user.role === 'tutor') {
+          tutorUpgradeBtn.style.display = 'none';
+        } else {
+          tutorUpgradeBtn.textContent = 'Tutor upgrade';
+          tutorUpgradeBtn.onclick = function() {
+            window.location.href = '/tutor-request.html';
+          };
+        }
+      } catch (err) {
+        console.error('Auth check error:', err);
+        window.location.href = '/index.html';
+      }
+    }
+
+    async function logout() {
+      try {
+        const res = await fetch('/auth/logout', {
+          method: 'POST',
+          credentials: 'include'
+        });
+        if (res.ok) window.location.href = '/index.html';
+      } catch (err) {
+        console.error('Logout error:', err);
+      }
+    }
+
+    // Load plans from API
+    async function loadPlans() {
+      try {
+        const response = await fetch('/study-planner/plans', {
+          method: 'GET',
+          credentials: 'include'
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            plans = [
+              ...data.data.classes,
+              ...data.data.tasks,
+              ...data.data.exams
+            ];
+          }
+        }
+      } catch (error) {
+        console.error('Error loading plans:', error);
+      }
+    }
+
+    // Helper functions
+    function formatDate(date) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const d = String(date.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function formatDateDisplay(date) {
+      const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      
+      const dayName = days[date.getDay()];
+      const day = date.getDate();
+      const month = months[date.getMonth()];
+      
+      return `${dayName}, ${day} ${month}`;
+    }
+
+    function normalizeDateStr(val) {
+      if (!val) return '';
+      if (typeof val === 'string') return val.split('T')[0];
+      if (val instanceof Date) return formatDate(val);
+      return String(val).split('T')[0];
+    }
+
+    function isToday(date, targetDate) {
+      return formatDate(date) === formatDate(targetDate);
+    }
+
+    function isTomorrow(date, targetDate) {
+      const tomorrow = new Date(targetDate);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      return formatDate(date) === formatDate(tomorrow);
+    }
+
+    // Navigation
+    function navigateDate(direction) {
+      if (direction === 'next') {
+        currentDate.setDate(currentDate.getDate() + 1);
+      } else {
+        currentDate.setDate(currentDate.getDate() - 1);
+      }
+      updateDisplay();
+    }
+
+    // Update display
+    function updateDisplay() {
+      // Update date displays
+      const todayText = isToday(currentDate, new Date()) ? 'Today' : formatDateDisplay(currentDate);
+      document.getElementById('current-date-display').textContent = `${todayText} - ${formatDateDisplay(currentDate)}`;
+      document.getElementById('today-date').textContent = formatDateDisplay(currentDate);
+      
+      const tomorrow = new Date(currentDate);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      document.getElementById('tomorrow-date').textContent = formatDateDisplay(tomorrow);
+
+      // Update tasks
+      renderTasks();
+      renderSummary();
+    }
+
+    // Render today's tasks
+    function renderTasks() {
+      const todayTasks = plans.filter(plan => {
+        const planDate = normalizeDateStr(plan.type === 'task' ? (plan.dueDate || plan.date) : plan.date);
+        return planDate === formatDate(currentDate);
+      });
+
+      const taskContainer = document.getElementById('today-tasks');
+      
+      if (todayTasks.length === 0) {
+        taskContainer.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">📝</div>
+            <div class="empty-state-text">No tasks for this day</div>
+            <div class="empty-state-subtext">Click the + button to add a new task</div>
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
+      todayTasks.forEach(plan => {
+        let timeDisplay = '';
+        let title = plan.title;
+        let subject = plan.subject || '';
+        let description = plan.description || '';
+
+        if (plan.type === 'task') {
+          const endHour = plan.endTime || '09:00';
+          const startHour = plan.startTime || '08:00';
+          timeDisplay = `
+            <div class="time-start">${startHour.split(':')[0]}:00</div>
+            <div class="time-end">${endHour}</div>
+          `;
+        } else if (plan.type === 'class') {
+          timeDisplay = `
+            <div class="time-start">${(plan.startTime || '08:00').split(':')[0]}:00</div>
+            <div class="time-end">${plan.endTime || '09:00'}</div>
+          `;
+        } else if (plan.type === 'exam') {
+          const examHour = plan.examTime || '09:00';
+          timeDisplay = `
+            <div class="time-start">${examHour.split(':')[0]}:00</div>
+            <div class="time-end">${plan.duration || 60}min</div>
+          `;
+        }
+
+        html += `
+          <div class="task-item" onclick="editTask('${plan.id}')">
+            <div class="task-time">
+              ${timeDisplay}
+            </div>
+            <div class="task-content">
+              <div class="task-info">
+                <div class="task-title">${title}</div>
+                <div class="task-subject">${subject}</div>
+                ${description ? `<div class="task-description">${description}</div>` : ''}
+              </div>
+              <div class="task-status ${plan.type}">
+                <div class="status-dot"></div>
+                ${plan.type === 'task' ? 'Task due' : plan.type}
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      taskContainer.innerHTML = html;
+    }
+
+    // Render tomorrow's summary
+    function renderSummary() {
+      const tomorrow = new Date(currentDate);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const tomorrowDate = formatDate(tomorrow);
+
+      const tomorrowPlans = plans.filter(plan => {
+        const planDate = normalizeDateStr(plan.type === 'task' ? (plan.dueDate || plan.date) : plan.date);
+        return planDate === tomorrowDate;
+      });
+
+      const classes = tomorrowPlans.filter(p => p.type === 'class').length;
+      const tasks = tomorrowPlans.filter(p => p.type === 'task').length;
+      const exams = tomorrowPlans.filter(p => p.type === 'exam').length;
+
+      document.getElementById('tomorrow-classes').textContent = classes;
+      document.getElementById('tomorrow-tasks').textContent = tasks;
+      document.getElementById('tomorrow-exams').textContent = exams;
+    }
+
+    // Modal functions
+    function openModal(planType = 'task', planId = null) {
+      const modal = document.getElementById('task-modal');
+      const deleteBtn = document.getElementById('delete-btn');
+      const modalTitle = document.getElementById('modal-title');
+
+      if (planId) {
+        // Edit mode
+        editingTask = plans.find(p => p.id === planId);
+        modalTitle.textContent = `Edit ${editingTask.type === 'task' ? 'Task' : editingTask.type}`;
+        
+        document.getElementById('task-title').value = editingTask.title;
+        document.getElementById('task-subject').value = editingTask.subject;
+        document.getElementById('task-description').value = editingTask.description || '';
+        
+        if (editingTask.type === 'task') {
+          document.getElementById('task-due-date').value = normalizeDateStr(editingTask.dueDate || editingTask.date);
+          const endHour = (editingTask.endTime || '09:00').split(':')[0];
+          document.getElementById('task-end-hour').value = endHour;
+        }
+        
+        deleteBtn.style.display = 'block';
+      } else {
+        // Add mode
+        editingTask = null;
+        modalTitle.textContent = 'Add Task';
+        
+        document.getElementById('task-title').value = '';
+        document.getElementById('task-subject').value = '';
+        document.getElementById('task-description').value = '';
+        document.getElementById('task-due-date').value = formatDate(currentDate);
+        document.getElementById('task-end-hour').value = '9';
+        
+        deleteBtn.style.display = 'none';
+      }
+
+      modal.classList.add('show');
+    }
+
+    function closeModal() {
+      document.getElementById('task-modal').classList.remove('show');
+      editingTask = null;
+    }
+
+    function editTask(planId) {
+      const plan = plans.find(p => p.id === planId);
+      if (plan) {
+        openModal(plan.type, planId);
+      }
+    }
+
+    async function saveTask() {
+      const title = document.getElementById('task-title').value;
+      const subject = document.getElementById('task-subject').value;
+      const description = document.getElementById('task-description').value;
+      const dueDate = document.getElementById('task-due-date').value;
+      const endHour = document.getElementById('task-end-hour').value;
+
+      if (!title || !subject || !dueDate || !endHour) {
+        alert('Please fill in all required fields');
+        return;
+      }
+
+      try {
+        const endTime = `${String(endHour).padStart(2,'0')}:00`;
+        const endpoint = editingTask ? `/study-planner/tasks/${editingTask.id}` : '/study-planner/tasks';
+        const method = editingTask ? 'PUT' : 'POST';
+
+        const requestData = {
+          title,
+          description,
+          subject,
+          due_date: dueDate,
+          end_time: endTime
+        };
+
+        const response = await fetch(endpoint, {
+          method,
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include',
+          body: JSON.stringify(requestData)
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          if (result.success) {
+            await loadPlans();
+            updateDisplay();
+            closeModal();
+          } else {
+            alert('Error saving task: ' + (result.message || 'Unknown error'));
+          }
+        } else {
+          const errText = await response.text();
+          console.error('Save error:', errText);
+          alert('Error saving task');
+        }
+      } catch (error) {
+        console.error('Error saving task:', error);
+        alert('Error saving task');
+      }
+    }
+
+    async function deleteTask() {
+      if (editingTask && confirm('Are you sure you want to delete this item?')) {
+        try {
+          let endpoint = '';
+          
+          if (editingTask.type === 'task') {
+            endpoint = `/study-planner/tasks/${editingTask.id}`;
+          } else if (editingTask.type === 'class') {
+            endpoint = `/study-planner/classes/${editingTask.id}`;
+          } else if (editingTask.type === 'exam') {
+            endpoint = `/study-planner/exams/${editingTask.id}`;
+          }
+
+          const response = await fetch(endpoint, {
+            method: 'DELETE',
+            credentials: 'include'
+          });
+
+          if (response.ok) {
+            const result = await response.json();
+            if (result.success) {
+              await loadPlans();
+              updateDisplay();
+              closeModal();
+            } else {
+              alert('Error deleting item: ' + result.message);
+            }
+          } else {
+            alert('Error deleting item');
+          }
+        } catch (error) {
+          console.error('Error deleting item:', error);
+          alert('Error deleting item');
+        }
+      }
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('task-modal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeModal();
+      }
+    });
+
+    // Initialize
+    window.onload = async function() {
+      await checkAuth();
+      await loadPlans();
+      updateDisplay();
+    };
+  </script>
+</body>
+</html>

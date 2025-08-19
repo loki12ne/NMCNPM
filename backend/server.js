@@ -12,6 +12,7 @@ const notificationRouter = require('./routes/notification');
 const statisticRoutes = require('./routes/statistic');
 const learnerStatisticsRoutes = require('./routes/learner_statistics');
 const tutorStatisticsRoutes = require('./routes/tutor_statistics');
+const studyPlannerRoutes = require('./routes/studyPlanner');
 
 require('dotenv').config();
 
@@ -49,6 +50,8 @@ app.use('/notifications', notificationRouter);
 app.use('/statistics', statisticRoutes);
 app.use('/learner-statistics', learnerStatisticsRoutes);
 app.use('/tutor-statistics', tutorStatisticsRoutes);
+app.use('/study-planner', studyPlannerRoutes);
+
 
 // Start server
 app.listen(PORT, () => {
