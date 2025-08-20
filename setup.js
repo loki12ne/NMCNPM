@@ -53,7 +53,7 @@ async function createTables() {
       CREATE TABLE Questions (
         question_id SERIAL PRIMARY KEY,
         username VARCHAR(50) NOT NULL REFERENCES Accounts(username),
-        text_content TEXT NOT NULL,
+        text_content TEXT,
         img_url TEXT,
         pdf_url TEXT,
         subject VARCHAR(50) NOT NULL,
@@ -191,16 +191,56 @@ async function createTables() {
       );
     `);
 
+    // Create QuestionTopics
+    await client.query(`
+      CREATE TABLE QuestionTopics (
+        topic_id SERIAL PRIMARY KEY,
+        question_id INTEGER NOT NULL REFERENCES Questions(question_id) ON DELETE CASCADE,
+        topic_name VARCHAR(50) NOT NULL
+      );
+    `);
 
-  
+    // Create SystemStatistics
+    await client.query(`
+      CREATE TABLE SystemStatistics (
+        stat_id SERIAL PRIMARY KEY,
+        total_users INTEGER NOT NULL,
+        total_questions INTEGER NOT NULL,
+        total_answers INTEGER NOT NULL,
+        last_updated TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // Create LearnerStatistics 
+    await client.query(`
+      CREATE TABLE LearnerStatistics (
+        stat_id SERIAL PRIMARY KEY,
+        username VARCHAR(50) NOT NULL REFERENCES Accounts(username) ON DELETE CASCADE,
+        questions_posted INTEGER NOT NULL,
+        interests VARCHAR(100),
+        last_activity TIMESTAMP
+      );
+    `);
+
+    // Create TutorAnswered
+    await client.query(`
+      CREATE TABLE TutorAnswered (
+        id SERIAL PRIMARY KEY,
+        question_id INTEGER NOT NULL REFERENCES Questions(question_id) ON DELETE CASCADE,
+        username VARCHAR(50) NOT NULL REFERENCES Accounts(username) ON DELETE CASCADE,
+        answered_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
 
     // Insert sample data
     await client.query(`
       INSERT INTO Accounts (username, password, role) VALUES
         ('learner', '1234567', 'learner'),
-        ('giasu', '1234567', 'tutor'),
+        ('tutor', '1234567', 'tutor'),
         ('admin', '1234567', 'admin'),
-        ('teacher1', 'teach123', 'tutor')
+        ('teacher1', 'teach123', 'tutor'),
+        ('nguyenvana', 'teach123', 'learner'),
+        ('tranvanb', 'teach123', 'learner')
       ON CONFLICT (username) DO NOTHING;
     `);
 
@@ -240,28 +280,55 @@ async function createTables() {
 
     await client.query(`
       INSERT INTO Answers (question_id, user_ask, user_answer, text_content, date_posted) VALUES
-        (1, 'learner', 'giasu', 'Lực hấp dẫn F = G * (m1 * m2) / r^2', '2025-06-03 10:00:00'),
-        (2, 'learner', 'teacher1', '2Na + Cl2 → 2NaCl', '2025-06-03 11:00:00')
+        (1, 'learner', 'tutor', 'Lực hấp dẫn F = G * (m1 * m2) / r^2', '2025-06-03 10:00:00'),
+        (2, 'learner', 'teacher1', '2Na + Cl2 → 2NaCl', '2025-06-03 11:00:00'),
+        
+        -- Thêm câu trả lời cho một số câu hỏi mới
+        (5, 'nguyenvana', 'teacher1', 'Định luật Ohm: U = I × R, trong đó U là hiệu điện thế, I là cường độ dòng điện, R là điện trở', '2025-03-06 09:00:00'),
+        (6, 'tranvanb', 'tutor', 'y'' = 3x^2 + 4x - 5', '2025-03-13 10:30:00'),
+        (8, 'nguyenvana', 'teacher1', 'Diện tích: S = πr^2, Chu vi: C = 2πr', '2025-04-16 11:15:00'),
+        (10, 'learner', 'tutor', 'Phản ứng trung hòa: HCl + NaOH → NaCl + H2O', '2025-05-09 08:45:00'),
+        (11, 'nguyenvana', 'teacher1', 'x = 2, y = 1', '2025-05-13 12:20:00')
       ON CONFLICT (answer_id) DO NOTHING;
     `);
 
     await client.query(`
       INSERT INTO FeedBacks (question_id, username, rating, comment, date_posted) VALUES
         (1, 'learner', 4, 'Giải thích rõ ràng!', '2025-06-04 09:00:00'),
-        (2, 'learner', 5, 'Rất tốt!', '2025-06-04 10:00:00')
+        (2, 'learner', 5, 'Rất tốt!', '2025-06-04 10:00:00'),
+        
+        -- Thêm feedback cho các câu trả lời mới
+        (5, 'nguyenvana', 5, 'Công thức rất chuẩn xác, cảm ơn teacher!', '2025-03-07 10:30:00'),
+        (6, 'tranvanb', 4, 'Đạo hàm đúng rồi, dễ hiểu', '2025-03-14 11:45:00'),
+        (8, 'nguyenvana', 5, 'Công thức cơ bản nhưng rất hữu ích', '2025-04-17 14:20:00'),
+        (10, 'learner', 4, 'Phản ứng cân bằng đúng', '2025-05-10 09:30:00'),
+        (11, 'nguyenvana', 5, 'Giải hệ phương trình rất chi tiết', '2025-05-14 13:15:00')
       ON CONFLICT (feedback_id) DO NOTHING;
     `);
 
     await client.query(`
       INSERT INTO QuestionLikes (question_id, username) VALUES
         (1, 'learner'),
-        (2, 'learner')
+        (2, 'learner'),
+        
+        -- Thêm likes cho các câu hỏi mới
+        (5, 'tranvanb'),
+        (5, 'learner'),
+        (6, 'nguyenvana'),
+        (8, 'tranvanb'),
+        (10, 'nguyenvana'),
+        (10, 'tranvanb'),
+        (11, 'learner'),
+        (17, 'nguyenvana'),
+        (18, 'tranvanb')
       ON CONFLICT ON CONSTRAINT questionlikes_pkey DO NOTHING;
     `);
 
     await client.query(`
       INSERT INTO TutorRequests (username, full_name, university, faculty, year, student_card_image, status) VALUES
-        ('giasu', 'Nguyen Van A', 'HCMUS', 'CNTT', 3, 'http://example.com/card.jpg', 'pending')
+        ('tutor', 'Nguyen Van A', 'HCMUS', 'CNTT', 3, 'https://cdn.pixabay.com/photo/2015/11/16/14/43/cat-1045782_1280.jpg', 'pending'),
+        ('nguyenvana', 'Nguyen Van An', 'HCMUT', 'Khoa học Ứng dụng', 2, 'https://cdn.pixabay.com/photo/2016/09/05/21/37/cat-1647775_1280.jpg', 'rejected'),
+        ('tranvanb', 'Tran Van Binh', 'UEH', 'Kinh tế', 4, 'https://cdn.pixabay.com/photo/2021/12/01/14/10/cat-eyes-6838073_1280.jpg', 'approved')
       ON CONFLICT (id) DO NOTHING;
     `);
 
@@ -281,6 +348,7 @@ async function createTables() {
         ('teacher1', 5.00, 4, 4, CURRENT_TIMESTAMP)
       ON CONFLICT (username) DO NOTHING;
     `);
+
 
     console.log("✅ Tables created and initialized successfully.");
   } catch (err) {

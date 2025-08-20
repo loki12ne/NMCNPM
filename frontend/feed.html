@@ -672,7 +672,7 @@
           </div>
           <div style="display:flex; gap:8px;">
             <button class="action-btn like-btn" data-id="${question.question_id}" data-liked="${Number(question.da_like) === 1 ? 1 : 0}">
-              ${Number(question.da_like) === 1 ? 'Bỏ thích' : 'Thích'}
+              ${Number(question.da_like) === 1 ? 'Unlike' : 'Like'}
             </button>
             <button class="action-btn" onclick="viewQuestionDetails(${question.question_id})">
               View Details
@@ -704,7 +704,7 @@
                 credentials: 'include'
               });
               if (res.ok) {
-                likeBtn.textContent = 'Bỏ thích';
+                likeBtn.textContent = 'Unlike';
                 likeBtn.setAttribute('data-liked', '1');
                 const countSpan = document.getElementById(`like-count-${questionId}`);
                 if (countSpan) countSpan.textContent = String(parseInt(countSpan.textContent || '0') + 1);
@@ -718,7 +718,7 @@
                 credentials: 'include'
               });
               if (res.ok) {
-                likeBtn.textContent = 'Thích';
+                likeBtn.textContent = 'Like';
                 likeBtn.setAttribute('data-liked', '0');
                 const countSpan = document.getElementById(`like-count-${questionId}`);
                 if (countSpan) countSpan.textContent = String(Math.max(0, parseInt(countSpan.textContent || '0') - 1));

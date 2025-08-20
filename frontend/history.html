@@ -672,18 +672,11 @@
                   <span class="status-tag status-${statusClass === 'has-answer' ? 'answered' : 'unanswered'}">${statusText}</span>
                 </div>
                 <div class="meta-right">
-                  <div class="likes">
-                    <span class="heart-icon">❤️</span>
-                    ${q.likes || q.so_luot_like || 0}
-                  </div>
-                  <div class="comments">
-                    <span class="comment-icon">💬</span>
-                    ${q.comments || q.so_luot_comment || 0}
-                  </div>
+                  
                 </div>
               </div>
               <div class="question-content">
-                <h3 class="question-title">${q.title || 'Question'}</h3>
+                
                 <p class="question-text">${q.text_content}</p>
                 ${renderFilePreview(q.img_url, q.pdf_url)}
               </div>
@@ -712,14 +705,13 @@
               ${answerHtml}
             `;
 
-            // Add click event to toggle answer if it exists
-            if (hasAnswer) {
-              div.addEventListener('click', (e) => {
-                // Don't toggle if clicking on links or buttons
-                if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') return;
-                toggleAnswer(div, q.question_id);
-              });
-            }
+            // Add click event to navigate to question detail
+            div.addEventListener('click', (e) => {
+              // Don't navigate if clicking on links or buttons
+              if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') return;
+              // Navigate to question detail page
+              window.location.href = `/question-detail.html?question_id=${q.question_id}`;
+            });
 
             questionsDiv.appendChild(div);
           }
@@ -771,6 +763,15 @@
                 </div>
               </div>
             `;
+            
+            // Add click event to navigate to question detail
+            div.addEventListener('click', (e) => {
+              // Don't navigate if clicking on links or buttons
+              if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') return;
+              // Navigate to question detail page
+              window.location.href = `/question-detail.html?question_id=${a.question_id}`;
+            });
+            
             answersDiv.appendChild(div);
           }
         } else {

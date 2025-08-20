@@ -400,7 +400,7 @@
 
   <div class="auth-buttons">
     <button onclick="window.location.href='/tutor.html'" class="auth-btn back-btn">Back to Questions</button>
-    <button onclick="logout()" class="auth-btn logout-btn">Logout</button>
+    
   </div>
 
   <div class="container">
@@ -574,24 +574,8 @@
           const question = result.questions.find(q => q.question_id == questionId);
           if (question) {
             questionDetailsDiv.innerHTML = `
-              <div class="question-card">
-                <div class="question-meta">
-                  <div class="meta-left">
-                    <span class="subject-tag">${question.subject}</span>
-                  </div>
-                  <div class="meta-right">
-                    <div class="likes">
-                      <span class="heart-icon">❤️</span>
-                      ${question.likes || question.so_luot_like || 0}
-                    </div>
-                    <div class="comments">
-                      <span class="comment-icon">💬</span>
-                      ${question.comments || question.so_luot_comment || 0}
-                    </div>
-                  </div>
-                </div>
+              
                 <div class="question-content">
-                  <h3 class="question-title">${question.title || 'Question'}</h3>
                   <p class="question-text">${question.text_content}</p>
                   ${renderFilePreview(question.img_url, question.pdf_url)}
                 </div>
