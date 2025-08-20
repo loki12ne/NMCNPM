@@ -9,7 +9,7 @@ router.get('/', isAuthenticated, async (req, res) => {
     const username = req.session.user?.username;
     if (!username) return res.status(401).json({ error: 'Chưa đăng nhập' });
     const result = await client.query(
-      `SELECT notification_id, type, title, message, related_id, related_type, is_read, created_at
+      `SELECT notification_id, type, message, related_id, related_type, is_read, created_at
        FROM Notifications
        WHERE username = $1
        ORDER BY created_at DESC`,
@@ -54,10 +54,10 @@ router.patch('/read-all', isAuthenticated, async (req, res) => {
 router.post('/', isAuthenticated, async (req, res) => {
   try {
     const username = req.session.user?.username;
-    const { type, title, message, related_id, related_type } = req.body;
+    const { type, message, related_id, related_type } = req.body;
     await client.query(
-      `INSERT INTO Notifications (username, type, title, message, related_id, related_type) VALUES ($1, $2, $3, $4, $5, $6)`,
-      [username, type, title, message, related_id, related_type]
+      `INSERT INTO Notifications (username, type, message, related_id, related_type) VALUES ($1, $2, $3, $4, $5)`,
+      [username, type, message, related_id, related_type]
     );
     res.json({ success: true });
   } catch (err) {
@@ -102,9 +102,9 @@ router.post('/send-reminder', isAuthenticated, async (req, res) => {
     
     // Insert notification
     await client.query(
-      `INSERT INTO Notifications (username, type, title, message, created_at)
-       VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)`,
-      [username, 'reminder', 'Performance Reminder', message]
+      `INSERT INTO Notifications (username, type, message, created_at)
+       VALUES ($1, $2, $3, CURRENT_TIMESTAMP)`,
+      [username, 'reminder', message || 'Please review your recent activity and improve your performance.']
     );
     
     res.json({ 

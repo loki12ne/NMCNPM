@@ -12,32 +12,49 @@
     }
 
     body {
+      font-family: 'Inter', Arial, sans-serif;
+      background: #f0f4ff;
+      min-height: 100vh;
+      margin-left: 200px;
+      padding: 20px;
       overflow-x: hidden;
-      max-width: 100vw;
     }
 
     /* Feed Container - Normal page positioning instead of overlay */
     .feed-overlay {
       position: relative;
       width: 100%;
-      height: 100vh; /* Fixed height to viewport */
+      min-height: 100vh; /* Allow content to expand */
       background: #f0f4ff; /* Solid background instead of semi-transparent */
-      overflow: hidden; /* Prevent main container from scrolling */
       font-family: 'Inter', Arial, sans-serif;
+    }
+
+    /* Scroll mask box - hides content when scrolling up */
+    .scroll-mask {
+      position: fixed;
+      top: 0;
+      left: 200px; /* Account for sidebar */
+      right: 0;
+      height: clamp(125px, 12vh, 150px); /* Height of mask area */
+      background: linear-gradient(to bottom, #f0f4ff 100%, rgba(240, 244, 255, 0.8) 90%, transparent 100%);
+      z-index: 50; /* Below search bar but above content */
+      pointer-events: none; /* Don't interfere with interactions */
     }
 
     /* Question Feed Container - Adjusted for sidebar */
     .feed-container {
       position: relative;
       width: 100%;
-      min-height: calc(100vh - 140px); /* Minimum height minus search bar area */
-      margin-left: clamp(0px, 15vw, 200px); /* Responsive sidebar space */
-      margin-top: clamp(120px, 12vh, 160px); /* Responsive search bar space */
+      min-height: calc(100vh - 140px);
+      margin-left: 0; /* Remove negative margin */
+      margin-top: clamp(140px, 15vh, 180px); /* More space for fixed search bar */
       transition: margin-left 0.3s ease;
-      overflow-y: auto; /* Enable scrolling for questions */
-      overflow-x: hidden; /* Prevent horizontal overflow */
-      max-width: calc(100vw - clamp(0px, 15vw, 200px)); /* Responsive max width */
+      max-width: calc(100vw - 240px); /* Account for body margin and padding */
       padding: clamp(10px, 2vw, 20px); /* Responsive padding */
+      padding-bottom: 40px; /* Extra bottom padding for scroll */
+      display: flex;
+      flex-direction: column;
+      align-items: center; /* Center all content */
     }
 
     /* Question Cards - Following the exact position specifications from Figma */
@@ -53,8 +70,16 @@
       padding: clamp(12px, 2.5vw, 20px); /* Responsive padding */
       transition: all 0.3s ease;
       font-family: 'Inter', Arial, sans-serif;
-      max-width: min(90vw, 853px);
-      margin: 0 auto clamp(12px, 2vh, 20px) auto; /* Responsive spacing */
+      max-width: min(calc(100vw - 280px), 853px); /* Account for sidebar width */
+      margin: 0 0 clamp(12px, 2vh, 20px) 0; /* Remove auto centering margin */
+    }
+
+    /* Questions feed container */
+    #questions-feed {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center; /* Center question cards */
     }
 
     /* Remove absolute positioning styles as cards are now relative */
@@ -149,36 +174,15 @@
       color: white;
     }
 
-    /* Close button - repositioned for normal page */
-    .overlay-close {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      background: #ef4444;
-      color: white;
-      border: none;
-      padding: 12px 16px;
-      border-radius: 8px;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      font-weight: 600;
-    }
-
-    .overlay-close:hover {
-      background: #dc2626;
-      transform: scale(1.05);
-    }
-
     /* Search Bar Styles - Fixed positioning */
     .search-container {
       position: fixed; /* Fixed position to stay in place */
       top: clamp(40px, 8vh, 60px); /* Responsive top position */
-      left: 50%; /* Center horizontally */
+      left: calc(200px + (100vw - 200px) / 2); /* Center in available space after sidebar */
       transform: translateX(-50%); /* Perfect centering */
-      width: min(90vw, 853px); /* Responsive width that matches question cards */
+      width: min(calc(100vw - 280px), 853px); /* Match question cards width accounting for sidebar */
       padding: 0 clamp(10px, 2vw, 20px); /* Responsive padding */
-      max-width: min(90vw, 853px);
+      max-width: min(calc(100vw - 280px), 853px);
       z-index: 100; /* Ensure it stays above other content */
       background: #f0f4ff; /* Match page background */
       padding-bottom: clamp(5px, 1vh, 10px); /* Responsive space below search bar */
@@ -298,32 +302,30 @@
     /* Enhanced Responsive Design */
     @media (max-width: 1400px) {
       .feed-container {
-        margin-left: clamp(0px, 8vw, 120px); /* Responsive sidebar space */
-        max-width: calc(100vw - clamp(0px, 8vw, 120px));
+        max-width: calc(100vw - 240px);
       }
     }
 
     @media (max-width: 1200px) {
       .feed-container {
-        margin-left: clamp(0px, 6vw, 80px); /* Smaller sidebar space */
-        max-width: calc(100vw - clamp(0px, 6vw, 80px));
+        max-width: calc(100vw - 240px);
       }
     }
 
     @media (max-width: 1024px) {
       .feed-container {
-        margin-left: clamp(0px, 4vw, 60px); /* Even smaller sidebar space */
-        max-width: calc(100vw - clamp(0px, 4vw, 60px));
+        max-width: calc(100vw - 240px);
       }
 
       .search-container {
-        width: min(85vw, 700px); /* Adjust width for medium screens */
-        max-width: min(85vw, 700px);
+        left: calc(200px + (100vw - 200px) / 2); /* Center in available space after sidebar */
+        width: min(calc(100vw - 280px), 700px); /* Match question cards */
+        max-width: min(calc(100vw - 280px), 700px);
       }
 
       .question-card {
         width: min(85vw, 700px);
-        max-width: min(85vw, 700px);
+        max-width: min(calc(100vw - 280px), 700px);
       }
 
       .question-header {
@@ -334,8 +336,15 @@
     }
 
     @media (max-width: 768px) {
-      .feed-container {
+      body {
         margin-left: 0; /* No sidebar on mobile */
+      }
+      
+      .scroll-mask {
+        left: 0; /* No sidebar on mobile */
+      }
+      
+      .feed-container {
         margin-top: clamp(100px, 15vh, 140px); /* Responsive top margin */
         min-height: calc(100vh - clamp(100px, 15vh, 140px));
         max-width: 100vw;
@@ -344,6 +353,7 @@
 
       .search-container {
         top: clamp(30px, 6vh, 50px);
+        left: 50%; /* Center on mobile without sidebar */
         width: calc(100vw - clamp(20px, 4vw, 30px));
         padding: 0 clamp(10px, 2vw, 15px);
         max-width: calc(100vw - clamp(20px, 4vw, 30px));
@@ -379,13 +389,6 @@
         width: 100%;
         text-align: center;
       }
-
-      .overlay-close {
-        top: clamp(5px, 2vh, 10px);
-        right: clamp(5px, 2vw, 10px);
-        padding: clamp(6px, 1.5vh, 8px) clamp(8px, 2vw, 12px);
-        font-size: clamp(10px, 1.2vw, 12px);
-      }
     }
 
     @media (max-width: 480px) {
@@ -417,11 +420,11 @@
   <!-- Include Sidebar -->
   <div id="sidebar-container"></div>
 
+  <!-- Scroll Mask - hides content when scrolling up -->
+  <div class="scroll-mask"></div>
+
   <!-- Feed Overlay Container -->
   <div class="feed-overlay" id="feedOverlay">
-    <!-- Close Button -->
-    <button class="overlay-close" onclick="closeFeedOverlay()">✕ Close</button>
-    
     <!-- Search Container -->
     <div class="search-container">
       <div class="search-wrapper">

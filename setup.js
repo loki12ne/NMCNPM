@@ -30,6 +30,13 @@ async function createTables() {
     await client.query(`DROP TABLE IF EXISTS LearnerStatistics CASCADE;`);
     await client.query(`DROP TABLE IF EXISTS TutorAnswered CASCADE;`);
 
+
+
+    await client.query(`DROP TABLE IF EXISTS Tasks CASCADE;`);
+    await client.query(`DROP TABLE IF EXISTS Classes CASCADE;`);
+    await client.query(`DROP TABLE IF EXISTS Exams CASCADE;`);
+
+
     // Create Accounts
     await client.query(`
       CREATE TABLE Accounts (
@@ -117,12 +124,20 @@ async function createTables() {
       );
     `);
 
-
-    // Drop new tables if exist
-    await client.query(`DROP TABLE IF EXISTS Tasks CASCADE;`);
-    await client.query(`DROP TABLE IF EXISTS Classes CASCADE;`);
-    await client.query(`DROP TABLE IF EXISTS Exams CASCADE;`);
-
+    // Create Notifications
+    await client.query(`
+      CREATE TABLE Notifications (
+        notification_id SERIAL PRIMARY KEY,
+        username VARCHAR(50) NOT NULL REFERENCES Accounts(username) ON DELETE CASCADE,
+        type VARCHAR(50) NOT NULL CHECK (type IN ('answer', 'feedback', 'tutor_approved', 'tutor_rejected', 'tutor_removed')),
+        message TEXT NOT NULL,
+        related_id INTEGER,
+        related_type VARCHAR(50),
+        is_read BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    
     // Create Tasks table
     await client.query(`
       CREATE TABLE Tasks (
@@ -165,20 +180,6 @@ async function createTables() {
       );
     `);
 
-    // Create Notifications
-    await client.query(`
-      CREATE TABLE Notifications (
-        notification_id SERIAL PRIMARY KEY,
-        username VARCHAR(50) NOT NULL REFERENCES Accounts(username) ON DELETE CASCADE,
-        type VARCHAR(50) NOT NULL CHECK (type IN ('answer', 'feedback', 'tutor_approved', 'tutor_rejected', 'tutor_removed')),
-        title VARCHAR(200) NOT NULL,
-        message TEXT NOT NULL,
-        related_id INTEGER,
-        related_type VARCHAR(50),
-        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-      );
-    `);
-
     // Create TutorPerformance
     await client.query(`
       CREATE TABLE TutorPerformance (
@@ -204,11 +205,36 @@ async function createTables() {
     `);
 
     await client.query(`
-      INSERT INTO Questions (username, text_content, subject, date_posted) VALUES
-        ('learner', 'Lực hấp dẫn giữa hai vật được tính như thế nào?', 'lý', '2025-06-01 12:00:00'),
-        ('learner', 'Phương trình hóa học của phản ứng giữa Na và Cl2 là gì?', 'hóa', '2025-06-02 09:00:00'),
-        ('teacher1', 'Giải phương trình bậc hai: x^2 - 4x + 3 = 0', 'toán', '2025-06-02 14:00:00'),
-        ('learner', 'Tốc độ ánh sáng trong chân không là bao nhiêu?', 'lý', '2025-06-02 15:30:00')
+      INSERT INTO Questions (username, text_content, subject, date_posted, is_answered) VALUES
+        ('learner', 'Lực hấp dẫn giữa hai vật được tính như thế nào?', 'Physics', '2025-06-01 12:00:00', TRUE),
+        ('learner', 'Phương trình hóa học của phản ứng giữa Na và Cl2 là gì?', 'Chemistry', '2025-06-02 09:00:00', TRUE),
+        ('teacher1', 'Giải phương trình bậc hai: x^2 - 4x + 3 = 0', 'Math', '2025-06-02 14:00:00', FALSE),
+        ('learner', 'Tốc độ ánh sáng trong chân không là bao nhiêu?', 'Physics', '2025-06-02 15:30:00', FALSE),
+        
+        -- Tháng 3: 3 câu hỏi
+        ('nguyenvana', 'Định luật Ohm trong điện học được phát biểu như thế nào?', 'Physics', '2025-03-05 08:30:00', TRUE),
+        ('tranvanb', 'Tính đạo hàm của hàm số y = x^3 + 2x^2 - 5x + 1', 'Math', '2025-03-12 14:20:00', TRUE),
+        ('learner', 'Phản ứng oxi hóa khử là gì? Cho ví dụ', 'Chemistry', '2025-03-25 16:45:00', FALSE),
+        
+        -- Tháng 4: 1 câu hỏi  
+        ('nguyenvana', 'Công thức tính diện tích hình tròn và chu vi hình tròn', 'Math', '2025-04-15 10:30:00', TRUE),
+        
+        -- Tháng 5: 6 câu hỏi
+        ('tranvanb', 'Động năng và thế năng khác nhau như thế nào?', 'Physics', '2025-05-03 09:15:00', FALSE),
+        ('learner', 'Phương trình phản ứng trung hòa giữa axit và bazơ', 'Chemistry', '2025-05-08 13:20:00', TRUE),
+        ('nguyenvana', 'Giải hệ phương trình: 2x + 3y = 7, x - y = 1', 'Math', '2025-05-12 11:40:00', TRUE),
+        ('tranvanb', 'Định luật bảo toàn khối lượng trong hóa học', 'Chemistry', '2025-05-18 15:30:00', FALSE),
+        ('learner', 'Tính giới hạn: lim(x→0) sin(x)/x', 'Math', '2025-05-22 14:50:00', FALSE),
+        ('nguyenvana', 'Hiện tượng khúc xạ ánh sáng là gì?', 'Physics', '2025-05-28 16:10:00', FALSE),
+        
+        -- Tháng 7: 2 câu hỏi
+        ('tranvanb', 'Cấu hình electron của nguyên tố Oxygen (O)', 'Chemistry', '2025-07-10 09:45:00', FALSE),
+        ('learner', 'Định Physics Pythagoras và ứng dụng trong tam giác vuông', 'Math', '2025-07-25 13:15:00', FALSE),
+        
+        -- Tháng 8: 3 câu hỏi
+        ('nguyenvana', 'Lực ly tâm và lực hướng tâm trong chuyển động tròn đều', 'Physics', '2025-08-17 10:20:00', FALSE),
+        ('tranvanb', 'Phương trình đường thẳng đi qua hai điểm A(1,2) và B(3,4)', 'Math', '2025-08-18 14:35:00', FALSE),
+        ('learner', 'Tính pH của dung dịch HCl 0.1M', 'Chemistry', '2025-08-18 11:50:00', FALSE)
       ON CONFLICT (question_id) DO NOTHING;
     `);
 
@@ -239,19 +265,20 @@ async function createTables() {
       ON CONFLICT (id) DO NOTHING;
     `);
 
-
-
     await client.query(`
-      INSERT INTO Notifications (username, type, title, message, related_id, related_type) VALUES
-        ('learner', 'answer', 'Câu hỏi đã được trả lời', 'Câu hỏi của bạn đã được giasu trả lời', 1, 'question'),
-        ('learner', 'feedback', 'Phản hồi đã được gửi', 'Bạn đã gửi phản hồi cho câu hỏi', 1, 'question')
+      INSERT INTO Notifications (username, type, message, related_id, related_type) VALUES
+        ('learner', 'answer', 'Your question has been answered by a tutor', 1, 'question'),
+        ('learner', 'feedback', 'You have submitted feedback for a question', 1, 'question')
       ON CONFLICT (notification_id) DO NOTHING;
     `);
 
+
+
+    // Insert TutorPerformance data for existing tutors
     await client.query(`
-      INSERT INTO TutorPerformance (username, average_rating, questions_answered, total_feedback) VALUES
-        ('giasu', 4.5, 2, 1),
-        ('teacher1', 4.8, 1, 1)
+      INSERT INTO TutorPerformance (username, average_rating, questions_answered, total_feedback, last_updated) VALUES
+        ('tutor', 4.00, 3, 3, CURRENT_TIMESTAMP),
+        ('teacher1', 5.00, 4, 4, CURRENT_TIMESTAMP)
       ON CONFLICT (username) DO NOTHING;
     `);
 

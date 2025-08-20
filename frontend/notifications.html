@@ -351,7 +351,7 @@
             div.innerHTML = `
               <div class="notification-icon">🔔</div>
               <div class="notification-content">
-                <div class="notification-text">${n.title ? n.title : ''} ${n.message ? n.message : ''}</div>
+                <div class="notification-text">${n.message || 'Notification'}</div>
                 <div class="notification-date">${formatTime(n.created_at)}</div>
               </div>
             `;

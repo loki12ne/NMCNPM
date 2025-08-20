@@ -377,12 +377,11 @@ router.delete('/delete/:username', isAuthenticated, async (req, res) => {
       
       // Send notification to user
       await client.query(
-        `INSERT INTO Notifications (username, type, title, message, created_at)
-         VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)`,
+        `INSERT INTO Notifications (username, type, message, created_at)
+         VALUES ($1, $2, $3, CURRENT_TIMESTAMP)`,
         [
           username,
           'tutor_removed',
-          'Tutor Status Removed',
           'Your tutor status has been removed by an administrator. If you believe this is an error, please contact support.'
         ]
       );

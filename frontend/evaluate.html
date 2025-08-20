@@ -550,12 +550,13 @@
         showLoading();
         document.getElementById('loadingState').textContent = 'Loading tutors list...';
         
-        const res = await fetch(`${BASE_URL}/tutor-statistics/list`, { 
+        const res = await fetch(`${BASE_URL}/tutor-statistics/list?filter=all`, { 
           credentials: 'include' 
         });
         
         if (res.ok) {
           const data = await res.json();
+          console.log('Tutors data:', data); // Debug log
           if (data.success && data.tutors) {
             displayTutorsList(data.tutors);
             showTutorsList();
@@ -563,6 +564,8 @@
             showError('No tutors found');
           }
         } else {
+          const errorData = await res.json();
+          console.error('API Error:', errorData);
           showError('Failed to load tutors list');
         }
       } catch (err) {
@@ -575,10 +578,12 @@
     function displayTutorsList(tutors) {
       const mainContent = document.getElementById('mainContent');
       
+      console.log('Displaying tutors:', tutors); // Debug log
+      
       if (tutors.length === 0) {
         mainContent.innerHTML = `
           <div class="profile-section">
-            <div class="loading">No tutors found</div>
+            <div class="loading">No tutors found. Make sure tutors exist in the system.</div>
           </div>
         `;
         return;
@@ -586,7 +591,7 @@
 
       mainContent.innerHTML = `
         <div class="profile-section">
-          <h3 class="comments-title">Select a tutor to evaluate:</h3>
+          <h3 class="comments-title">Select a tutor to evaluate (${tutors.length} tutors found):</h3>
           <div class="tutors-grid">
             ${tutors.map(tutor => `
               <div class="tutor-card" onclick="selectTutor('${tutor.username}')">
@@ -755,11 +760,13 @@
             credentials: 'include'
           });
           
-          if (res.ok) {
+          const data = await res.json();
+          
+          if (res.ok && data.success) {
             alert('Tutor deleted successfully!');
             window.location.href = '/ts.html';
           } else {
-            alert('Failed to delete tutor');
+            alert(data.error || 'Failed to delete tutor');
           }
         } catch (err) {
           console.error('Error deleting tutor:', err);

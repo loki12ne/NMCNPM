@@ -704,23 +704,36 @@
               </div>
               ${hasAnswer ? `
                 <div class="expand-indicator">
-                  <span>Click to ${hasAnswer ? 'view answer' : 'see details'}</span>
+                  <span>Click to view answer • Click anywhere else to view details</span>
                   <svg class="expand-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
                 </div>
-              ` : ''}
+              ` : `
+                <div class="expand-indicator">
+                  <span>Click to view details</span>
+                  <svg class="expand-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M13 7L18 12L13 17M6 12H18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+              `}
               ${answerHtml}
             `;
 
-            // Add click event to toggle answer if it exists
-            if (hasAnswer) {
-              div.addEventListener('click', (e) => {
-                // Don't toggle if clicking on links or buttons
-                if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') return;
+            // Add click event to navigate to question detail or toggle answer
+            div.addEventListener('click', (e) => {
+              // Don't navigate if clicking on links or buttons
+              if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') return;
+              
+              // If has answer and clicking on expand indicator, toggle answer
+              if (hasAnswer && e.target.closest('.expand-indicator')) {
                 toggleAnswer(div, q.question_id);
-              });
-            }
+                return;
+              }
+              
+              // Otherwise navigate to question detail page
+              window.location.href = `/question-detail.html?question_id=${q.question_id}`;
+            });
 
             questionsDiv.appendChild(div);
           }
@@ -771,7 +784,21 @@
                   Answered: ${new Date(a.answer_date).toLocaleDateString()}
                 </div>
               </div>
+              <div class="expand-indicator">
+                <span>Click to view details</span>
+                <svg class="expand-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M13 7L18 12L13 17M6 12H18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
             `;
+            
+            // Add click event to navigate to question detail page
+            div.addEventListener('click', (e) => {
+              // Don't navigate if clicking on links or buttons
+              if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') return;
+              window.location.href = `/question-detail.html?question_id=${a.question_id}`;
+            });
+            
             answersDiv.appendChild(div);
           }
         } else {
