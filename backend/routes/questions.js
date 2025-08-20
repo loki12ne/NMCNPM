@@ -138,7 +138,7 @@ router.post('/', isAuthenticated, upload_single_file.single('file'), async (req,
   if (!text_content || !subject) {
     return res.status(400).json({ error: 'Missing text or subject' });
   }
-  const allowedSubjects = [ 'Math', 'Physics', 'Chemistry'];
+  const allowedSubjects = ['toán', 'lý', 'hoá', 'Math', 'Physics', 'Chemistry'];
   if (!allowedSubjects.includes(subject)) {
     return res.status(400).json({ error: 'Invalid subject' });
   }
