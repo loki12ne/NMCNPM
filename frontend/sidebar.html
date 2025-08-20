@@ -216,6 +216,28 @@
       margin-bottom: 6px;
     }
 
+    /* Special styling for logout item */
+    .dropdown-item.logout {
+      border-top: 1px solid #f0f4ff;
+      margin-top: 8px;
+      color: #e53e3e;
+    }
+
+    .dropdown-item.logout:hover {
+      background-color: #fff5f5;
+      color: #c53030;
+    }
+
+    .dropdown-item.logout .dropdown-icon {
+      background-color: #fff5f5;
+      color: #e53e3e;
+    }
+
+    .dropdown-item.logout:hover .dropdown-icon {
+      background-color: #e53e3e;
+      color: #ffffff;
+    }
+
     .dropdown-icon {
       width: 20px;
       height: 20px;
@@ -423,6 +445,28 @@
           </div>
           <span class="dropdown-text">Tasks</span>
         </a>
+
+        <a href="/tutor-request.html" class="dropdown-item" onclick="hideProfileDropdown()">
+          <div class="dropdown-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" stroke-width="2"/>
+              <path d="M12 14C8.13401 14 5 17.134 5 21H19C19 17.134 15.866 14 12 14Z" stroke="currentColor" stroke-width="2"/>
+              <path d="M17 11L19 13L23 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="dropdown-text">Tutor Upgrade</span>
+        </a>
+
+        <div class="dropdown-item logout" onclick="handleLogout()">
+          <div class="dropdown-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 21H5C3.89543 21 3 20.1046 3 19V5C3 3.89543 3.89543 3 5 3H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M16 17L21 12L16 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M21 12H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="dropdown-text">Log Out</span>
+        </div>
       </div>
       
       <div class="user-item" data-page="profile" id="profileToggle" onclick="toggleProfileDropdown()">
@@ -475,6 +519,32 @@
       isDropdownOpen = false;
     }
 
+    // Logout functionality based on learner.html logic
+    async function handleLogout() {
+      hideProfileDropdown();
+      
+      try {
+        // Try to get BASE_URL from parent window if available
+        const baseUrl = (window.BASE_URL || (window.parent && window.parent.BASE_URL)) || '';
+        
+        const res = await fetch(`${baseUrl}/auth/logout`, {
+          method: 'POST',
+          credentials: 'include'
+        });
+        
+        const data = await res.json();
+        
+        if (res.ok) {
+          window.location.href = '/index.html';
+        } else {
+          alert(`Error: ${data.error}`);
+        }
+      } catch (err) {
+        console.error('Logout error:', err);
+        alert('Network error during logout');
+      }
+    }
+
     // Close dropdown when clicking overlay
     document.getElementById('dropdownOverlay').addEventListener('click', hideProfileDropdown);
 
@@ -498,8 +568,11 @@
     // Role-based home navigation
     async function navigateToHome() {
       try {
+        // Try to get BASE_URL from parent window if available
+        const baseUrl = (window.BASE_URL || (window.parent && window.parent.BASE_URL)) || '';
+        
         // Check authentication and get user role
-        const res = await fetch('/auth/check-auth', {
+        const res = await fetch(`${baseUrl}/auth/check-auth`, {
           method: 'GET',
           credentials: 'include'
         });
@@ -525,6 +598,30 @@
         console.error('Auth check error:', err);
         // Fallback to index on error
         window.location.href = '/index.html';
+      }
+    }
+
+    // Check user role and hide tutor upgrade if already a tutor
+    async function checkUserRoleAndUpdateUI() {
+      try {
+        const baseUrl = (window.BASE_URL || (window.parent && window.parent.BASE_URL)) || '';
+        
+        const res = await fetch(`${baseUrl}/auth/check-auth`, {
+          method: 'GET',
+          credentials: 'include'
+        });
+        const data = await res.json();
+        
+        if (data.isAuthenticated && data.user) {
+          const tutorUpgradeItem = document.querySelector('a[href="/tutor-request.html"]');
+          
+          // Hide tutor upgrade option if user is already a tutor
+          if (data.user.role === 'tutor' && tutorUpgradeItem) {
+            tutorUpgradeItem.style.display = 'none';
+          }
+        }
+      } catch (err) {
+        console.error('Error checking user role:', err);
       }
     }
 
@@ -567,6 +664,9 @@
 
     // Initialize active state
     setActiveNavItem();
+
+    // Check user role and update UI accordingly
+    checkUserRoleAndUpdateUI();
 
     // Update active state when navigating
     window.addEventListener('popstate', setActiveNavItem);

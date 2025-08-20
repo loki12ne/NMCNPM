@@ -232,8 +232,7 @@
       </div>
 
       <div class="auth-buttons">
-        <button class="auth-btn tutor-upgrade-btn" id="tutorUpgradeBtn">Tutor upgrade</button>
-        <button onclick="logout()" class="auth-btn logout-btn">Logout</button>
+        <button class="auth-btn tutor-upgrade-btn" id="tutorUpgradeBtn" style="display:none">Tutor upgrade</button>
       </div>
     </div>
 
@@ -351,7 +350,7 @@
             div.innerHTML = `
               <div class="notification-icon">🔔</div>
               <div class="notification-content">
-                <div class="notification-text">${n.message || 'Notification'}</div>
+                <div class="notification-text">${n.title ? n.title : ''} ${n.message ? n.message : ''}</div>
                 <div class="notification-date">${formatTime(n.created_at)}</div>
               </div>
             `;
