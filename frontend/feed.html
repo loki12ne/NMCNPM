@@ -607,7 +607,12 @@
         return;
       }
       
-      questions.forEach((question, index) => {
+      // Sort by like count (descending). Ensure numeric comparison
+      const sorted = questions
+        .slice()
+        .sort((a, b) => (parseInt(b.so_luot_like || '0', 10) - parseInt(a.so_luot_like || '0', 10)) || (new Date(b.date_posted) - new Date(a.date_posted)));
+
+      sorted.forEach((question, index) => {
         const questionCard = createQuestionCard(question, index);
         feedContainer.appendChild(questionCard);
       });
@@ -659,13 +664,17 @@
           <div class="question-stats">
             <div class="stat-item">
               <span>❤️</span>
-              <span>${question.so_luot_like || 0} likes</span>
+              <span id="like-count-${question.question_id}">${question.so_luot_like || 0}</span> likes
             </div>
           </div>
-          
-          <button class="action-btn" onclick="viewQuestionDetails(${question.question_id})">
-            View Details
-          </button>
+          <div style="display:flex; gap:8px;">
+            <button class="action-btn like-btn" data-id="${question.question_id}" data-liked="${Number(question.da_like) === 1 ? 1 : 0}">
+              ${Number(question.da_like) === 1 ? 'Bỏ thích' : 'Thích'}
+            </button>
+            <button class="action-btn" onclick="viewQuestionDetails(${question.question_id})">
+              View Details
+            </button>
+          </div>
         </div>
       `;
       
@@ -677,6 +686,50 @@
           viewQuestionDetails(question.question_id);
         }
       });
+      
+      // Like / Unlike handler
+      const likeBtn = card.querySelector('.like-btn');
+      if (likeBtn) {
+        likeBtn.addEventListener('click', async (evt) => {
+          evt.stopPropagation();
+          const questionId = likeBtn.getAttribute('data-id');
+          const liked = likeBtn.getAttribute('data-liked') === '1';
+          try {
+            if (!liked) {
+              const res = await fetch(`${BASE_URL}/questions/${questionId}/like`, {
+                method: 'POST',
+                credentials: 'include'
+              });
+              if (res.ok) {
+                likeBtn.textContent = 'Bỏ thích';
+                likeBtn.setAttribute('data-liked', '1');
+                const countSpan = document.getElementById(`like-count-${questionId}`);
+                if (countSpan) countSpan.textContent = String(parseInt(countSpan.textContent || '0') + 1);
+              } else {
+                const data = await res.json().catch(() => ({}));
+                alert((data && data.error) || 'Lỗi khi like');
+              }
+            } else {
+              const res = await fetch(`${BASE_URL}/questions/${questionId}/like`, {
+                method: 'DELETE',
+                credentials: 'include'
+              });
+              if (res.ok) {
+                likeBtn.textContent = 'Thích';
+                likeBtn.setAttribute('data-liked', '0');
+                const countSpan = document.getElementById(`like-count-${questionId}`);
+                if (countSpan) countSpan.textContent = String(Math.max(0, parseInt(countSpan.textContent || '0') - 1));
+              } else {
+                const data = await res.json().catch(() => ({}));
+                alert((data && data.error) || 'Lỗi khi bỏ like');
+              }
+            }
+          } catch (err) {
+            console.error('Like toggle error:', err);
+            alert('Lỗi mạng khi xử lý like');
+          }
+        });
+      }
       
       return card;
     }
