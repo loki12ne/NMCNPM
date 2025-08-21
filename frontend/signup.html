@@ -251,8 +251,22 @@
       e.preventDefault();
       const username = form.username.value.trim();
       const password = form.password.value.trim();
+      // Username: 1-15 chars, a-zA-Z0-9 only
+      // Password: 6-15 chars, a-zA-Z0-9 only
+      const usernameRegex = /^[a-zA-Z0-9]{1,15}$/;
+      const passwordRegex = /^[a-zA-Z0-9]{6,15}$/;
       if (!username || !password) {
-        result.textContent = 'Please fill in all fields';
+        result.textContent = 'Please fill in all fields.';
+        result.className = '';
+        return;
+      }
+      if (!usernameRegex.test(username)) {
+        result.textContent = 'Username must be 1-15 characters, letters and numbers only.';
+        result.className = '';
+        return;
+      }
+      if (!passwordRegex.test(password)) {
+        result.textContent = 'Password must be 6-15 characters, letters and numbers only.';
         result.className = '';
         return;
       }
@@ -269,11 +283,24 @@
           result.className = 'success';
           setTimeout(() => window.location.href = '/login.html', 1000);
         } else {
-          result.textContent = `Error: ${data.error}`;
+          // Database constraint errors
+          if (data.error && typeof data.error === 'string') {
+            if (data.error.includes('CK_Username')) {
+              result.textContent = 'Username must be 1-15 characters, letters and numbers only.';
+            } else if (data.error.includes('CK_Password')) {
+              result.textContent = 'Password must be 6-15 characters, letters and numbers only.';
+            } else if (data.error.toLowerCase().includes('duplicate key')) {
+              result.textContent = 'Username already exists. Please choose another.';
+            } else {
+              result.textContent = `Error: ${data.error}`;
+            }
+          } else {
+            result.textContent = 'Sign up failed. Please try again.';
+          }
           result.className = '';
         }
       } catch (err) {
-        result.textContent = 'Network error: Unable to connect to server';
+        result.textContent = 'Network error: Unable to connect to server.';
         result.className = '';
         console.error('Fetch error:', err);
       }
