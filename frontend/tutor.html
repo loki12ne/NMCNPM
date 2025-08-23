@@ -575,29 +575,8 @@
         questionsDiv.innerHTML = '';
 
         if (res.ok && data.questions) {
-          // Filter out questions that already have answers
-          const unansweredQuestions = [];
-          
-          for (const q of data.questions) {
-            try {
-              const answerRes = await fetch(`${BASE_URL}/questions/answer/${q.question_id}`, { 
-                credentials: 'include' 
-              });
-              
-              // Only include questions that don't have answers (404 or empty response)
-              if (!answerRes.ok) {
-                unansweredQuestions.push(q);
-              } else {
-                const answerData = await answerRes.json();
-                if (!answerData || !answerData.text_content) {
-                  unansweredQuestions.push(q);
-                }
-              }
-            } catch (err) {
-              // If there's an error checking for answers, include the question
-              unansweredQuestions.push(q);
-            }
-          }
+          // Filter unanswered questions using is_answered field
+          const unansweredQuestions = data.questions.filter(q => q.is_answered === false);
 
           const questionCount = unansweredQuestions.length;
           questionsCount.textContent = `${questionCount} question${questionCount !== 1 ? 's' : ''}`;
