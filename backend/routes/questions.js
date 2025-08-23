@@ -133,20 +133,20 @@ router.post('/', isAuthenticated, upload_single_file.single('file'), async (req,
   const file = req.file;
 
   if (!username) {
-    return res.status(401).json({ error: 'User not authenticated' });
+    return res.status(401).json({ error: 'User not authenticated.' });
   }
   if (!text_content || !subject) {
-    return res.status(400).json({ error: 'Missing text or subject' });
+    return res.status(400).json({ error: 'Missing question text or subject.' });
   }
   const allowedSubjects = ['toán', 'lý', 'hoá', 'Math', 'Physics', 'Chemistry'];
   if (!allowedSubjects.includes(subject)) {
-    return res.status(400).json({ error: 'Invalid subject' });
+    return res.status(400).json({ error: 'Invalid subject.' });
   }
 
   try {
     const userCheck = await client.query('SELECT username FROM Accounts WHERE username = $1', [username]);
     if (userCheck.rows.length === 0) {
-      return res.status(400).json({ error: 'User does not exist' });
+      return res.status(400).json({ error: 'User does not exist.' });
     }
     let img_url = null;
     let pdf_url = null;
@@ -157,7 +157,7 @@ router.post('/', isAuthenticated, upload_single_file.single('file'), async (req,
       } else if (ext === 'pdf') {
         pdf_url = file.path;
       } else {
-        return res.status(400).json({ error: 'Chỉ cho phép upload ảnh hoặc PDF.' });
+        return res.status(400).json({ error: 'Only image or PDF files are allowed.' });
       }
     }
     const query = 'INSERT INTO Questions (username, text_content, subject, img_url, pdf_url, date_posted) VALUES ($1, $2, $3, $4, $5, NOW()) RETURNING question_id';
@@ -165,7 +165,7 @@ router.post('/', isAuthenticated, upload_single_file.single('file'), async (req,
     const question_id = result.rows[0].question_id;
     // Notification cho admin
     await addNotification(client, 'admin', 'answer', `New question posted by ${username}`, question_id, 'question');
-    res.json({ message: 'Question posted successfully', question_id });
+  res.json({ message: 'Question posted successfully.', question_id });
   } catch (err) {
     console.error('Question post error:', err);
     res.status(500).json({ error: 'Server error: ' + err.message });
@@ -202,7 +202,7 @@ router.get('/', isAuthenticated, async (req, res) => {
       ORDER BY q.date_posted DESC
     `;
     const result = await client.query(query, values);
-    res.json({ questions: result.rows });
+  res.json({ questions: result.rows });
   } catch (err) {
     console.error('Questions fetch error:', err);
     res.status(500).json({ error: 'Server error' });
@@ -218,13 +218,13 @@ router.post('/:id/like', isAuthenticated, async (req, res) => {
       [question_id, username]
     );
     if (check.rows.length > 0) {
-      return res.status(400).json({ error: 'Bạn đã like câu hỏi này rồi.' });
+      return res.status(400).json({ error: 'You have already liked this question.' });
     }
     await client.query(
       'INSERT INTO QuestionLikes (question_id, username) VALUES ($1, $2)',
       [question_id, username]
     );
-    res.json({ message: 'Đã like câu hỏi.' });
+  res.json({ message: 'Question liked.' });
   } catch (err) {
     console.error('Like error:', err);
     res.status(500).json({ error: 'Server error' });
@@ -240,9 +240,9 @@ router.delete('/:id/like', isAuthenticated, async (req, res) => {
       [question_id, username]
     );
     if (del.rowCount === 0) {
-      return res.status(400).json({ error: 'Bạn chưa like câu hỏi này.' });
+      return res.status(400).json({ error: 'You have not liked this question yet.' });
     }
-    res.json({ message: 'Đã bỏ like.' });
+    res.json({ message: 'Like removed.' });
   } catch (err) {
     console.error('Unlike error:', err);
     res.status(500).json({ error: 'Server error' });
@@ -255,7 +255,7 @@ router.post('/answer', isAuthenticated, isTutor, upload_answer_files.array('file
   const files = req.files;
 
   if (!question_id || !text_content) {
-    return res.status(400).json({ error: 'Missing question_id or text_content.' });
+    return res.status(400).json({ error: 'Missing question ID or answer content.' });
   }
 
   try {
@@ -264,7 +264,7 @@ router.post('/answer', isAuthenticated, isTutor, upload_answer_files.array('file
       [question_id]
     );
     if (existingAnswer.rows.length > 0) {
-      return res.status(400).json({ error: 'Câu hỏi này đã được trả lời.' });
+      return res.status(400).json({ error: 'This question has already been answered.' });
     }
 
     const question = await client.query(
@@ -272,7 +272,7 @@ router.post('/answer', isAuthenticated, isTutor, upload_answer_files.array('file
       [question_id]
     );
     if (question.rows.length === 0) {
-      return res.status(404).json({ error: 'Câu hỏi không tồn tại.' });
+      return res.status(404).json({ error: 'Question does not exist.' });
     }
     const user_ask = question.rows[0].username;
 
@@ -292,7 +292,7 @@ router.post('/answer', isAuthenticated, isTutor, upload_answer_files.array('file
     await save_answer_files(answer_id, files, client);
     await addNotification(client, user_ask, 'answer', `Your question has been answered by ${user_answer}`, question_id, 'question');
 
-    res.json({ message: 'Câu trả lời đã được gửi thành công.' });
+  res.json({ message: 'Answer submitted successfully.' });
   } catch (err) {
     console.error('Answer error:', err);
     res.status(500).json({ error: 'Server error: ' + err.message });
@@ -304,7 +304,7 @@ router.post('/feedback', isAuthenticated, isLearner, async (req, res) => {
   const username = req.session.user.username;
 
   if (!question_id || !rating || rating < 1 || rating > 5) {
-    return res.status(400).json({ error: 'Missing question_id or invalid rating (1-5).' });
+    return res.status(400).json({ error: 'Missing question ID or invalid rating (1-5).' });
   }
 
   try {
@@ -317,7 +317,7 @@ router.post('/feedback', isAuthenticated, isLearner, async (req, res) => {
     );
     if (answer.rows.length === 0) {
       await client.query('ROLLBACK');
-      return res.status(400).json({ error: 'Câu hỏi chưa được trả lời.' });
+      return res.status(400).json({ error: 'This question has not been answered yet.' });
     }
 
     const tutorUsername = answer.rows[0].user_answer;
@@ -340,7 +340,7 @@ router.post('/feedback', isAuthenticated, isLearner, async (req, res) => {
     );
 
     await client.query('COMMIT');
-    res.json({ message: 'Phản hồi đã được gửi thành công.' });
+  res.json({ message: 'Feedback submitted successfully.' });
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('Feedback error:', err);
@@ -360,7 +360,7 @@ router.get('/answer/:questionId', isAuthenticated, async (req, res) => {
     );
 
     if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Không tìm thấy câu trả lời.' });
+      return res.status(404).json({ error: 'Answer not found.' });
     }
 
     res.json(result.rows[0]);
@@ -392,7 +392,7 @@ router.get('/feedback/:questionId', isAuthenticated, async (req, res) => {
 router.get('/my-questions', isAuthenticated, async (req, res) => {
   try {
     const username = req.session.user?.username;
-    if (!username) return res.status(401).json({ error: 'Chưa đăng nhập' });
+  if (!username) return res.status(401).json({ error: 'Not logged in.' });
     const result = await getQuestionsByUser(username, client);
     res.json({ questions: result.rows });
   } catch (err) {
@@ -404,7 +404,7 @@ router.get('/my-questions', isAuthenticated, async (req, res) => {
 router.get('/my-answers', isAuthenticated, async (req, res) => {
   try {
     const username = req.session.user?.username;
-    if (!username) return res.status(401).json({ error: 'Chưa đăng nhập' });
+  if (!username) return res.status(401).json({ error: 'Not logged in.' });
     const result = await getAnswersByUser(username, client);
     res.json({ answers: result.rows });
   } catch (err) {
@@ -423,7 +423,7 @@ router.get('/feedback-by-tutor/:username', isAuthenticated, async (req, res) => 
     if (req.session.user.role !== 'admin') {
       return res.status(403).json({ 
         success: false, 
-        error: 'Only admin can view tutor feedback' 
+        error: 'Only admin can view tutor feedback.' 
       });
     }
     
