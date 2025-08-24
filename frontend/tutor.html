@@ -560,9 +560,11 @@
       }
     }
 
-    /**
-     * Load questions - only show unanswered questions for tutors
-     */
+    // Store questions globally for search
+    let allQuestions = [];
+    let filteredQuestions = [];
+
+    // Load questions and initialize search
     async function loadQuestions() {
       try {
         const res = await fetch(`${BASE_URL}/questions`, {
@@ -570,83 +572,106 @@
           credentials: 'include'
         });
         const data = await res.json();
-        const questionsDiv = document.getElementById('questions');
-        const questionsCount = document.getElementById('questionsCount');
-        questionsDiv.innerHTML = '';
-
         if (res.ok && data.questions) {
           // Filter unanswered questions using is_answered field
-          const unansweredQuestions = data.questions.filter(q => q.is_answered === false);
-
-          const questionCount = unansweredQuestions.length;
-          questionsCount.textContent = `${questionCount} question${questionCount !== 1 ? 's' : ''}`;
-
-          if (questionCount === 0) {
-            questionsDiv.innerHTML = '<div class="no-questions">All questions have been answered! 🎉</div>';
-            return;
-          }
-
-          // Display only unanswered questions
-          unansweredQuestions.forEach(q => {
-            const div = document.createElement('div');
-            div.className = 'question-card';
-
-            div.innerHTML = `
-              <div class="question-meta">
-                <div class="meta-left">
-                  <span class="subject-tag">${q.subject}</span>
-                </div>
-                <div class="meta-right">
-                  
-                </div>
-              </div>
-              <div class="question-content">
-                <p class="question-text">${q.text_content}</p>
-              </div>
-              <div class="question-footer">
-                <div class="question-info">
-                  <div class="user-info">
-                    <span class="user-icon">
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M20.5899 22C20.5899 18.13 16.7399 15 11.9999 15C7.25991 15 3.40991 18.13 3.40991 22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
-                    </span>
-                    ${q.username}
-                  </div>
-                  <div class="date">
-                    ${new Date(q.date_posted).toLocaleDateString()}
-                  </div>
-                </div>
-                <a href="/answer.html?question_id=${q.question_id}" class="answer-btn">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M8 12H16M12 8V16M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                  Answer Question
-                </a>
-              </div>
-            `;
-            questionsDiv.appendChild(div);
-          });
+          allQuestions = data.questions.filter(q => q.is_answered === false);
+          filteredQuestions = [...allQuestions];
+          displayQuestions(filteredQuestions);
         } else {
-          questionsCount.textContent = '0 questions';
-          questionsDiv.innerHTML = `<div class="error">Server error: ${data.error || 'Unknown error'}</div>`;
+          displayQuestions([]);
+          document.getElementById('questionsCount').textContent = '0 questions';
+          document.getElementById('questions').innerHTML = `<div class="error">Server error: ${data.error || 'Unknown error'}</div>`;
         }
       } catch (err) {
-        document.getElementById('questions').innerHTML = '<div class="error">Network error or server unavailable</div>';
+        displayQuestions([]);
         document.getElementById('questionsCount').textContent = '0 questions';
+        document.getElementById('questions').innerHTML = '<div class="error">Network error or server unavailable</div>';
         console.error('Fetch error:', err);
       }
     }
 
+    // Display questions
+    function displayQuestions(questions) {
+      const questionsDiv = document.getElementById('questions');
+      const questionsCount = document.getElementById('questionsCount');
+      questionsDiv.innerHTML = '';
+      const questionCount = questions.length;
+      questionsCount.textContent = `${questionCount} question${questionCount !== 1 ? 's' : ''}`;
+      if (questionCount === 0) {
+        questionsDiv.innerHTML = '<div class="no-questions">All questions have been answered! 🎉</div>';
+        return;
+      }
+      questions.forEach(q => {
+        const div = document.createElement('div');
+        div.className = 'question-card';
+        div.innerHTML = `
+          <div class="question-meta">
+            <div class="meta-left">
+              <span class="subject-tag">${q.subject}</span>
+            </div>
+            <div class="meta-right">
+              
+            </div>
+          </div>
+          <div class="question-content">
+            <p class="question-text">${q.text_content}</p>
+          </div>
+          <div class="question-footer">
+            <div class="question-info">
+              <div class="user-info">
+                <span class="user-icon">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M20.5899 22C20.5899 18.13 16.7399 15 11.9999 15C7.25991 15 3.40991 18.13 3.40991 22" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+                ${q.username}
+              </div>
+              <div class="date">
+                ${new Date(q.date_posted).toLocaleDateString()}
+              </div>
+            </div>
+            <a href="/answer.html?question_id=${q.question_id}" class="answer-btn">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 12H16M12 8V16M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Answer Question
+            </a>
+          </div>
+        `;
+        questionsDiv.appendChild(div);
+      });
+    }
+
     // Search functionality
+    document.getElementById('searchInput').addEventListener('input', function() {
+      const searchTerm = this.value.trim().toLowerCase();
+      if (!searchTerm) {
+        filteredQuestions = [...allQuestions];
+      } else {
+        filteredQuestions = allQuestions.filter(q =>
+          q.subject.toLowerCase().includes(searchTerm) ||
+          q.text_content.toLowerCase().includes(searchTerm) ||
+          q.username.toLowerCase().includes(searchTerm)
+        );
+      }
+      displayQuestions(filteredQuestions);
+    });
+
     document.getElementById('searchInput').addEventListener('keypress', function(e) {
       if (e.key === 'Enter') {
-        const searchTerm = this.value.trim();
-        if (searchTerm) {
-          console.log('Searching for:', searchTerm);
-          // TODO: Implement search functionality
+        e.preventDefault();
+        const searchTerm = this.value.trim().toLowerCase();
+        if (!searchTerm) {
+          filteredQuestions = [...allQuestions];
+        } else {
+          filteredQuestions = allQuestions.filter(q =>
+            q.subject.toLowerCase().includes(searchTerm) ||
+            q.text_content.toLowerCase().includes(searchTerm) ||
+            q.username.toLowerCase().includes(searchTerm)
+          );
         }
+        displayQuestions(filteredQuestions);
       }
     });
 
